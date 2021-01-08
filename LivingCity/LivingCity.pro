@@ -8,7 +8,7 @@ unix {
     LIBS += -L/opt/local/lib -lopencv_imgcodecs -lopencv_core -lopencv_imgproc
 	# -L/Developer/NVIDIA/CUDA-7.5/lib -lcudart -lcublas -lgomp
     INCLUDEPATH += \
-      /usr/include/opencv2/ \
+      /usr/include/opencv2 \
       /opt/local/include/ \ 
       /usr/local/boost_1_59_0/ \
       $$PWD/glew/include/
@@ -172,7 +172,7 @@ unix {
   # Cuda sources
   CUDA_SOURCES += traffic/b18CUDA_trafficSimulator.cu
   # Path to cuda toolkit install
-  CUDA_DIR = /usr/local/cuda-9.0
+  CUDA_DIR = /usr/local/cuda-9.2
   INCLUDEPATH += $$CUDA_DIR/include
   QMAKE_LIBDIR += $$CUDA_DIR/lib64
   # GPU architecture
