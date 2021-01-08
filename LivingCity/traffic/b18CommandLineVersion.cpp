@@ -13,9 +13,6 @@
 #include "traffic/b18TrafficSP.h"
 #include "../roadGraphB2018Loader.h"
 
-#ifdef B18_RUN_WITH_GUI
-#include "b18TestSimpleRoadAndOD.h"
-#endif
 
 namespace LC {
 

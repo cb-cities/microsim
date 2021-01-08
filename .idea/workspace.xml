@@ -10,103 +10,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0ef61b52-3e00-4a51-8023-a96dbe9ba253" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/LivingCity/PM/pmBlocks.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/PM/pmBlocks.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/PM/pmBuildings.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/PM/pmBuildings.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/PM/pmMain.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/PM/pmMain.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/PM/pmParcels.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/PM/pmParcels.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/PM/pmRoads.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/PM/pmRoads.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOBlocks.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOBlocks.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOBuilding.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOBuilding.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOGUI.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOGUI.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOModel.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOModel.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOModel_StreetElements.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOModel_StreetElements.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOPeopleJobInfoLayer.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOPeopleJobInfoLayer.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBORenderManager.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBORenderManager.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBORoadGraph.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBORoadGraph.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBORoadLabels.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBORoadLabels.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOShader.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOShader.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOSkyBox.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOSkyBox.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOTerrain.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOTerrain.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOText.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOText.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOUtil.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOUtil.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOVegetation.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOVegetation.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOWater.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/VBOWater.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bCPUTrafficThread.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bCPUTrafficThread.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bCUDA_trafficSimulator.cu" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bCUDA_trafficSimulator.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bEdgeIntersectionData.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bGenerateTest.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bGenerateTest.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bPMTrafficPerson.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bPMTrafficPerson.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bTrafficConstants.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bTrafficDijkstra.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bTrafficDijkstra.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bTrafficIntersection.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bTrafficIntersection.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bTrafficJohnson.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bTrafficJohnson.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bTrafficLaneMap.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bTrafficLaneMap.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bTrafficPeople.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bTrafficSimulator.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/bTraffic/bTrafficSimulator.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/glew/include/GL/glew.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/glew/lib/OpenGL32.Lib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/glew/lib/glew32.lib" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/glew32.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/nvModel/nvMath.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/nvModel/nvMatrix.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/nvModel/nvModel.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/nvModel/nvModel.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/nvModel/nvModelObj.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/nvModel/nvModelQuery.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/nvModel/nvQuaternion.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/nvModel/nvVector.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaEdgeData.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaGridPollution.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaGridPollution.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaPmTrafficPersonJob.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaPmTrafficPersonJob.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficDesigner.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficDesigner.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficLaneMap.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficLaneMap.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficMCMC.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficMCMC.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficPerson.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficPersonPath.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficPersonPath.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficPersonShortestPath.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficPersonShortestPath.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficRoutes.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficRoutes.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficSimulator.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/cudaTrafficSimulator.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/triangle/triangle.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LivingCity/triangle/triangle.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LivingCity/LC_UrbanMain.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LivingCity/LC_UrbanMain.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LivingCity/LC_UrbanMain.qrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LivingCity/LC_UrbanMain.ui" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LivingCity/LC_UrbanMain_.qrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LivingCity/LC_main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/LivingCity/LC_main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LivingCity/LivingCities.vcxproj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LivingCity/LivingCities.vcxproj.filters" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LivingCity/LivingCities.vcxproj.user" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LivingCity/traffic/b18CommandLineVersion.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/LivingCity/traffic/b18CommandLineVersion.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -119,11 +33,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/LivingCity/LivingCity.pro">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-179">
-              <caret line="16" column="1" lean-forward="true" selection-start-line="16" selection-start-column="1" selection-end-line="16" selection-end-column="1" />
+            <state relative-caret-position="-988">
+              <caret line="16" column="1" selection-start-line="16" selection-start-column="1" selection-end-line="16" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -131,12 +45,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/LivingCity/LC_main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="9" column="27" selection-start-line="9" selection-start-column="27" selection-end-line="9" selection-end-column="27" />
-              <folding>
-                <element signature="e#140#189#0" expanded="true" />
-                <element signature="e#446#862#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="68">
+              <caret line="4" column="39" selection-start-line="4" selection-start-column="18" selection-end-line="4" selection-end-column="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18CommandLineVersion.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1702">
+              <caret line="8" column="29" lean-forward="true" selection-start-line="8" selection-start-column="29" selection-end-line="8" selection-end-column="29" />
             </state>
           </provider>
         </entry>
@@ -163,6 +82,9 @@
       <find>render</find>
       <find>urbanMain</find>
       <find>bTraf</find>
+      <find>VBOPeopleJobInfoLayer.h</find>
+      <find>B18_RUN_WITH_GUI</find>
+      <find>loader</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -171,13 +93,13 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/LivingCity/traffic/b18CommandLineVersion.cpp" />
         <option value="$PROJECT_DIR$/LivingCity/traffic/b18CommandLineVersion.h" />
         <option value="$PROJECT_DIR$/LivingCity/traffic/b18CUDA_trafficSimulator.cu" />
-        <option value="$PROJECT_DIR$/LivingCity/LC_main.cpp" />
         <option value="$PROJECT_DIR$/LivingCity/misctools/misctools.h" />
         <option value="$PROJECT_DIR$/LivingCity/traffic/b18TrafficSimulator.cpp" />
         <option value="$PROJECT_DIR$/LivingCity/traffic/b18TrafficSimulator.h" />
+        <option value="$PROJECT_DIR$/LivingCity/LC_main.cpp" />
+        <option value="$PROJECT_DIR$/LivingCity/traffic/b18CommandLineVersion.cpp" />
       </list>
     </option>
   </component>
@@ -221,6 +143,11 @@
               <item name="LivingCity" type="462c0819:PsiDirectoryNode" />
               <item name="traffic" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="manta" type="b2602c69:ProjectViewProjectNode" />
+              <item name="manta" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -256,15 +183,16 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1609972163662</updated>
-      <workItem from="1609972166014" duration="7611000" />
+      <workItem from="1609972166014" duration="9140000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="7611000" />
+    <option name="totallyTimeSpent" value="9140000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1416" y="87" width="1710" height="894" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Favorites" side_tool="true" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21882494" />
@@ -275,7 +203,7 @@
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32917705" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.30174562" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.30049875" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -294,16 +222,6 @@
     <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18TrafficDijkstra.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-279" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18CommandLineVersion.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" selection-start-line="5" selection-end-line="5" />
-          <folding>
-            <element signature="e#314#349#0" expanded="true" />
-          </folding>
-        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18TrafficPerson.h">
@@ -330,27 +248,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18CUDA_trafficSimulator.cu">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="24" selection-start-line="8" selection-start-column="24" selection-end-line="8" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LivingCity/LC_UrbanMain.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="22" column="11" selection-start-line="22" selection-start-column="11" selection-end-line="22" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18CUDA_trafficSimulator.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="16" column="23" selection-start-line="16" selection-start-column="12" selection-end-line="16" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/LivingCity/RoadGraph/roadGraph.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="331">
@@ -361,11 +258,6 @@
     <entry file="file://$PROJECT_DIR$/LivingCity/Geometry/block.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-343" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LivingCity/LC_UrbanMain.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-663" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/LivingCity/RoadGraph/roadGraph.h">
@@ -405,13 +297,6 @@
     <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18TrafficLaneMap.h">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18CommandLineVersion.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18TrafficSimulator.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
@@ -430,21 +315,79 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/LivingCity/LC_main.cpp">
+    <entry file="file://$PROJECT_DIR$/LivingCity/LC_UrbanMain.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="27" selection-start-line="9" selection-start-column="27" selection-end-line="9" selection-end-column="27" />
-          <folding>
-            <element signature="e#140#189#0" expanded="true" />
-            <element signature="e#446#862#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="-305">
+          <caret line="22" column="11" selection-start-line="22" selection-start-column="11" selection-end-line="22" selection-end-column="11" />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/benchmarker.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="27" column="25" lean-forward="true" selection-start-line="27" selection-start-column="25" selection-end-line="27" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/benchmarker.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="29" column="29" lean-forward="true" selection-start-line="29" selection-start-column="29" selection-end-line="29" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/linux_host_memory_logger.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/LivingCity/LivingCity.pro">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-179">
-          <caret line="16" column="1" lean-forward="true" selection-start-line="16" selection-start-column="1" selection-end-line="16" selection-end-column="1" />
+        <state relative-caret-position="-988">
+          <caret line="16" column="1" selection-start-line="16" selection-start-column="1" selection-end-line="16" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LivingCity/LC_GLWidget3D.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="16" column="25" lean-forward="true" selection-start-line="16" selection-start-column="25" selection-end-line="16" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LivingCity/LC_UrbanMain.cpp">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18CommandLineVersion.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LivingCity/LC_main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="39" selection-start-line="4" selection-start-column="18" selection-end-line="4" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18CUDA_trafficSimulator.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="159">
+          <caret line="11" column="29" lean-forward="true" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18CUDA_trafficSimulator.cu">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-6922">
+          <caret line="13" column="22" lean-forward="true" selection-start-line="13" selection-start-column="22" selection-end-line="13" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LivingCity/traffic/b18CommandLineVersion.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1702">
+          <caret line="8" column="29" lean-forward="true" selection-start-line="8" selection-start-column="29" selection-end-line="8" selection-end-column="29" />
         </state>
       </provider>
     </entry>
