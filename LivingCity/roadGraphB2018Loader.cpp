@@ -11,7 +11,7 @@
 using namespace std;
 
 #include "Geometry/client_geometry.h"
-#include "bTraffic/bTrafficIntersection.h"
+#include "traffic/bTrafficIntersection.h"
 #include "global.h"
 #include "roadGraphB2018Loader.h"
 

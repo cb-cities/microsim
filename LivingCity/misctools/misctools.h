@@ -49,29 +49,6 @@
 namespace LC {
 namespace misctools {
 
-#ifdef B18_RUN_WITH_GUI
-/**
-	drawCone Funtion to draw a cone
-	d--> axis vector of the cone (direction)
-	a--> apex (end of cone)
-	h--> height
-	r--> radious
-	n--> number of divisions
-**/
-void drawCone(const QVector3D &d, const QVector3D &a,
-	      const qreal h, const qreal rd, const int n);
-
-//********************
-// Rendering of geometric primitives
-//********************
-
-/**
-* Render circle parallel to XY plane, centered in X, Y, Z, and with radius r
-**/
-void renderCircle(float x, float y, float z, float radius);
-void renderPolyline(Loop3D &loopIn, bool closed);
-#endif
-
 bool loadPolygonsFromFile(QString filename, std::vector<Polygon3D> &polygons);
 
 bool loadPolygonFromFile(QString filename, Polygon3D &polygon);

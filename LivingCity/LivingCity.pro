@@ -5,8 +5,7 @@ DESTDIR     = $$PWD
 OBJECTS_DIR = $$DESTDIR/obj
 
 unix {
-    LIBS += -L/opt/local/lib -lopencv_imgcodecs -lopencv_core -lopencv_imgproc
-	# -L/Developer/NVIDIA/CUDA-7.5/lib -lcudart -lcublas -lgomp
+    LIBS += -L/opt/local/lib -lopencv_imgcodecs -lopencv_core -lopencv_imgproc -lchrouting
     INCLUDEPATH += \
       /usr/include/opencv2 \
       /opt/local/include/ \ 
@@ -14,27 +13,6 @@ unix {
       $$PWD/glew/include/
 
     CONFIG += debug
-}
-win32{
-    # Note: OpenCV uses 2.4.12 since I compiled with VS 2013 (vc12)
-    LIBS+= \
-        $$(OPENCV_BUILD)/x64/vc12/lib/opencv_core2412.lib \ # e.g., OPENCV_BUILD=D:\opencv\build
-        $$(OPENCV_BUILD)/x64/vc12/lib/opencv_imgproc2412.lib \
-        $$(OPENCV_BUILD)/x64/vc12/lib/opencv_highgui2412.lib \
-        $$(OPENCV_BUILD)/x64/vc12/lib/opencv_legacy2412.lib \
-        $$(OPENCV_BUILD)/x64/vc12/lib/opencv_ml2412.lib \
-        $$(OPENCV_BUILD)/x64/vc12/lib/opencv_photo2412.lib \
-        $$(OPENCV_BUILD)/x64/vc12/lib/opencv_video2412.lib \
-
-
-    INCLUDEPATH += \
-        $$(OPENCV_BUILD)/include/opencv \ # e.g., OPENCV_BUILD=D:\opencv\build
-        $$(OPENCV_BUILD)/include/opencv2 \
-        $$(OPENCV_BUILD)/include \
-        $$(BOOST_ROOT) \ # e.g., BOOST_ROOT = D:\boost\boost_1_59_0
-        $$PWD/glew/include/
-
-    CONFIG += console # show printf in terminal
 }
 
 HEADERS += \
@@ -76,6 +54,7 @@ HEADERS += \
     traffic/sp/external/tsl/robin_hash.h \
     traffic/sp/external/tsl/robin_map.h \
     traffic/sp/external/tsl/robin_set.h \
+    pandana_ch/accessibility.h\
 
 SOURCES += \
     Geometry/block.cpp \
@@ -113,60 +92,6 @@ OTHER_FILES += \
 ###################################################################
 ## CUDA
 ###################################################################
-win32{
-    # Cuda sources
-    CUDA_SOURCES += traffic/b18CUDA_trafficSimulator.cu
-
-    # Path to cuda toolkit install
-    CUDA_DIR      = "D:/CUDA"
-
-    # Path to header and libs files
-    INCLUDEPATH  += $$CUDA_DIR/include
-    QMAKE_LIBDIR += $$CUDA_DIR/lib/x64
-
-    SYSTEM_TYPE = 64            # '32' or '64', depending on your system
-
-    # libs used in your code
-    LIBS += -lcuda -lcudart
-    CUDA_LIBS += -lcuda -lcudart # LIBS
-
-    # GPU architecture
-    CUDA_ARCH     = sm_50
-
-    # Here are some NVCC flags I've always used by default.
-    NVCCFLAGS     = --use_fast_math
-
-
-    # Prepare the extra compiler configuration (taken from the nvidia forum - i'm not an expert in this part)
-    CUDA_INC = $$join(INCLUDEPATH,'" -I"','-I"','"')
-
-
-    # MSVCRT link option (static or dynamic, it must be the same with your Qt SDK link option)
-    MSVCRT_LINK_FLAG_DEBUG = "/MDd"
-    MSVCRT_LINK_FLAG_RELEASE = "/MD"
-
-    QMAKE_EXTRA_COMPILERS += cuda
-
-    # Configuration of the Cuda compiler
-    CONFIG(debug, debug|release) {
-        # Debug mode
-        cuda_d.input = CUDA_SOURCES
-        cuda_d.output = $$OBJECTS_DIR/${QMAKE_FILE_BASE}.obj
-        cuda_d.commands = $$CUDA_DIR/bin/nvcc.exe -D_DEBUG $$NVCC_OPTIONS $$CUDA_INC $$CUDA_LIBS --machine $$SYSTEM_TYPE \
-                         -arch=$$CUDA_ARCH -c -Xcompiler $$MSVCRT_LINK_FLAG_DEBUG -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_NAME}
-        cuda_d.dependency_type = TYPE_C
-        QMAKE_EXTRA_COMPILERS += cuda_d
-    }
-    else {
-        # Release mode
-        cuda.input = CUDA_SOURCES
-        cuda.output = $$OBJECTS_DIR/${QMAKE_FILE_BASE}.obj
-        cuda.commands = $$CUDA_DIR/bin/nvcc.exe $$NVCC_OPTIONS $$CUDA_INC $$CUDA_LIBS --machine $$SYSTEM_TYPE \
-                       -arch=$$CUDA_ARCH -c -Xcompiler $$MSVCRT_LINK_FLAG_RELEASE -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_NAME}
-        cuda.dependency_type = TYPE_C
-        QMAKE_EXTRA_COMPILERS += cuda
-    }
-}
 
 unix {
   # Cuda sources
