@@ -9,7 +9,7 @@
 #include "qcoreapplication.h"
 
 #include "sp/graph.h"
-#include "accessibility.h"
+#include "../pandana_ch/accessibility.h"
 #include "traffic/b18TrafficSP.h"
 #include "../roadGraphB2018Loader.h"
 
