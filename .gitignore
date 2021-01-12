@@ -12,7 +12,7 @@
 *.ilk
 /LivingCity/berkeley_2018
 /LivingCity/LivingCity
-
+/.idea/
 *.swp  # Vim swap files
 .qmake.stash
 Makefile

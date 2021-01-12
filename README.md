@@ -1,6 +1,6 @@
-# manta
+# Microsim
 
-Microsimulation Analysis for Network Traffic Assignment. MANTA employs a highly parallelized GPU implementation that is fast enough to run simulations on large-scale demand and networks within a few minutes - metropolitan and regional scale with hundreds of thousands of nodes and edges and millions of trips. We test our platform to simulate the entire Bay Area metropolitan region over the course of the morning using half-second time steps. The runtime for the nine-county Bay Area simulation is just over four minutes, not including routing and initialization. This computational performance significantly improves state of the art in large-scale traffic microsimulation and offers new capacity for analyzing the detailed travel patterns and travel choices of individuals for infrastructure planning and emergency management.
+Microsim is a simplified version of MANTA, Microsimulation Analysis for Network Traffic Assignment (https://github.com/UDST/manta). MANTA employs a highly parallelized GPU implementation that is fast enough to run simulations on large-scale demand and networks within a few minutes - metropolitan and regional scale with hundreds of thousands of nodes and edges and millions of trips. We test our platform to simulate the entire Bay Area metropolitan region over the course of the morning using half-second time steps. The runtime for the nine-county Bay Area simulation is just over four minutes, not including routing and initialization. This computational performance significantly improves state of the art in large-scale traffic microsimulation and offers new capacity for analyzing the detailed travel patterns and travel choices of individuals for infrastructure planning and emergency management.
 
 ![](https://github.com/UDST/manta/blob/main/bay_bridge_trips.png)
 
@@ -8,7 +8,7 @@ Microsimulation Analysis for Network Traffic Assignment. MANTA employs a highly 
 
  - Boost 1.59
  - OpenCV (used versions: 3.2.0 in Ubuntu)
- - CUDA (used versions: 9.0 in Ubuntu)
+ - CUDA (used versions: 9.2 in Ubuntu)
  - g++ (used versions: 6.4.0 in Ubuntu)
  - Qt5 (used versions: 5.9.5 in Ubuntu)
  - qmake (used versions: 3.1 in Ubuntu)
@@ -22,13 +22,11 @@ Microsimulation Analysis for Network Traffic Assignment. MANTA employs a highly 
 
 ## Installation & Compilation
 
-Once the necessary dependencies are installed, you can use the following lines to make sure the
-correct versions of each one are used:
+Once the necessary dependencies are installed, add CUDA lib path to system paths:
 ```bash
-export PATH=/usr/local/cuda-9.0/bin:$PATH
-export LIBRARY_PATH=/usr/local/cuda-9.0/lib64:$LIBRARY_PATH 
-export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/{YOUR_USERNAME}/pandana/src
+export PATH=/usr/local/cuda-9.2/bin:$PATH
+export LIBRARY_PATH=/usr/local/cuda-9.2/lib64:$LIBRARY_PATH 
+export LD_LIBRARY_PATH=/usr/local/cuda-9.2/lib64:$LD_LIBRARY_PATH 
 ```
 
 You can also add the `export` lines at the end of your user's `~/.bashrc` to
@@ -36,53 +34,12 @@ avoid re-entering them in each session.
 
 Clone the repo in your home directory with:
 ```bash
-git clone git@github.com:udst/manta.git ~/manta && cd ~/manta
+git clone https://github.com/cb-cities/microsim.git ~/microsim && cd ~/microsim
 ```
-
-Clone the [Pandana repository](https://github.com/UDST/pandana) to your home directory and switch to the `vectorized-paths` branch. This is necessary since MANTA now uses a fast contraction hierarchies framework for shortest path routing. Previously implemented shortest path frameworks include Johnson's all pairs shortest path and a parallelized Dijkstra's priority queue.
-
-Create `Makefile` and compile with:
+Create Makefile and compile with:
 ```bash
 sudo qmake LivingCity/LivingCity.pro && sudo make -j
 ```
-
-Importantly, because MANTA uses a shared library from Pandana, a Pandana makefile must be created (to create a shared object file) and the MANTA makefile must be modified.
-
-Pandana `Makefile`:
-
-1. Create Makefile in `pandana/src/` containing the following:
-
-```# Makefile for pandana C++ contraction hierarchy library
-
-CC = gcc  # C compiler
-CXX = g++
-CPPFLAGS = -DLINUX -DMAC -std=c++0x -c -fPIC -g -O3 -Wall -pedantic -fopenmp  # C flags
-LDFLAGS = -shared   # linking flags
-RM = rm -f   # rm command
-TARGET_LIB = libchrouting.so  # target lib
-
-SRCS =  accessibility.cpp graphalg.cpp contraction_hierarchies/src/libch.cpp
-
-OBJS = $(SRCS:.cpp=.o)
-
-.PHONY: all
-all: ${TARGET_LIB}
-
-$(TARGET_LIB): $(OBJS)
-        $(CXX) ${LDFLAGS} -o $@ $^
-
-.PHONY: clean
-clean:
-        -${RM} ${TARGET_LIB} ${OBJS}
-```
-2. Run `make`.
-
-MANTA `Makefile`:
-
-1. Add `-I/home/{YOUR_USERNAME}/pandana/src` to `INCPATH`.
-2. Add `-L/home/{YOUR_USERNAME}/pandana/src -lchrouting` to `LIBS`.
-3. Run `sudo make -j`.
-
 
 ## Data
 
