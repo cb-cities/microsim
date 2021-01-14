@@ -1,7 +1,7 @@
 /************************************************************************************************
-*		@desc Class that finds the path for each person using Johnsons
-*		@author igaciad
-************************************************************************************************/
+ *		@desc Class that finds the path for each person using Johnsons
+ *		@author igaciad
+ ************************************************************************************************/
 #ifndef LC_B18_TRAFFIC_SP_H
 #define LC_B18_TRAFFIC_SP_H
 
@@ -18,11 +18,11 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../RoadGraph/roadGraph.h"
+#include "b18TrafficPerson.h"
+#include "sp/graph.h"
 #include "src/benchmarker.h"
 #include "src/linux_host_memory_logger.h"
-#include "b18TrafficPerson.h"
-#include "../RoadGraph/roadGraph.h"
-#include "sp/graph.h"
 //#include "sp/external/csv.h"
 #include "omp.h"
 
@@ -32,33 +32,38 @@
 namespace LC {
 class B18TrafficSP {
 
- public:
-	 
-  static std::vector<abm::graph::vertex_t> compute_routes(int mpi_rank,
-                                                          int mpi_size,
-                                                          const std::shared_ptr<abm::Graph>& graph_,
-                                                          const std::vector<std::array<abm::graph::vertex_t, 2>>& od_pairs);
+public:
+  static std::vector<abm::graph::vertex_t> compute_routes(
+      int mpi_rank, int mpi_size, const std::shared_ptr<abm::Graph> &graph_,
+      const std::vector<std::array<abm::graph::vertex_t, 2>> &od_pairs);
 
-  static std::vector<std::array<abm::graph::vertex_t, 2>> make_od_pairs(std::vector<B18TrafficPerson> trafficPersonVec,
-                                                                        int nagents);
+  static std::vector<std::array<abm::graph::vertex_t, 2>>
+  make_od_pairs(std::vector<B18TrafficPerson> trafficPersonVec, int nagents);
 
-  static std::vector<std::array<abm::graph::vertex_t, 2>> read_od_pairs(const std::string& filename, int nagents);
-  
-  static std::vector<float> read_dep_times(const std::string& filename);
+  static std::vector<std::array<abm::graph::vertex_t, 2>>
+  read_od_pairs(const std::string &filename, int nagents);
 
-  static void convertVector(std::vector<abm::graph::edge_id_t> paths_SP, std::vector<uint>& indexPathVec, std::vector<uint> &edgeIdToLaneMapNum, const std::shared_ptr<abm::Graph>& graph_);
+  static std::vector<float> read_dep_times(const std::string &filename);
 
-  explicit B18TrafficSP(const std::shared_ptr<abm::Graph>& graph) : graph_{graph} {};
- private:
-  //all od pairs
-  std::shared_ptr<std::vector<std::array<abm::graph::vertex_t, 2>>> all_od_pairs_;
+  static void convertVector(std::vector<abm::graph::edge_id_t> paths_SP,
+                            std::vector<uint> &indexPathVec,
+                            std::vector<uint> &edgeIdToLaneMapNum,
+                            const std::shared_ptr<abm::Graph> &graph_);
 
-  //graph (street network)
+  explicit B18TrafficSP(const std::shared_ptr<abm::Graph> &graph)
+      : graph_{graph} {};
+
+private:
+  // all od pairs
+  std::shared_ptr<std::vector<std::array<abm::graph::vertex_t, 2>>>
+      all_od_pairs_;
+
+  // graph (street network)
   std::shared_ptr<abm::Graph> graph_;
 
-  //all paths
+  // all paths
   std::vector<abm::graph::vertex_t> all_paths_;
 };
-} //namespace LC
+} // namespace LC
 
-#endif  // LC_B18_TRAFFIC_SP_H
+#endif // LC_B18_TRAFFIC_SP_H

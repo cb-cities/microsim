@@ -1,14 +1,9 @@
-
-/************************************************************************************************
-*		@desc Class to load the B2018 road graph
-*		@author igarciad
-************************************************************************************************/
 #pragma once
 
 #include "RoadGraph/roadGraph.h"
-#include <QString>
 #include "traffic/b18TrafficSP.h"
 #include "traffic/sp/graph.h"
+#include <QString>
 
 namespace LC {
 
@@ -17,34 +12,46 @@ public:
   int num_people;
   int src_vertex;
   int tgt_vertex;
-  DemandB2018(int num_people, int src_vertex, int tgt_vertex): 
-    num_people(num_people), src_vertex(src_vertex), tgt_vertex(tgt_vertex) {}
+  DemandB2018(int num_people, int src_vertex, int tgt_vertex)
+      : num_people(num_people), src_vertex(src_vertex), tgt_vertex(tgt_vertex) {
+  }
 };
 
 /**
-* RoadGraph.
-**/
+ * RoadGraph.
+ **/
 class RoadGraphB2018 {
 
- public:
+public:
+  RoadGraphB2018(const std::string &networkPath,
+                 const std::string &odDemandPath) {
+    edgeFileName_ = networkPath + "edges.csv";
+    nodeFileName_ = networkPath + "nodes.csv";
+    odFileName_ = networkPath + odDemandPath;
+    street_graph_ = std::make_shared<abm::Graph>(true, networkPath);
+  };
 
-  /**
-  * Load
-  **/
-  static void loadB2018RoadGraph(
-    RoadGraph &inRoadGraph,
-    QString networkPath);
-  
-  static std::string loadABMGraph(
-    const std::string& networkPath,
-    const std::string& odDemandPath,
-    const std::shared_ptr<abm::Graph>& graph_,
-    int start_time, int end_time);
+  //! Destructor
+  ~RoadGraphB2018() = default;
 
-  static std::vector<DemandB2018> demandB2018;
-  static int totalNumPeople;
-  static QHash<int, uint64_t> indToNodeIndex;
+  void loadABMGraph();
 
+  std::vector<std::array<abm::graph::vertex_t, 2>>
+  read_od_pairs(int nagents = std::numeric_limits<int>::max());
+
+  std::vector<float> read_dep_times();
+
+  const std::shared_ptr<abm::Graph> street_graph() const {
+    return street_graph_;
+  }
+
+private:
+  std::string edgeFileName_;
+  std::string nodeFileName_;
+  std::string odFileName_;
+  std::shared_ptr<abm::Graph> street_graph_;
+  std::vector<DemandB2018> demandB2018_;
+  unsigned long totalNumPeople_;
 };
 
-}
+} // namespace LC
