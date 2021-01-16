@@ -1,12 +1,12 @@
 #pragma once
 
-#include <qt5/QtCore/QString>
 #include <string>
 #include <qt5/QtCore/QSettings>
+#include <qt5/QtCore/qcoreapplication.h>
 
 #include "traffic/b18TrafficSimulator.h"
-//#include "Geometry/client_geometry.h"
-#include "qcoreapplication.h"
+#include "Geometry/client_geometry.h"
+
 #include "../roadGraphB2018Loader.h"
 #include "pandana_ch/accessibility.h"
 #include "sp/graph.h"

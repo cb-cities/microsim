@@ -6,42 +6,19 @@
 #ifndef LC_B18_TRAFFIC_SIMULATOR_H
 #define LC_B18_TRAFFIC_SIMULATOR_H
 
-#include "../misctools/misctools.h"
+#include <qt5/QtCore/QSettings>
+#include <qt5/QtCore/qcoreapplication.h>
 
+#include "misctools/misctools.h"
 #include "b18TrafficOD.h"
 #include "b18TrafficLaneMap.h"
-
-#ifdef B18_RUN_WITH_GUI
-#include "../VBOPeopleJobInfoLayer.h"
-#include "../VBORenderManager.h"
-#endif
-
 #include "b18GridPollution.h"
+#include "roadGraphB2018Loader.h"
 
 
 namespace LC {
 
 class LCUrbanMain;
-
-class B18TrafficSimulatorRender {
- public:
-  std::vector<QVector3D> positions;
-  std::vector<QVector3D> directions;
-  std::vector<bool> goodPoints;
-  int indexToRead;
-
-  bool getInterpolated(bool goodPoint, QVector3D newPos, QVector3D newDir,
-                       QVector3D &interPos, QVector3D &interDir);
-};//
-
-class B18TrafficLightRender {
- public:
-  std::vector<uchar> trafficLight;
-  int indexToRead;
-
-  void getInterpolated(uchar newTrafficLight, uchar &interTrafficLight);
-};//
-
 
 class B18TrafficSimulator {
 
@@ -93,13 +70,9 @@ class B18TrafficSimulator {
   std::vector<B18TrafficPerson> trafficPersonVec;
   std::vector<uint> indexPathVec;
 
-#ifdef B18_RUN_WITH_GUI
-  void createRandomPeople(float startTime, float endTime, int numberPeople,
-                          PeopleJobInfoLayers &peopleJobInfoLayers);
-#endif
   void createB2018People(float startTime, float endTime, int limitNumPeople, bool addRandomPeople, bool useSP);
   
-  void createB2018PeopleSP(float startTime, float endTime, int limitNumPeople, bool addRandomPeople, const std::shared_ptr<abm::Graph>& graph_, std::vector<float> dep_times);
+  void createB2018PeopleSP(float startTime, float endTime, const std::shared_ptr<RoadGraphB2018> graph_loader, std::vector<float> dep_times);
 
   void resetPeopleJobANDintersections();
   void saveODToFile() {}; // TODO
@@ -119,12 +92,6 @@ class B18TrafficSimulator {
     const std::shared_ptr<abm::Graph>& graph_,
     const std::vector<abm::graph::edge_id_t>& paths_SP,
     int start_time, int end_time);
-    
-#ifdef B18_RUN_WITH_GUI
-  void render(VBORenderManager &rendManager);
-#endif
-  std::vector<B18TrafficSimulatorRender> b18TrafficSimulatorRender;
-  std::vector<B18TrafficLightRender> b18TrafficLightRender;
 
   // pollution
   B18GridPollution gridPollution;

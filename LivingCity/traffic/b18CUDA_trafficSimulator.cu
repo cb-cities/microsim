@@ -10,7 +10,7 @@
 #include <vector>
 #include <iostream>
 
-#include "../../src/benchmarker.h"
+#include "../src/benchmarker.h"
 #include "sp/config.h"
 
 #ifndef ushort

@@ -64,4 +64,27 @@ std::vector<float> RoadGraphB2018::read_dep_times() {
   return dep_time_vec;
 }
 
+std::vector<std::vector<long>> RoadGraphB2018::edge_vals() {
+  std::vector<std::vector<long>> edge_vals;
+  for (auto const &x : street_graph_->edges_) {
+    std::vector<long> edge_nodes = {std::get<0>(x.first), std::get<1>(x.first)};
+    edge_vals.emplace_back(edge_nodes);
+  }
+
+  return edge_vals;
+}
+
+std::vector<std::vector<double>> RoadGraphB2018::edge_weights() {
+  std::vector<std::vector<double>> edge_weights;
+  std::vector<double> edge_weights_inside_vec;
+  edge_weights_inside_vec.reserve(street_graph_->edges_.size());
+
+  for (auto const &x : street_graph_->edges_) {
+    double metersLength = std::get<1>(x)->second[0];
+    edge_weights_inside_vec.emplace_back(metersLength);
+  }
+  edge_weights.emplace_back(edge_weights_inside_vec);
+  return edge_weights;
+}
+
 } // namespace LC

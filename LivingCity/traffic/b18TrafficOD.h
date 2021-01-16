@@ -22,10 +22,9 @@
 #include "sp/graph.h"
 
 #include <boost/graph/dijkstra_shortest_paths.hpp>
-#ifdef B18_RUN_WITH_GUI
-#include "../VBOPeopleJobInfoLayer.h"
-#endif
 #include <random>
+#include <qt5/QtGui/QVector3D>
+#include <roadGraphB2018Loader.h>
 
 namespace LC {
 class B18TrafficOD {
@@ -44,17 +43,6 @@ class B18TrafficOD {
   void randomPerson(int p, B18TrafficPerson &person, uint srcvertex,
                     uint tgtvertex, float startTimeH);
 
-#ifdef B18_RUN_WITH_GUI
-  void sampleDistribution(int numberToSample, PeopleJobOneLayer &distribution,
-                          std::vector<QVector2D> &samples, QString &name);
-  // generate random
-  void createRandomPeople(int numberPerGen,
-                          float startTimeH, float endTimeH,
-                          std::vector<B18TrafficPerson> &trafficPersonVec,
-                          PeopleJobInfoLayers &simPeopleJobInfoLayersn,
-                          LC::RoadGraph::roadBGLGraph_BI &roadGraph);
-#endif
-
   // generate from b18
   void loadB18TrafficPeople(float startTimeH, float endTimeH,
       std::vector<B18TrafficPerson> &trafficPersonVec, RoadGraph::roadBGLGraph_BI &roadGraph,
@@ -62,7 +50,7 @@ class B18TrafficOD {
 
   void loadB18TrafficPeopleSP(float startTimeH, float endTimeH,
     std::vector<B18TrafficPerson> &trafficPersonVec, // out
-    const std::shared_ptr<abm::Graph>& graph_, const int limitNumPeople, const bool addRandomPeople, std::vector<float> dep_times);
+    const std::shared_ptr<RoadGraphB2018>& graph_loader, std::vector<float> dep_times);
 
   void resetTrafficPersonJob(std::vector<B18TrafficPerson> &trafficPersonVec);
 };

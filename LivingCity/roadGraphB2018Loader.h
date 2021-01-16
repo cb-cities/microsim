@@ -45,6 +45,15 @@ public:
     return street_graph_;
   }
 
+  std::vector<std::vector<long>> edge_vals();
+
+  std::vector<std::vector<double>> edge_weights();
+
+  const unsigned long totalNumPeople() const {return totalNumPeople_;}
+
+  const std::vector<DemandB2018> & demand() const {return demandB2018_;}
+
+
 private:
   std::string edgeFileName_;
   std::string nodeFileName_;

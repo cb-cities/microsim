@@ -30,89 +30,89 @@ bool myfunction(std::array<abm::graph::vertex_t, 2> i,
 }
 
 // Convert OD pairs to SP graph format
-std::vector<std::array<abm::graph::vertex_t, 2>>
-B18TrafficSP::make_od_pairs(std::vector<B18TrafficPerson> trafficPersonVec,
-                            int nagents) {
-  bool status = true;
-  std::vector<std::array<abm::graph::vertex_t, 2>> od_pairs;
-  try {
-    abm::graph::vertex_t v1, v2;
-    abm::graph::weight_t weight;
-    printf("trafficPersonSize = %d\n", trafficPersonVec.size());
-    for (int person = 0; person < trafficPersonVec.size(); person++) {
-      // for (int person = 0; person < 1; person++) {
-      v1 = trafficPersonVec[person].init_intersection;
-      v2 = trafficPersonVec[person].end_intersection;
-      std::array<abm::graph::vertex_t, 2> od = {v1, v2};
-      od_pairs.emplace_back(od);
-    }
-    if (nagents != std::numeric_limits<int>::max())
-      od_pairs.resize(nagents);
+        std::vector<std::array<abm::graph::vertex_t, 2>>
+        B18TrafficSP::make_od_pairs(std::vector<B18TrafficPerson> trafficPersonVec,
+                                    int nagents) {
+            bool status = true;
+            std::vector<std::array<abm::graph::vertex_t, 2>> od_pairs;
+            try {
+                abm::graph::vertex_t v1, v2;
+                abm::graph::weight_t weight;
+                printf("trafficPersonSize = %d\n", trafficPersonVec.size());
+                for (int person = 0; person < trafficPersonVec.size(); person++) {
+                    // for (int person = 0; person < 1; person++) {
+                    v1 = trafficPersonVec[person].init_intersection;
+                    v2 = trafficPersonVec[person].end_intersection;
+                    std::array<abm::graph::vertex_t, 2> od = {v1, v2};
+                    od_pairs.emplace_back(od);
+                }
+                if (nagents != std::numeric_limits<int>::max())
+                    od_pairs.resize(nagents);
 
-    sort(od_pairs.begin(), od_pairs.end());
-    // od_pairs.erase( unique( od_pairs.begin(), od_pairs.end() ),
-    // od_pairs.end() );
+                sort(od_pairs.begin(), od_pairs.end());
+                // od_pairs.erase( unique( od_pairs.begin(), od_pairs.end() ),
+                // od_pairs.end() );
 
-    /*
-    //make sure all OD pairs are unique
-    std::sort(od_pairs.begin(), od_pairs.end());
-    auto last = std::unique(od_pairs.begin(), od_pairs.end());
-      // using default comparison:
-  std::array<abm::graph::vertex_t, 2>::iterator it;
-  it = std::unique (od_pairs.begin(), od_pairs.end());   // 10 20 30 20 10 ?  ?
-  ?  ?
-                                                         //                ^
+                /*
+                //make sure all OD pairs are unique
+                std::sort(od_pairs.begin(), od_pairs.end());
+                auto last = std::unique(od_pairs.begin(), od_pairs.end());
+                  // using default comparison:
+              std::array<abm::graph::vertex_t, 2>::iterator it;
+              it = std::unique (od_pairs.begin(), od_pairs.end());   // 10 20 30 20 10 ?  ?
+              ?  ?
+                                                                     //                ^
 
-  od_pairs.resize( std::distance(od_pairs.begin(),it) ); // 10 20 30 20 10
-  */
-    // using predicate comparison:
-    // std::unique (od_pairs.begin(), od_pairs.end(), myfunction);   // (no
-    // changes) for (int i = 0; i < od_pairs.size(); i++) { printf("vertex %d =
-    // %llu %llu\n", i, od_pairs[i].first, od_pairs[i].second); printf("vertex %d
-    // = %llu %llu\n", i, std::get<0>(od_pairs[i]), std::get<1>(od_pairs[i]));
-    //}
-    // od_pairs.erase(last, od_pairs.end());
-    /*
-    for (int i = 0; i < od_pairs.size(); i++) {
-            printf("vertex %d = %llu %llu\n", i, std::get<0>(od_pairs[i]),
-    std::get<1>(od_pairs[i]));
-    }
-    */
+              od_pairs.resize( std::distance(od_pairs.begin(),it) ); // 10 20 30 20 10
+              */
+                // using predicate comparison:
+                // std::unique (od_pairs.begin(), od_pairs.end(), myfunction);   // (no
+                // changes) for (int i = 0; i < od_pairs.size(); i++) { printf("vertex %d =
+                // %llu %llu\n", i, od_pairs[i].first, od_pairs[i].second); printf("vertex %d
+                // = %llu %llu\n", i, std::get<0>(od_pairs[i]), std::get<1>(od_pairs[i]));
+                //}
+                // od_pairs.erase(last, od_pairs.end());
+                /*
+                for (int i = 0; i < od_pairs.size(); i++) {
+                        printf("vertex %d = %llu %llu\n", i, std::get<0>(od_pairs[i]),
+                std::get<1>(od_pairs[i]));
+                }
+                */
 
-  } catch (std::exception &exception) {
-    std::cout << "Looping through trafficPersonVec doesn't work "
-              << exception.what() << "\n";
-    status = false;
-  }
-  return od_pairs;
-}
+            } catch (std::exception &exception) {
+                std::cout << "Looping through trafficPersonVec doesn't work "
+                          << exception.what() << "\n";
+                status = false;
+            }
+            return od_pairs;
+        }
 
-// Read OD pairs file format
-std::vector<std::array<abm::graph::vertex_t, 2>>
-B18TrafficSP::read_od_pairs(const std::string &filename, int nagents) {
-  bool status = true;
-  std::vector<std::array<abm::graph::vertex_t, 2>> od_pairs;
-  try {
-    csvio::CSVReader<2> in(filename);
-    in.read_header(csvio::ignore_extra_column, "origin", "destination");
-    abm::graph::vertex_t v1, v2;
-    abm::graph::weight_t weight;
-    while (in.read_row(v1, v2)) {
-      // std::array<abm::graph::vertex_t, 2> od = {v1, v2};
-      std::array<abm::graph::vertex_t, 2> od = {v1, v2};
-      od_pairs.emplace_back(od);
-      RoadGraphB2018::demandB2018.push_back(
-          DemandB2018(1, v1, v2)); // there is only one person for each OD pair
-    }
-    RoadGraphB2018::totalNumPeople = RoadGraphB2018::demandB2018.size();
-    if (nagents != std::numeric_limits<int>::max())
-      od_pairs.resize(nagents);
-  } catch (std::exception &exception) {
-    std::cout << "Read OD file: " << exception.what() << "\n";
-    status = false;
-  }
-  return od_pairs;
-}
+//// Read OD pairs file format
+//        std::vector<std::array<abm::graph::vertex_t, 2>>
+//        B18TrafficSP::read_od_pairs(const std::string &filename, int nagents) {
+//            bool status = true;
+//            std::vector<std::array<abm::graph::vertex_t, 2>> od_pairs;
+//            try {
+//                csvio::CSVReader<2> in(filename);
+//                in.read_header(csvio::ignore_extra_column, "origin", "destination");
+//                abm::graph::vertex_t v1, v2;
+//                abm::graph::weight_t weight;
+//                while (in.read_row(v1, v2)) {
+//                    // std::array<abm::graph::vertex_t, 2> od = {v1, v2};
+//                    std::array<abm::graph::vertex_t, 2> od = {v1, v2};
+//                    od_pairs.emplace_back(od);
+//                    RoadGraphB2018::demandB2018.push_back(
+//                            DemandB2018(1, v1, v2)); // there is only one person for each OD pair
+//                }
+//                RoadGraphB2018::totalNumPeople = RoadGraphB2018::demandB2018.size();
+//                if (nagents != std::numeric_limits<int>::max())
+//                    od_pairs.resize(nagents);
+//            } catch (std::exception &exception) {
+//                std::cout << "Read OD file: " << exception.what() << "\n";
+//                status = false;
+//            }
+//            return od_pairs;
+//}
 
 // Read OD pairs file format
 std::vector<float> B18TrafficSP::read_dep_times(const std::string &filename) {
