@@ -5,13 +5,11 @@ namespace LC {
 // using namespace std::chrono;
 
 void B18CommandLineVersion::runB18Simulation() {
-  QSettings settings = QSettings(QCoreApplication::applicationDirPath() +
-                         "command_line_options.ini",
-                     QSettings::IniFormat);
-  bool useJohnsonRouting =
-      settings.value("USE_JOHNSON_ROUTING", false).toBool();
+  auto settings = QSettings("../command_line_options.ini",
+                            QSettings::IniFormat);
+  bool useJohnsonRouting = false;
   bool useSP = settings.value("USE_SP_ROUTING", true).toBool();
-  bool usePrevPaths = settings.value("USE_PREV_PATHS", true).toBool();
+  bool usePrevPaths = settings.value("USE_PREV_PATHS", false).toBool();
 
   auto networkPath =
       settings.value("NETWORK_PATH", "../berkeley_2018/new_full_network/")
