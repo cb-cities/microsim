@@ -5,7 +5,7 @@ namespace LC {
 // using namespace std::chrono;
 
 void B18CommandLineVersion::runB18Simulation() {
-  auto settings = QSettings("../command_line_options.ini",
+    QSettings settings("./command_line_options.ini",
                             QSettings::IniFormat);
   bool useJohnsonRouting = false;
   bool useSP = settings.value("USE_SP_ROUTING", true).toBool();
@@ -108,6 +108,8 @@ void B18CommandLineVersion::runB18Simulation() {
     routingCH.stopAndEndBenchmark();
 
     CHoutputNodesToEdgesConversion.startMeasuring();
+    std::cout<<all_paths_ch.size()<<"; " << all_paths_ch[0].size()<<std::endl;
+      std::cout<<all_paths_ch.size()<<"; " << all_paths_ch[10].size()<<std::endl;
     // convert from nodes to edges
     for (int i = 0; i < all_paths_ch.size(); i++) {
       for (int j = 0; j < all_paths_ch[i].size() - 1; j++) {

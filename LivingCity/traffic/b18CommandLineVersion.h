@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <qt5/QtCore/QSettings>
+#include <QSettings>
 #include <qt5/QtCore/qcoreapplication.h>
 
 #include "traffic/b18TrafficSimulator.h"

@@ -343,35 +343,6 @@ void B18TrafficSimulator::simulateInGPU(
         timerLoop.restart();
       }
 
-#ifdef B18_RUN_WITH_GUI
-
-      if (clientMain != nullptr &&
-          clientMain->ui.b18RenderSimulationCheckBox->isChecked()) {
-        steps++;
-
-        if (steps % clientMain->ui.b18RenderStepSpinBox->value() ==
-            0) { // each "steps" steps, render
-
-          Benchmarker getDataCudatrafficPersonAndEdgesData(
-              "Get data trafficPersonVec");
-          b18GetDataCUDA(trafficPersonVec); // trafficLights
-          getDataCudatrafficPersonAndEdgesData.startMeasuring();
-          getDataCudatrafficPersonAndEdgesData.stopAndEndBenchmark();
-          QString timeT;
-
-          int timeH = currentTime / 3600.0f;
-          int timeM = (currentTime - timeH * 3600.0f) / 60.0f;
-          timeT.sprintf("%d:%02d", timeH, timeM);
-          clientMain->ui.b18TimeLCD->display(timeT);
-
-          QApplication::processEvents();
-          QApplication::processEvents();
-          clientMain->glWidget3D->updateGL();
-          QApplication::processEvents();
-        }
-      }
-
-#endif
       currentTime += deltaTime;
     }
     std::cout << "Total # iterations = " << count << "\n";
@@ -429,13 +400,6 @@ void B18TrafficSimulator::simulateInGPU(
   G::global()["cuda_render_displaylist_staticRoadsBuildings"] =
       3; // kill display list
 
-#ifdef B18_RUN_WITH_GUI
-
-  if (clientMain != nullptr) {
-    clientMain->glWidget3D->updateGL();
-  }
-
-#endif
   microsimulationInGPU.stopAndEndBenchmark();
   finishCudaBench.stopAndEndBenchmark();
 } //
@@ -977,7 +941,7 @@ void simulateOnePersonCPU(uint p, float deltaTime, float currentTime,
         0x00) {                               // red
       s = ((float)(numOfCells - byteInLine)); // m
       delta_v = trafficPersonVec[p].v - 0;    // it should be treated as an
-                                           // obstacle
+                                              // obstacle
       nextVehicleIsATrafficLight = true;
 
       if (DEBUG_TRAFFIC == 1) {
