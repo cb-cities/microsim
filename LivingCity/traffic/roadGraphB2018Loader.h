@@ -41,18 +41,17 @@ public:
 
   std::vector<float> read_dep_times();
 
-  const std::shared_ptr<abm::Graph> street_graph() const {
-    return street_graph_;
-  }
+  std::shared_ptr<abm::Graph> street_graph() const { return street_graph_; }
 
   std::vector<std::vector<long>> edge_vals();
 
   std::vector<std::vector<double>> edge_weights();
 
-  const unsigned long totalNumPeople() const {return totalNumPeople_;}
+  const unsigned long totalNumPeople() const { return totalNumPeople_; }
 
-  const std::vector<DemandB2018> & demand() const {return demandB2018_;}
+  const std::vector<DemandB2018> &demand() const { return demandB2018_; }
 
+  void map_person2init_edge (const std::vector<abm::graph::edge_id_t> & all_paths);
 
 private:
   std::string edgeFileName_;

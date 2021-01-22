@@ -281,7 +281,7 @@ void B18TrafficSimulator::simulateInGPU(
               << ">  Number of threads per block: " << threadsPerBlock
               << std::endl;
 
-    int iter_printout = 7200;
+    int iter_printout = 1600;
     int iter_printout_index = 0;
     int ind = 0;
     std::cerr << "Running main loop from " << (startTime / 3600.0f) << " to "
@@ -323,10 +323,14 @@ void B18TrafficSimulator::simulateInGPU(
         allEdgesVelBenchmark.startMeasuring();
         int index = 0;
         std::vector<float> avg_edge_vel(graph_->edges_.size());
+        std::vector<float> edge_volume(graph_->edges_.size());
+
         for (auto const &x : graph_->edges_) {
           ind = edgeDescToLaneMapNumSP[x.second];
+          edge_volume[index] = edgesData[ind].curr_iter_num_cars;
           avg_edge_vel[index] = edgesData[ind].curr_cum_vel /
                                 edgesData[ind].curr_iter_num_cars; // * 2.23694;
+
           index++;
         }
 
@@ -336,6 +340,14 @@ void B18TrafficSimulator::simulateInGPU(
         std::ofstream output_file(name);
         std::ostream_iterator<float> output_iterator(output_file, "\n");
         std::copy(avg_edge_vel.begin(), avg_edge_vel.end(), output_iterator);
+
+        // save avg_edge_vel vector to file
+        std::string name_volume =
+            "./all_edges_vol_" + std::to_string(iter_printout_index) + ".txt";
+        std::ofstream output_file_volume(name_volume);
+        std::ostream_iterator<float> output_iterator_volume(output_file_volume,
+                                                            "\n");
+        std::copy(edge_volume.begin(), edge_volume.end(), output_iterator);
         allEdgesVelBenchmark.stopAndEndBenchmark();
 
         iter_printout_index++;

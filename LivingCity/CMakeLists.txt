@@ -47,7 +47,7 @@ SET(microsim_src
         misctools/bounding_box.cpp
         misctools/misctools.cpp
         misctools/polygon_3D.cpp
-        roadGraphB2018Loader.cpp
+        traffic/roadGraphB2018Loader.cpp
         traffic/b18CommandLineVersion.cpp
         traffic/b18GridPollution.cpp
         traffic/b18TrafficDijkstra.cpp

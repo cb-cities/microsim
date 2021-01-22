@@ -7,7 +7,7 @@
 #include "traffic/b18TrafficSimulator.h"
 #include "Geometry/client_geometry.h"
 
-#include "../roadGraphB2018Loader.h"
+#include "roadGraphB2018Loader.h"
 #include "pandana_ch/accessibility.h"
 #include "sp/graph.h"
 #include "src/benchmarker.h"

@@ -87,4 +87,28 @@ std::vector<std::vector<double>> RoadGraphB2018::edge_weights() {
   return edge_weights;
 }
 
+void RoadGraphB2018::map_person2init_edge(
+    const std::vector<abm::graph::edge_id_t> &all_paths) {
+  int count = 0;
+  for (int i = 0; i < all_paths.size(); i++) {
+    if (i == 0) { // first one that doesn't contain a -1 for logic
+      street_graph_->person_to_init_edge_[count] = i;
+      count++;
+    } else if ((all_paths[i] == -1) &&
+               (all_paths[i + 1] == -1)) { // if current is -1 and next is -1,
+                                           // increment (will result in nan)
+      street_graph_->person_to_init_edge_[count] = i;
+      count++;
+    } else if ((all_paths[i] != -1) &&
+               (all_paths[i - 1] ==
+                -1)) { // if previous is -1, use this as first edge for p
+      street_graph_->person_to_init_edge_[count] = i;
+      count++;
+    } else if ((all_paths[i] == -1) &&
+               (i == (all_paths.size() - 1))) { // reach the end
+      break;
+    }
+  }
+}
+
 } // namespace LC
