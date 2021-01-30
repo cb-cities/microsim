@@ -279,7 +279,7 @@ void B18TrafficSimulator::simulateInGPU(
               << ">  Number of threads per block: " << threadsPerBlock
               << std::endl;
 
-    int iter_printout = 7200 / 4;
+    int iter_printout = 7200 / 12;
     int ind = 0;
     std::cerr << "Running main loop from " << (startTime / 3600.0f) << " to "
               << (endTime / 3600.0f) << " with " << trafficPersonVec.size()
@@ -316,17 +316,17 @@ void B18TrafficSimulator::simulateInGPU(
         getDataCudatrafficPersonAndEdgesData.stopAndEndBenchmark();
 
         int index = 0;
-        std::vector<unsigned > upstream_counts(graph_->edges_.size());
-        std::vector<unsigned > downstream_counts(graph_->edges_.size());
+        std::vector<unsigned> upstream_counts(graph_->edges_.size());
+        std::vector<unsigned> downstream_counts(graph_->edges_.size());
 
         for (auto const &x : graph_->edges_) {
           ind = edgeDescToLaneMapNumSP[x.second];
-            upstream_counts[index] = edgesData[ind].upstream_veh_count;
-            downstream_counts[index] = edgesData[ind].downstream_veh_count;
+          upstream_counts[index] = edgesData[ind].upstream_veh_count;
+          downstream_counts[index] = edgesData[ind].downstream_veh_count;
           index++;
         }
-        edge_upstream_count.emplace_back (upstream_counts);
-        edge_downstream_count.emplace_back (downstream_counts);
+        edge_upstream_count.emplace_back(upstream_counts);
+        edge_downstream_count.emplace_back(downstream_counts);
         timerLoop.restart();
       }
 
@@ -376,6 +376,7 @@ void B18TrafficSimulator::simulateInGPU(
     // G::global()["cuda_render_displaylist_staticRoadsBuildings"] = 1;//display
     // list
     fileOutput.startMeasuring();
+    save_edges(edge_upstream_count, edge_downstream_count);
     savePeopleAndRoutesSP(nP, graph_, paths_SP, (int)startTimeH, (int)endTimeH);
     fileOutput.stopAndEndBenchmark();
     getDataBench.stopAndEndBenchmark();
@@ -391,7 +392,6 @@ void B18TrafficSimulator::simulateInGPU(
   finishCudaBench.stopAndEndBenchmark();
 } //
 
-
 void writePeopleFile(int numOfPass, const std::shared_ptr<abm::Graph> &graph_,
                      int start_time, int end_time,
                      const std::vector<B18TrafficPerson> &trafficPersonVec,
@@ -404,24 +404,17 @@ void writePeopleFile(int numOfPass, const std::shared_ptr<abm::Graph> &graph_,
               << ")" << std::endl;
     QTextStream streamP(&peopleFile);
     streamP << "p,init_intersection,end_intersection,time_departure,num_steps,"
-               "co,gas,distance,a,b,T,avg_v(mph)\n";
+               "co,gas,distance,avg_v(mph)\n";
 
     for (int p = 0; p < trafficPersonVec.size(); p++) {
       streamP << p;
-      streamP
-          << ","
-          << graph_->nodeIndex_to_osmid_[trafficPersonVec[p].init_intersection];
-      streamP
-          << ","
-          << graph_->nodeIndex_to_osmid_[trafficPersonVec[p].end_intersection];
+      streamP << "," << trafficPersonVec[p].init_intersection;
+      streamP << "," << trafficPersonVec[p].end_intersection;
       streamP << "," << trafficPersonVec[p].time_departure;
       streamP << "," << trafficPersonVec[p].num_steps * deltaTime;
       streamP << "," << trafficPersonVec[p].co;
       streamP << "," << trafficPersonVec[p].gas;
       streamP << "," << trafficPersonVec[p].dist_traveled;
-      streamP << "," << trafficPersonVec[p].a;
-      streamP << "," << trafficPersonVec[p].b;
-      streamP << "," << trafficPersonVec[p].T;
       streamP << ","
               << (trafficPersonVec[p].cum_v / trafficPersonVec[p].num_steps) *
                      3600 / 1609.34;
@@ -521,254 +514,29 @@ void B18TrafficSimulator::savePeopleAndRoutesSP(
   }
 }
 
-void B18TrafficSimulator::savePeopleAndRoutes(int numOfPass) {
-  const bool saveToFile = true;
 
-  if (saveToFile) {
-    /////////////////////////////////
-    // SAVE TO FILE
-    QFile peopleFile(QString::number(numOfPass) + "_people.csv");
-    QFile routeFile(QString::number(numOfPass) + "_route.csv");
-    QFile routeCount(QString::number(numOfPass) + "_edge_route_count.csv");
 
-    if (peopleFile.open(QIODevice::ReadWrite) &&
-        routeFile.open(QIODevice::ReadWrite) &&
-        routeCount.open(QIODevice::ReadWrite)) {
+void B18TrafficSimulator::save_edges(
+    const std::vector<std::vector<unsigned>> &edge_upstream_count,
+    std::vector<std::vector<unsigned>> &edge_downstream_count) {
 
-      /////////////
-      // People Route
-      printf("Save route %d\n", trafficPersonVec.size());
-      QHash<uint, uint> laneMapNumCount;
-      QTextStream streamR(&routeFile);
-      std::vector<float> personDistance(trafficPersonVec.size(), 0.0f);
-      streamR << "p,route\n";
+  std::ofstream upFile("upstream_count.csv");
+  std::ofstream downFile("downstream_count.csv");
 
-      for (int p = 0; p < trafficPersonVec.size(); p++) {
-        streamR << p;
-        // Save route
-        uint index = 0;
-
-        while (indexPathVec[trafficPersonVec[p].indexPathInit + index] != -1) {
-          uint laneMapNum =
-              indexPathVec[trafficPersonVec[p].indexPathInit + index];
-
-          if (laneMapNumToEdgeDesc.count(laneMapNum) > 0) { // laneMapNum in map
-            streamR << ","
-                    << simRoadGraph
-                           ->myRoadGraph_BI[laneMapNumToEdgeDesc[laneMapNum]]
-                           .faci; // get id of the edge from the roadgraph
-            laneMapNumCount.insert(laneMapNum, laneMapNumCount.value(laneMapNum,
-                                                                     0) +
-                                                   1); // is it initialized?
-            personDistance[p] +=
-                simRoadGraph->myRoadGraph_BI[laneMapNumToEdgeDesc[laneMapNum]]
-                    .edgeLength;
-            index++;
-          } else {
-            // printf("Save route: This should not happen\n");
-            break;
-          }
-        }
-
-        streamR << "\n";
-      } // people
-
-      routeFile.close();
-
-      ///////////////
-      // People
-      printf("Save people %d\n", trafficPersonVec.size());
-      QTextStream streamP(&peopleFile);
-      streamP << "p,init_intersection,end_intersection,time_departure,num_"
-                 "steps,co,gas,distance,a,b,T\n";
-
-      for (int p = 0; p < trafficPersonVec.size(); p++) {
-        streamP << p;
-        streamP << "," << trafficPersonVec[p].init_intersection;
-        streamP << "," << trafficPersonVec[p].end_intersection;
-        streamP << "," << trafficPersonVec[p].time_departure;
-        streamP << "," << trafficPersonVec[p].num_steps;
-        streamP << "," << trafficPersonVec[p].co;
-        streamP << "," << trafficPersonVec[p].gas;
-        streamP << "," << personDistance[p];
-
-        streamP << "," << trafficPersonVec[p].a;
-        streamP << "," << trafficPersonVec[p].b;
-        streamP << "," << trafficPersonVec[p].T;
-        streamP << "\n";
-      } // people
-
-      peopleFile.close();
-
-      ////////////
-      // Per edge route count
-      printf("Save edge route count %d\n", laneMapNumCount.size());
-      QTextStream streamC(&routeCount);
-      QHash<uint, uint>::iterator i;
-
-      for (i = laneMapNumCount.begin(); i != laneMapNumCount.end(); ++i) {
-        uint laneMapNum = i.key();
-        streamC << simRoadGraph
-                       ->myRoadGraph_BI[laneMapNumToEdgeDesc[laneMapNum]]
-                       .faci; // get id of the edge from the roadgraph
-        streamC << "," << i.value();
-        streamC << "\n";
-      }
-
-      streamC << "\n";
-      routeCount.close();
+  for (const auto &et : edge_upstream_count) {
+    for (const auto &e : et) {
+      upFile << e << ",";
     }
+    upFile << "\n";
   }
 
-  printf("\n<<calculateAndDisplayTrafficDensity\n");
-} //
-
-void B18TrafficSimulator::calculateAndDisplayTrafficDensity(int numOfPass) {
-  int tNumLanes = trafficLights.size();
-  const float numStepsTogether = 12;
-  int numSampling = accSpeedPerLinePerTimeInterval.size() / tNumLanes;
-  printf(">>calculateAndDisplayTrafficDensity numSampling %d\n", numSampling);
-
-  RoadGraph::roadGraphEdgeIter_BI ei, eiEnd;
-  const bool saveToFile = true;
-  const bool updateSpeeds = true;
-
-  if (saveToFile) {
-    /////////////////////////////////
-    // SAVE TO FILE
-    QFile speedFile(QString::number(numOfPass) + "_average_speed.csv");
-    QFile utilizationFile(QString::number(numOfPass) + "_utilization.csv");
-
-    if (speedFile.open(QIODevice::ReadWrite) &&
-        utilizationFile.open(QIODevice::ReadWrite)) {
-      QTextStream streamS(&speedFile);
-      QTextStream streamU(&utilizationFile);
-
-      for (boost::tie(ei, eiEnd) = boost::edges(simRoadGraph->myRoadGraph_BI);
-           ei != eiEnd; ++ei) {
-        int numLanes = simRoadGraph->myRoadGraph_BI[*ei].numberOfLanes;
-
-        if (numLanes == 0) {
-          continue; // edges with zero lines just skip
-        }
-
-        int numLane = edgeDescToLaneMapNum[*ei];
-        //  0.8f to make easier to become red
-        float maxVehicles = 0.5f *
-                            simRoadGraph->myRoadGraph_BI[*ei].edgeLength *
-                            simRoadGraph->myRoadGraph_BI[*ei].numberOfLanes /
-                            (simParameters.s_0);
-
-        if (maxVehicles < 1.0f) {
-          maxVehicles = 1.0f;
-        }
-
-        streamS << simRoadGraph->myRoadGraph_BI[*ei].faci;
-        streamU << simRoadGraph->myRoadGraph_BI[*ei].faci;
-
-        for (int sa = 0; sa < numSampling - 1; sa++) {
-          uint offset = sa * tNumLanes;
-
-          // avarage speed
-          float averageSpeed;
-
-          if (numVehPerLinePerTimeInterval[numLane + offset] *
-                  numStepsTogether >
-              0) {
-            averageSpeed =
-                (accSpeedPerLinePerTimeInterval[numLane + offset]) /
-                ((float)numVehPerLinePerTimeInterval[numLane + offset]); //!!!!!
-          } else {
-            averageSpeed = -1.0f;
-          }
-
-          streamS << "," << averageSpeed;
-          // average utilization
-          float averageUtilization;
-          averageUtilization = numVehPerLinePerTimeInterval[numLane + offset] /
-                               (maxVehicles * numStepsTogether);
-          averageUtilization = std::min(1.0f, averageUtilization);
-          streamU << "," << averageUtilization;
-        }
-
-        streamS << "\n";
-        streamU << "\n";
-      }
+  for (const auto &et : edge_downstream_count) {
+    for (const auto &e : et) {
+      downFile << e << ",";
     }
-
-    speedFile.close();
-    utilizationFile.close();
+    downFile << "\n";
   }
-
-  if (updateSpeeds) {
-
-    ///////////////////////////////
-    // COMPUTE AVG SPEED TO UPDATE NETWORK FOR MULTI STEP (and display)
-    printPercentageMemoryUsed();
-
-    if (DEBUG_SIMULATOR) {
-      printf(">>calculateAndDisplayTrafficDensity Allocate memory numSampling "
-             "%d\n",
-             numSampling);
-    }
-
-    int count = 0;
-    printPercentageMemoryUsed();
-    printf(">>calculateAndDisplayTrafficDensity Process\n");
-
-    for (boost::tie(ei, eiEnd) = boost::edges(simRoadGraph->myRoadGraph_BI);
-         ei != eiEnd; ++ei) {
-      int numLanes = simRoadGraph->myRoadGraph_BI[*ei].numberOfLanes;
-
-      if (numLanes == 0) {
-        continue; // edges with zero lines just skip
-      }
-
-      int numLane = edgeDescToLaneMapNum[*ei];
-      // 0.8f to make easier to become red
-      float maxVehicles = 0.5f * simRoadGraph->myRoadGraph_BI[*ei].edgeLength *
-                          simRoadGraph->myRoadGraph_BI[*ei].numberOfLanes /
-                          (simParameters.s_0);
-
-      if (maxVehicles < 1.0f) {
-        maxVehicles = 1.0f;
-      }
-
-      float averageSpeed = 0.0f;
-      float averageUtilization = 0.0f;
-
-      for (int sa = 0; sa < numSampling - 1; sa++) {
-        uint offset = sa * tNumLanes;
-
-        ////////////////////////////////////////////////
-        // average speed
-
-        if (numVehPerLinePerTimeInterval[numLane + offset] * numStepsTogether >
-            0) {
-          averageSpeed +=
-              (accSpeedPerLinePerTimeInterval[numLane + offset]) /
-              ((float)numVehPerLinePerTimeInterval[numLane + offset]); //!!!!!
-        } else {
-          averageSpeed += simRoadGraph->myRoadGraph_BI[*ei].maxSpeedMperSec;
-        }
-
-        ///////////////////////////////
-        // average utilization
-        averageUtilization +=
-            std::min(1.0f, numVehPerLinePerTimeInterval[numLane + offset] /
-                               (maxVehicles * numStepsTogether));
-      }
-
-      simRoadGraph->myRoadGraph_BI[*ei].averageSpeed.resize(1);
-      simRoadGraph->myRoadGraph_BI[*ei].averageUtilization.resize(1);
-      simRoadGraph->myRoadGraph_BI[*ei].averageSpeed[0] =
-          averageSpeed / numSampling;
-      simRoadGraph->myRoadGraph_BI[*ei].averageUtilization[0] =
-          averageUtilization / numSampling;
-    }
-  }
-
-  printf("\n<<calculateAndDisplayTrafficDensity\n");
-} //
+}
+//
 
 } // namespace LC
