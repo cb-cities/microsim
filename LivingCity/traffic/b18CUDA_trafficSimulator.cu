@@ -531,6 +531,8 @@ __global__ void kernel_trafficSimulation(
                                             3); //speed in m/s *3 (to keep more precision
                     laneMap[mapToWriteShift + kMaxMapWidthM * (firstEdge + lN) + b] = vInMpS; //TODO(pavan): WHAT IS THIS?
                     placed = true;
+                    edgesData[firstEdge].upstream_veh_count += 1;
+
                     //printf("Placed\n");
                     break;
                 }
@@ -587,8 +589,9 @@ __global__ void kernel_trafficSimulation(
             // We also filter whenever 0 > elapsed_s > 5, because it causes manual_v to turn extraordinarily high
             if (elapsed_s > 5) {
                 trafficPersonVec[p].manual_v = edgesData[trafficPersonVec[p].prevEdge].length / elapsed_s;
-                edgesData[trafficPersonVec[p].prevEdge].curr_iter_num_cars += 1;
+                edgesData[trafficPersonVec[p].prevEdge].downstream_veh_count += 1;
                 edgesData[trafficPersonVec[p].prevEdge].curr_cum_vel += trafficPersonVec[p].manual_v;
+                edgesData[currentEdge].upstream_veh_count+=1;
             }
 
             trafficPersonVec[p].start_time_on_prev_edge = currentTime;

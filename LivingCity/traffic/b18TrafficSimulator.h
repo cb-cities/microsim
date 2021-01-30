@@ -23,12 +23,11 @@ class LCUrbanMain;
 class B18TrafficSimulator {
 
  public:
-  B18TrafficSimulator(float deltaTime, RoadGraph *geoRoadGraph, const parameters & simParameters, LCUrbanMain *urbanMain = nullptr);
+  B18TrafficSimulator(float deltaTime, RoadGraph *geoRoadGraph, const parameters & simParameters);
   ~B18TrafficSimulator();
 
   // init data
   RoadGraph *simRoadGraph;
-  LCUrbanMain *clientMain;
   parameters simParameters;
 
   float deltaTime;
@@ -39,15 +38,7 @@ class B18TrafficSimulator {
   B18TrafficOD b18TrafficOD;
   B18TrafficLaneMap b18TrafficLaneMap;
 
-  void simulateInCPU_MultiPass(int numOfPasses,
-                               float startTimeH, float endTimeH, bool useJohnsonRouting);
-  void simulateInCPU_Onepass(float startTimeH, float endTimeH,
-                             bool useJohnsonRouting);
-  void simulateInCPU(float startTimeH, float endTimeH);
 
-  //void simulateInGPU(int numOfPasses, float startTimeH, float endTimeH,
-  //                   bool useJohnsonRouting, bool useSP);
-  
   void simulateInGPU(int numOfPasses, float startTimeH, float endTimeH,
     bool useJohnsonRouting, bool useSP, const std::shared_ptr<abm::Graph>& graph_,
     std::vector<abm::graph::edge_id_t> paths_SP, const parameters & simParameters);

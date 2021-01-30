@@ -1,10 +1,10 @@
 /************************************************************************************************
-*
-*		LC Project - B18 Edge data
-*
-*		@author igaciad
-*
-************************************************************************************************/
+ *
+ *		LC Project - B18 Edge data
+ *
+ *		@author igaciad
+ *
+ ************************************************************************************************/
 
 #ifndef LC_B18_EDGE_DATA_H
 #define LC_B18_EDGE_DATA_H
@@ -35,16 +35,17 @@ struct B18EdgeData {
   float maxSpeedMperSec;
   uint nextIntersMapped;
   float curr_cum_vel = 0;
-  float curr_iter_num_cars = 0;
+  unsigned int upstream_veh_count = 0;
+  unsigned int downstream_veh_count = 0;
 };
 
 struct B18IntersectionData {
   ushort state;
   ushort stateLine;
   ushort totalInOutEdges;
-  uint edge[24];// up to six arms intersection
+  uint edge[24]; // up to six arms intersection
   float nextEvent;
 };
-}
+} // namespace LC
 
 #endif // LC_B18_EDGE_DATA_H

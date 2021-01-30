@@ -53,7 +53,7 @@ void B18CommandLineVersion::runB18Simulation() {
   Benchmarker simulationBench("Simulation task");
 
   /************************************************************************************************
-    Network loading
+    Network Building
   ************************************************************************************************/
   // make the graph from edges file and load the OD demand from od file
   loadNetwork.startMeasuring();
