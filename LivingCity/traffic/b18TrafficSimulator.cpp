@@ -190,8 +190,8 @@ void B18TrafficSimulator::simulateInGPU(
     for (auto const &x : graph_->edges_) {
       abm::graph::vertex_t vertex_u = std::get<0>(std::get<0>(x));
       abm::graph::vertex_t vertex_v = std::get<1>(std::get<0>(x));
-      u[index] = graph_->nodeIndex_to_osmid_[vertex_u];
-      v[index] = graph_->nodeIndex_to_osmid_[vertex_v];
+      u[index] = vertex_u;
+      v[index] = vertex_v;
       index++;
     }
 
@@ -233,8 +233,8 @@ void B18TrafficSimulator::simulateInGPU(
     initCudaBench.stopAndEndBenchmark();
 
     simulateBench.startMeasuring();
-    float startTime = startTimeH * 3600.0f; // 7.0f
-    float endTime = endTimeH * 3600.0f;     // 8.0f//10.0f
+    float startTime = 0;  // 7.0f
+    float endTime = 1200; // 8.0f//10.0f
 
     float currentTime = 23.99f * 3600.0f;
 
@@ -279,7 +279,7 @@ void B18TrafficSimulator::simulateInGPU(
               << ">  Number of threads per block: " << threadsPerBlock
               << std::endl;
 
-    int iter_printout = 7200 / 12;
+    int iter_printout = 120;
     int ind = 0;
     std::cerr << "Running main loop from " << (startTime / 3600.0f) << " to "
               << (endTime / 3600.0f) << " with " << trafficPersonVec.size()
@@ -315,14 +315,17 @@ void B18TrafficSimulator::simulateInGPU(
         b18GetDataCUDA(trafficPersonVec, edgesData);
         getDataCudatrafficPersonAndEdgesData.stopAndEndBenchmark();
 
-        int index = 0;
         std::vector<unsigned> upstream_counts(graph_->edges_.size());
         std::vector<unsigned> downstream_counts(graph_->edges_.size());
-
+        int index = 0;
         for (auto const &x : graph_->edges_) {
           ind = edgeDescToLaneMapNumSP[x.second];
-          upstream_counts[index] = edgesData[ind].upstream_veh_count;
-          downstream_counts[index] = edgesData[ind].downstream_veh_count;
+          std::tuple<abm::graph::vertex_t, abm::graph::vertex_t> edge_vertices =
+              std::get<1>(x)->first;
+          abm::graph::edge_id_t edge_id =
+              graph_->edge_ids_[get<0>(edge_vertices)][get<1>(edge_vertices)];
+          upstream_counts[edge_id] = edgesData[ind].upstream_veh_count;
+          downstream_counts[edge_id] = edgesData[ind].downstream_veh_count;
           index++;
         }
         edge_upstream_count.emplace_back(upstream_counts);
@@ -513,8 +516,6 @@ void B18TrafficSimulator::savePeopleAndRoutesSP(
     writeIndexPathVecFile(numOfPass, start_time, end_time, indexPathVec);
   }
 }
-
-
 
 void B18TrafficSimulator::save_edges(
     const std::vector<std::vector<unsigned>> &edge_upstream_count,
