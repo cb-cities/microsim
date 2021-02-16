@@ -4,6 +4,7 @@
 #include "curand_kernel.h"
 #include "device_launch_parameters.h"
 #include "assert.h"
+#include "cuda.h"
 
 #include "b18TrafficPerson.h"
 #include "b18EdgeData.h"
@@ -525,14 +526,15 @@ __global__ void kernel_trafficSimulation(
                         continue;
                     }
 
+                    trafficPersonVec[p].v = 0;
+                    trafficPersonVec[p].LC_stateofLaneChanging = 0;
                     trafficPersonVec[p].numOfLaneInEdge = lN;
                     trafficPersonVec[p].posInLaneM = b; //m
                     uchar vInMpS = (uchar) (trafficPersonVec[p].v *
                                             3); //speed in m/s *3 (to keep more precision
-                    laneMap[mapToWriteShift + kMaxMapWidthM * (firstEdge + lN) + b] = vInMpS; //TODO(pavan): WHAT IS THIS?
+                    laneMap[mapToWriteShift + kMaxMapWidthM * (firstEdge + lN) + b] = vInMpS;
                     placed = true;
-                    edgesData[firstEdge].upstream_veh_count += 1;
-
+                    atomicAdd(&(edgesData[indexPathVec[trafficPersonVec[p].indexPathCurr]].upstream_veh_count),1);
                     //printf("Placed\n");
                     break;
                 }
@@ -540,9 +542,6 @@ __global__ void kernel_trafficSimulation(
                 if (placed == false) { //not posible to start now
                     return;
                 }
-
-                trafficPersonVec[p].v = 0;
-                trafficPersonVec[p].LC_stateofLaneChanging = 0;
 
                 //1.5 active car
 
@@ -1117,11 +1116,10 @@ __global__ void kernel_trafficSimulation(
         /*ushort curr_intersection=trafficPersonVec[p].edgeNextInters;
         ushort end_intersection=trafficPersonVec[p].end_intersection;
         //2.1 check if end*/
-        edgesData[indexPathVec[trafficPersonVec[p].indexPathCurr]].downstream_veh_count += 1;
+        atomicAdd(&(edgesData[indexPathVec[trafficPersonVec[p].indexPathCurr]].downstream_veh_count),1);
 
         if (nextEdge == -1) { //if(curr_intersection==end_intersection)
             trafficPersonVec[p].active = 2; //finished
-//            edgesData[indexPathVec[trafficPersonVec[p].indexPathCurr]].downstream_veh_count += 1;
             return;
         }
 
@@ -1141,8 +1139,7 @@ __global__ void kernel_trafficSimulation(
         trafficPersonVec[p].length = trafficPersonVec[p].nextEdgeLength;
         trafficPersonVec[p].posInLaneM = numMToMove;
 
-        edgesData[indexPathVec[trafficPersonVec[p].indexPathCurr]].upstream_veh_count += 1;
-
+        atomicAdd(&(edgesData[indexPathVec[trafficPersonVec[p].indexPathCurr]].upstream_veh_count),1);
         if (trafficPersonVec[p].numOfLaneInEdge >= trafficPersonVec[p].edgeNumLanes) {
             trafficPersonVec[p].numOfLaneInEdge = trafficPersonVec[p].edgeNumLanes - 1; //change line if there are less roads
         }

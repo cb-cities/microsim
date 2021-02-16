@@ -234,7 +234,7 @@ void B18TrafficSimulator::simulateInGPU(
 
     simulateBench.startMeasuring();
     float startTime = 0;  // 7.0f
-    float endTime = 1200; // 8.0f//10.0f
+    float endTime = 600; // 8.0f//10.0f
 
     float currentTime = 23.99f * 3600.0f;
 
@@ -279,7 +279,7 @@ void B18TrafficSimulator::simulateInGPU(
               << ">  Number of threads per block: " << threadsPerBlock
               << std::endl;
 
-    int iter_printout = 120;
+    int iter_printout = 60;
     int ind = 0;
     std::cerr << "Running main loop from " << (startTime / 3600.0f) << " to "
               << (endTime / 3600.0f) << " with " << trafficPersonVec.size()
@@ -308,7 +308,6 @@ void B18TrafficSimulator::simulateInGPU(
                              numBlocks, threadsPerBlock);
 
       if (count % iter_printout == 0) {
-
         Benchmarker getDataCudatrafficPersonAndEdgesData(
             "Get data trafficPersonVec and edgesData (first time)");
         getDataCudatrafficPersonAndEdgesData.startMeasuring();
@@ -317,7 +316,7 @@ void B18TrafficSimulator::simulateInGPU(
 
         std::vector<unsigned> upstream_counts(graph_->edges_.size());
         std::vector<unsigned> downstream_counts(graph_->edges_.size());
-        int index = 0;
+
         for (auto const &x : graph_->edges_) {
           ind = edgeDescToLaneMapNumSP[x.second];
           std::tuple<abm::graph::vertex_t, abm::graph::vertex_t> edge_vertices =
@@ -326,7 +325,6 @@ void B18TrafficSimulator::simulateInGPU(
               graph_->edge_ids_[get<0>(edge_vertices)][get<1>(edge_vertices)];
           upstream_counts[edge_id] = edgesData[ind].upstream_veh_count;
           downstream_counts[edge_id] = edgesData[ind].downstream_veh_count;
-          index++;
         }
         edge_upstream_count.emplace_back(upstream_counts);
         edge_downstream_count.emplace_back(downstream_counts);
@@ -406,8 +404,8 @@ void writePeopleFile(int numOfPass, const std::shared_ptr<abm::Graph> &graph_,
     std::cout << "> Saving People file... (size " << trafficPersonVec.size()
               << ")" << std::endl;
     QTextStream streamP(&peopleFile);
-    streamP << "p,init_intersection,end_intersection,time_departure,num_steps,"
-               "co,gas,distance,avg_v(mph)\n";
+    streamP << "p,init_intersection,end_intersection,time_departure,traveled_time(s),"
+               "co,gas,distance,avg_v(m/s),status,\n";
 
     for (int p = 0; p < trafficPersonVec.size(); p++) {
       streamP << p;
@@ -419,8 +417,8 @@ void writePeopleFile(int numOfPass, const std::shared_ptr<abm::Graph> &graph_,
       streamP << "," << trafficPersonVec[p].gas;
       streamP << "," << trafficPersonVec[p].dist_traveled;
       streamP << ","
-              << (trafficPersonVec[p].cum_v / trafficPersonVec[p].num_steps) *
-                     3600 / 1609.34;
+              << (trafficPersonVec[p].cum_v / trafficPersonVec[p].num_steps);
+      streamP << "," << trafficPersonVec[p].active;
       streamP << "\n";
     }
 
