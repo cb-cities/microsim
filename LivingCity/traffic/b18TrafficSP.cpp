@@ -1,6 +1,6 @@
 #include "b18TrafficSP.h"
 
-#include "roadGraphB2018Loader.h"
+#include "network.h"
 #include "src/linux_host_memory_logger.h"
 #include <boost/graph/exterior_property.hpp>
 

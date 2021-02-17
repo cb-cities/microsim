@@ -24,7 +24,7 @@
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <random>
 #include <qt5/QtGui/QVector3D>
-#include <traffic/roadGraphB2018Loader.h>
+#include <traffic/network.h>
 
 namespace LC {
 class B18TrafficOD {
@@ -33,23 +33,12 @@ class B18TrafficOD {
   B18TrafficOD(const parameters & inputSimParameters);
   ~B18TrafficOD();
 
-  cv::Mat *peopleDistribution;
-  cv::Mat *jobDistribution;
   const parameters simParameters;
 
-  void randomPerson(int p, B18TrafficPerson &person, QVector3D housePos3D,
-                    QVector3D jobPos3D, float startTimeH,
-                    LC::RoadGraph::roadBGLGraph_BI &roadGraph);
   void randomPerson(int p, B18TrafficPerson &person, uint srcvertex,
                     uint tgtvertex, float startTimeH);
 
-  // generate from b18
-  void loadB18TrafficPeople(float startTimeH, float endTimeH,
-      std::vector<B18TrafficPerson> &trafficPersonVec, RoadGraph::roadBGLGraph_BI &roadGraph,
-      const int limitNumPeople, const bool addRandomPeople);
-
-  void loadB18TrafficPeopleSP(float startTimeH, float endTimeH,
-    std::vector<B18TrafficPerson> &trafficPersonVec, // out
+  void loadB18TrafficPeopleSP(std::vector<B18TrafficPerson> &trafficPersonVec, // out
     const std::shared_ptr<RoadGraphB2018>& graph_loader, std::vector<float> dep_times);
 
   void resetTrafficPersonJob(std::vector<B18TrafficPerson> &trafficPersonVec);

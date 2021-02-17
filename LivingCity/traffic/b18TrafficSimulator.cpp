@@ -13,7 +13,7 @@
 #include "b18TrafficDijkstra.h"
 #include "b18TrafficJohnson.h"
 #include "b18TrafficSP.h"
-#include "roadGraphB2018Loader.h"
+#include "network.h"
 #include <thread>
 
 #define DEBUG_TRAFFIC 0
@@ -26,16 +26,7 @@
 void printPercentageMemoryUsed() {
   // TODO
 }
-#elif _WIN32
-#include <windows.h>
-void printPercentageMemoryUsed() {
-  MEMORYSTATUSEX status;
-  status.dwLength = sizeof(status);
-  GlobalMemoryStatusEx(&status);
-  printf("** Memory usage %ld%% --> Free %I64d MB\n", status.dwMemoryLoad,
-         status.ullAvailPhys / (1024 * 1024));
-}
-#endif
+
 namespace LC {
 
 const float intersectionClearance = 7.8f;
@@ -44,35 +35,65 @@ const bool calculatePollution = true;
 B18TrafficSimulator::B18TrafficSimulator(float _deltaTime,
                                          RoadGraph *originalRoadGraph,
                                          const parameters &inputSimParameters)
-    : deltaTime(_deltaTime), simParameters(inputSimParameters),
-      b18TrafficOD(B18TrafficOD(simParameters)) {
+    : deltaTime(_deltaTime), simParameters(inputSimParameters) {
   simRoadGraph = new RoadGraph(*originalRoadGraph);
 }
 
 B18TrafficSimulator::~B18TrafficSimulator() { delete simRoadGraph; }
 
-void B18TrafficSimulator::createB2018People(float startTime, float endTime,
-                                            int limitNumPeople,
-                                            bool addRandomPeople, bool useSP) {
-  b18TrafficOD.resetTrafficPersonJob(trafficPersonVec);
-  b18TrafficOD.loadB18TrafficPeople(startTime, endTime, trafficPersonVec,
-                                    simRoadGraph->myRoadGraph_BI,
-                                    limitNumPeople, addRandomPeople);
+void B18TrafficSimulator::resetAgent() {
+  for (int p = 0; p < trafficPersonVec.size(); p++) {
+    trafficPersonVec[p].active = 0;
+  }
+}
+
+void B18TrafficSimulator::loadAgents(
+    const std::shared_ptr<RoadGraphB2018> &graph_loader) {
+
+  auto totalNumPeople = graph_loader->totalNumPeople();
+  if (graph_loader->totalNumPeople() == 0) {
+    printf("ERROR: No agent to simulate\n");
+    return;
+  }
+  trafficPersonVec.clear();
+  trafficPersonVec.resize(totalNumPeople);
+
+  auto dep_times = graph_loader->read_dep_times();
+  auto demand = graph_loader->demand();
+
+  int numPeople = 0;
+
+  for (int d = 0; (d < totalNumPeople) && (numPeople < totalNumPeople); d++) {
+    int odNumPeople =
+        std::min<int>(totalNumPeople - numPeople, demand[d].num_people);
+
+    uint src_vertex = demand[d].src_vertex;
+    uint tgt_vertex = demand[d].tgt_vertex;
+    float goToWorkH = dep_times[d];
+    // printf("dep time %f\n", goToWorkH);
+
+    for (int p = 0; p < odNumPeople; p++) {
+      randomPerson(numPeople, trafficPersonVec[numPeople], src_vertex,
+                   tgt_vertex, goToWorkH);
+      numPeople++;
+    }
+  }
+
+  if (totalNumPeople != numPeople) {
+    printf("ERROR: generateB2018TrafficPeople totalNumPeople != numPeople, "
+           "this should not happen.");
+    exit(-1);
+  }
+
+  printf("loadB18TrafficPeople: People %d\n", numPeople);
 }
 
 void B18TrafficSimulator::createB2018PeopleSP(
-    float startTime, float endTime,
     const std::shared_ptr<RoadGraphB2018> graph_loader,
     std::vector<float> dep_times) {
-  b18TrafficOD.resetTrafficPersonJob(trafficPersonVec);
-  b18TrafficOD.loadB18TrafficPeopleSP(startTime, endTime, trafficPersonVec,
-                                      graph_loader, dep_times);
+  resetTrafficPersonJob();
+  loadB18TrafficPeopleSP(graph_loader);
 }
-
-void B18TrafficSimulator::resetPeopleJobANDintersections() {
-  b18TrafficOD.resetTrafficPersonJob(trafficPersonVec);
-  b18TrafficLaneMap.resetIntersections(intersections, trafficLights);
-} //
 
 void B18TrafficSimulator::createLaneMap() {
   b18TrafficLaneMap.createLaneMap(*simRoadGraph, laneMap, edgesData,
@@ -233,7 +254,7 @@ void B18TrafficSimulator::simulateInGPU(
     initCudaBench.stopAndEndBenchmark();
 
     simulateBench.startMeasuring();
-    float startTime = 0;  // 7.0f
+    float startTime = 0; // 7.0f
     float endTime = 600; // 8.0f//10.0f
 
     float currentTime = 23.99f * 3600.0f;
@@ -404,7 +425,8 @@ void writePeopleFile(int numOfPass, const std::shared_ptr<abm::Graph> &graph_,
     std::cout << "> Saving People file... (size " << trafficPersonVec.size()
               << ")" << std::endl;
     QTextStream streamP(&peopleFile);
-    streamP << "p,init_intersection,end_intersection,time_departure,traveled_time(s),"
+    streamP << "p,init_intersection,end_intersection,time_departure,traveled_"
+               "time(s),"
                "co,gas,distance,avg_v(m/s),status,\n";
 
     for (int p = 0; p < trafficPersonVec.size(); p++) {

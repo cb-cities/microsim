@@ -136,7 +136,7 @@ def calibrate(param_list, path, new_uber, plot_num_steps_on_each_run = False):
         edges_u, edges_v = load_edges_u_v(path)
         
         #load street network and edge/node data
-        nodes, edges = load_network("nodes.csv", "edges.csv", "berkeley_2018/new_full_network")
+        nodes, edges = load_network("nodes.csv", "test_edges.csv", "berkeley_2018/new_full_network")
 
         #get edge speed data from microsim
         edge_vels_df = create_network_from_edges_node_ids(edges_u, edges_v, path)

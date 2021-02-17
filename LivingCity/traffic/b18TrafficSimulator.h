@@ -11,9 +11,8 @@
 
 #include "b18GridPollution.h"
 #include "b18TrafficLaneMap.h"
-#include "b18TrafficOD.h"
 #include "misctools/misctools.h"
-#include "roadGraphB2018Loader.h"
+#include "network.h"
 
 namespace LC {
 
@@ -35,7 +34,6 @@ public:
   float avgTravelTime;
 
   // PM
-  B18TrafficOD b18TrafficOD;
   B18TrafficLaneMap b18TrafficLaneMap;
 
   void simulateInGPU(int numOfPasses, float startTimeH, float endTimeH,
@@ -62,11 +60,15 @@ public:
   std::vector<B18TrafficPerson> trafficPersonVec;
   std::vector<uint> indexPathVec;
 
+  void resetAgent();
+
+  void
+  loadAgents(const std::shared_ptr<RoadGraphB2018> &graph_loader);
+
   void createB2018People(float startTime, float endTime, int limitNumPeople,
                          bool addRandomPeople, bool useSP);
 
-  void createB2018PeopleSP(float startTime, float endTime,
-                           const std::shared_ptr<RoadGraphB2018> graph_loader,
+  void createB2018PeopleSP(const std::shared_ptr<RoadGraphB2018> graph_loader,
                            std::vector<float> dep_times);
 
   void resetPeopleJobANDintersections();
@@ -80,7 +82,6 @@ public:
   // measurements
   std::vector<float> accSpeedPerLinePerTimeInterval;
   std::vector<float> numVehPerLinePerTimeInterval;
-
 
   void save_edges(const std::vector<std::vector<unsigned>> &edge_upstream_count,
                   std::vector<std::vector<unsigned>> &edge_downstream_count);

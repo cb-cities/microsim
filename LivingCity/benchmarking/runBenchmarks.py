@@ -196,7 +196,7 @@ def benchmark_one_run(number_of_run, benchmark_name, network_path):
     df_nodes = pd.read_csv(os.path.join(network_path, "nodes.csv"))
     metadata['number_of_nodes'] = len(df_nodes)
 
-    df_edges = pd.read_csv(os.path.join(network_path, "edges.csv"))
+    df_edges = pd.read_csv(os.path.join(network_path, "test_edges.csv"))
     metadata['number_of_edges'] = len(df_edges)
 
     with open("benchmarking/metadata_{}.json".format(benchmark_name),"w") as metadata_file:

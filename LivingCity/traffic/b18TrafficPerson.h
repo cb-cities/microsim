@@ -1,12 +1,12 @@
 /************************************************************************************************
-*
-*		LC Project - B18 Traffic Person
-*
-*
-*		@desc Class that contains the info of a person
-*		@author igaciad
-*
-************************************************************************************************/
+ *
+ *		LC Project - B18 Traffic Person
+ *
+ *
+ *		@desc Class that contains the info of a person
+ *		@author igaciad
+ *
+ ************************************************************************************************/
 
 #ifndef LC_B18_TRAFFIC_PERSON_H
 #define LC_B18_TRAFFIC_PERSON_H
@@ -19,14 +19,14 @@ struct B18TrafficPerson {
   float time_departure;
   float dist_traveled = 0;
 
-  unsigned short active;//0 inactive 1 active 2 finished
-  unsigned short numOfLaneInEdge;//number of lane in that edge
+  unsigned short active = 0;          // 0 inactive 1 active 2 finished
+  unsigned short numOfLaneInEdge = 0; // number of lane in that edge
 
   float posInLaneM;
 
   //////////////////////////
   // current edge (from edgeData)
-  unsigned short edgeNumLanes;  //total number of lanes in that edge
+  unsigned short edgeNumLanes; // total number of lanes in that edge
   unsigned int edgeNextInters;
   float length;
   float maxSpeedMperSec;
@@ -37,10 +37,10 @@ struct B18TrafficPerson {
   float nextEdgeLength;
   float nextEdgemaxSpeedMperSec;
   ///////////////////////////
-  unsigned int indexPathInit;
+  unsigned int indexPathInit = 0;
   unsigned int indexPathCurr;
 
-  //for edge speed calculations
+  // for edge speed calculations
   unsigned int currentEdge;
   unsigned int nextEdge;
   unsigned int prevEdge;
@@ -49,25 +49,24 @@ struct B18TrafficPerson {
   float manual_v;
 
   // data
-  unsigned short num_steps;
-  unsigned int color;
-  float co;
+  unsigned short num_steps = 0;
+  float co = 0;
   float gas;
   // IDM
-  float v;//current velocity
-  float a;//acceleration
-  float b;//break
-  float T;// Time heading
-  float cum_v = 0; //Cumulative velocity of each person across all iterations
+  float v = 0;         // current velocity
+  float a;         // acceleration
+  float b;         // break
+  float T;         // Time heading
+  float cum_v = 0; // Cumulative velocity of each person across all iterations
 
   // lane changing
   unsigned short LC_initOKLanes;
   unsigned short LC_endOKLanes;
-  unsigned short LC_stateofLaneChanging;
+  unsigned short LC_stateofLaneChanging = 0;
 
   int isInIntersection;
 };
 
-}
+} // namespace LC
 
-#endif  // LC_B18_TRAFFIC_PERSON_H
+#endif // LC_B18_TRAFFIC_PERSON_H

@@ -8,7 +8,7 @@ import config
 
 """
   Merges the distances of each person according to the output obtained from 0_people5to12.csv
-  and the sum of the edges obtained from 0_route5to12.csv and edges.csv.
+  and the sum of the edges obtained from 0_route5to12.csv and test_edges.csv.
   Saves the merge of both distances for each person as a csv file.
   In case of finding any discrepancies, outputs one of them.
 

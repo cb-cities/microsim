@@ -61,7 +61,7 @@ pytest.network_setup_has_run = False
 pytest.network_path = "berkeley_2018/new_full_network/"
 pytest.number_of_people = 3441952
 pytest.distance_margin_between_route_and_people_file = 100
-pytest.edges_path = "berkeley_2018/new_full_network/edges.csv"
+pytest.edges_path = "berkeley_2018/new_full_network/test_edges.csv"
 
 """
 network_setup runs automatically before the tests that take network_setup as a parameter

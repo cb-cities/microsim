@@ -143,8 +143,7 @@ void B18CommandLineVersion::runB18Simulation() {
                                           simParameters);
 
   // create a set of people for simulation (trafficPersonVec)
-  b18TrafficSimulator.createB2018PeopleSP(startDemandH, endDemandH,
-                                          graph_loader, dep_times);
+  b18TrafficSimulator.createB2018PeopleSP(graph_loader, dep_times);
   //
   // if useSP, convert all_paths to indexPathVec format and run simulation
   b18TrafficSimulator.simulateInGPU(numOfPasses, startSimulationH,
