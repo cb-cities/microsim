@@ -13,7 +13,7 @@
 #include <cmath>
 #include "b18TrafficLaneMap.h"
 #include "sp/graph.h"
-#include "sp/config.h"
+#include "config.h"
 
 
 #define LANE_DEBUG 1

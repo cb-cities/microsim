@@ -5,7 +5,7 @@
 #ifndef LC_B18_TRAFFIC_JOHNSON_H
 #define LC_B18_TRAFFIC_JOHNSON_H
 
-#include "b18TrafficPerson.h"
+#include "agent.h"
 #include "../RoadGraph/roadGraph.h"
 
 namespace LC {

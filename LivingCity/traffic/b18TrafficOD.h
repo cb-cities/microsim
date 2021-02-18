@@ -17,7 +17,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-#include "b18TrafficPerson.h"
+#include "agent.h"
 #include "RoadGraph/roadGraph.h"
 #include "sp/graph.h"
 

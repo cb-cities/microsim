@@ -4,7 +4,7 @@
 #include <QSettings>
 #include <qt5/QtCore/qcoreapplication.h>
 
-#include "traffic/b18TrafficSimulator.h"
+#include "traffic/traffic_simulator.h"
 #include "Geometry/client_geometry.h"
 
 #include "network.h"

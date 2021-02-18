@@ -11,9 +11,21 @@
 #ifndef LC_B18_TRAFFIC_PERSON_H
 #define LC_B18_TRAFFIC_PERSON_H
 
+#include "config.h"
+
 namespace LC {
 
-struct B18TrafficPerson {
+struct Agent {
+  Agent() = default;
+  Agent(uint srcvertex, uint tgtvertex, float dep_time, IDMParameters param) {
+    init_intersection = srcvertex;
+    end_intersection = tgtvertex;
+    time_departure = dep_time;
+    a = param.a;
+    b = param.b;
+    T = param.T;
+  }
+
   unsigned int init_intersection;
   unsigned int end_intersection;
   float time_departure;
@@ -52,8 +64,9 @@ struct B18TrafficPerson {
   unsigned short num_steps = 0;
   float co = 0;
   float gas;
+
   // IDM
-  float v = 0;         // current velocity
+  float v = 0;     // current velocity
   float a;         // acceleration
   float b;         // break
   float T;         // Time heading

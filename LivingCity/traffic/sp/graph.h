@@ -24,7 +24,7 @@
 #include "external/csv.h"
 #include "tsl/robin_map.h"
 
-#include "config.h"
+#include "traffic/config.h"
 
 namespace abm {
 

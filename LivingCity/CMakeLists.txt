@@ -36,7 +36,41 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 # microsim executable
 SET(microsim_src
         traffic/sp/graph.cc
-        traffic/network.cpp)
+        traffic/network.cpp
+        traffic/b18CommandLineVersion.cpp
+        traffic/traffic_simulator.cpp
+        src/benchmarker.cpp
+
+        RoadGraph/roadGraph.cpp
+        RoadGraph/roadGraphEdge.cpp
+        RoadGraph/roadGraphVertex.cpp
+        Geometry/block.cpp
+        Geometry/building.cpp
+        Geometry/client_geometry.cpp
+        Geometry/parcel.cpp
+        Geometry/parcelBuildingAttributes.cpp
+        Geometry/placeTypeInstances.cpp
+        Geometry/zone.cpp
+        misctools/bounding_box.cpp
+        misctools/misctools.cpp
+        misctools/polygon_3D.cpp
+        global.cpp
+#        RoadGraph/roadGraph.cpp
+#        RoadGraph/roadGraphEdge.cpp
+#        RoadGraph/roadGraphVertex.cpp
+
+
+#        traffic/b18GridPollution.cpp
+#        traffic/b18TrafficDijkstra.cpp
+#        traffic/b18TrafficJohnson.cpp
+#        traffic/b18TrafficSP.cpp
+#        traffic/b18TrafficLaneMap.cpp
+#        traffic/b18TrafficOD.cpp
+#
+#
+#        src/linux_host_memory_logger.cpp
+
+        )
 
 #        Geometry/block.cpp
 #        Geometry/building.cpp
@@ -52,7 +86,7 @@ SET(microsim_src
 #        misctools/bounding_box.cpp
 #        misctools/misctools.cpp
 #        misctools/polygon_3D.cpp
-#        traffic/b18CommandLineVersion.cpp
+#
 #        traffic/b18GridPollution.cpp
 #        traffic/b18TrafficDijkstra.cpp
 #        traffic/b18TrafficJohnson.cpp
@@ -150,6 +184,7 @@ if(MICROSIM_TEST_BUILD_TESTING)
     # Unit test
     SET(microsim_test_src
             tests/network_test.cpp
+            tests/traffic_simulator_test.cpp
             )
 
     add_executable(microsim_test tests/main_test.cpp ${microsim_test_src})

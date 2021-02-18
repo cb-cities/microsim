@@ -20,11 +20,7 @@ void B18CommandLineVersion::runB18Simulation() {
   const float startDemandH = settings.value("START_HR", 5).toFloat();
   const float endDemandH = settings.value("END_HR", 12).toFloat();
   const bool showBenchmarks = settings.value("SHOW_BENCHMARKS", false).toBool();
-  const parameters simParameters{
-      settings.value("a", 0.557040909258405).toDouble(),
-      settings.value("b", 2.9020578588167).toDouble(),
-      settings.value("T", 0.5433027817144876).toDouble(),
-      settings.value("s_0", 1.3807498735425845).toDouble()};
+  const IDMParameters simParameters;
 
   std::string odDemandPath =
       settings.value("OD_DEMAND_FILENAME", "od_demand_5to12.csv")
@@ -57,17 +53,9 @@ void B18CommandLineVersion::runB18Simulation() {
   ************************************************************************************************/
   // make the graph from edges file and load the OD demand from od file
   loadNetwork.startMeasuring();
-  auto graph_loader =
-      std::make_shared<RoadGraphB2018>(networkPathSP, odDemandPath);
-  graph_loader->loadABMGraph();
+  auto network = std::make_shared<Network>(networkPathSP, odDemandPath);
   loadNetwork.stopAndEndBenchmark();
 
-  loadODDemandData.startMeasuring();
-  const auto all_od_pairs_ = graph_loader->read_od_pairs();
-  const auto dep_times = graph_loader->read_dep_times();
-  auto street_graph = graph_loader->street_graph();
-  printf("# of OD pairs = %d\n", all_od_pairs_.size());
-  loadODDemandData.stopAndEndBenchmark();
 
   /************************************************************************************************
     Route Finding
@@ -88,19 +76,16 @@ void B18CommandLineVersion::runB18Simulation() {
       }
     }
   } else {
-    std::vector<std::vector<long>> edge_vals = graph_loader->edge_vals();
-    std::vector<std::vector<double>> edge_weights =
-        graph_loader->edge_weights();
-
     // compute routes use ch
     routingCH.startMeasuring();
     auto graph_ch = std::make_shared<MTC::accessibility::Accessibility>(
-        street_graph->vertices_data_.size(), edge_vals, edge_weights, false);
+        network->num_vertices(), network->edge_vertices(),
+        network->edge_weights(), false);
 
     std::vector<long> sources, targets;
-    for (int x = 0; x < all_od_pairs_.size(); x++) {
-      sources.emplace_back(all_od_pairs_[x][0]);
-      targets.emplace_back(all_od_pairs_[x][1]);
+    for (const auto &od : network->od_pairs()) {
+      sources.emplace_back(od[0]);
+      targets.emplace_back(od[1]);
     }
     all_paths_ch = graph_ch->Routes(sources, targets, 0);
     std::cout << "# of paths = " << all_paths_ch.size() << " \n";
@@ -111,12 +96,13 @@ void B18CommandLineVersion::runB18Simulation() {
               << std::endl;
     std::cout << all_paths_ch.size() << "; " << all_paths_ch[10].size()
               << std::endl;
+
     // convert from nodes to edges
     for (int i = 0; i < all_paths_ch.size(); i++) {
       for (int j = 0; j < all_paths_ch[i].size() - 1; j++) {
         auto vertex_from = all_paths_ch[i][j];
         auto vertex_to = all_paths_ch[i][j + 1];
-        auto one_edge = street_graph->edge_ids_[vertex_from][vertex_to];
+        auto one_edge = network->edge_id(vertex_from, vertex_to);
         all_paths.emplace_back(one_edge);
       }
       all_paths.emplace_back(-1);
@@ -132,23 +118,22 @@ void B18CommandLineVersion::runB18Simulation() {
     std::copy(all_paths.begin(), all_paths.end(), output_iterator);
   }
   // map person to their initial edge
-  graph_loader->map_person2init_edge (all_paths);
+  network->map_person2init_edge(all_paths);
 
   /************************************************************************************************
     Start Simulation
   ************************************************************************************************/
 
   ClientGeometry cg;
-  B18TrafficSimulator b18TrafficSimulator(deltaTime, &cg.roadGraph,
-                                          simParameters);
+  TrafficSimulator simulator(&cg.roadGraph, simParameters);
 
   // create a set of people for simulation (trafficPersonVec)
-  b18TrafficSimulator.createB2018PeopleSP(graph_loader, dep_times);
+  simulator.load_agents(network);
   //
-  // if useSP, convert all_paths to indexPathVec format and run simulation
-  b18TrafficSimulator.simulateInGPU(numOfPasses, startSimulationH,
-                                    endSimulationH, useJohnsonRouting, useSP,
-                                    street_graph, all_paths, simParameters);
+//  // if useSP, convert all_paths to indexPathVec format and run simulation
+//  simulator.simulateInGPU(numOfPasses, startSimulationH, endSimulationH,
+//                          useJohnsonRouting, useSP, street_graph, all_paths,
+//                          simParameters);
 }
 
 } // namespace LC

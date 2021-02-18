@@ -6,13 +6,13 @@
 #include "assert.h"
 #include "cuda.h"
 
-#include "b18TrafficPerson.h"
+#include "agent.h"
 #include "b18EdgeData.h"
 #include <vector>
 #include <iostream>
 
 #include "src/benchmarker.h"
-#include "sp/config.h"
+#include "config.h"
 
 #ifndef ushort
 #define ushort uint16_t

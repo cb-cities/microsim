@@ -13,7 +13,7 @@
 
 #include "../misctools/misctools.h"
 
-#include "b18TrafficPerson.h"
+#include "agent.h"
 #include "RoadGraph/roadGraph.h"
 
 namespace LC {

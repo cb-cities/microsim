@@ -27,6 +27,7 @@ TEST_CASE("CHECK NETWORK", "[IO]") {
   }
 
   SECTION("Check graph vertices") {
+    REQUIRE(network->num_vertices() == 5);
     auto edge_vals = network->edge_vertices();
 
     auto edges_val0 = edge_vals.at(0);
@@ -54,7 +55,8 @@ TEST_CASE("CHECK NETWORK", "[IO]") {
     REQUIRE(edges_val5.at(1) == 4);
   }
 
-  SECTION("Check graph weights") {
+  SECTION("Check graph edges") {
+    REQUIRE(network->num_edges() == 6);
     auto edge_weights = network->edge_weights().at(0);
 
     REQUIRE(edge_weights.at(0) == 50);
@@ -63,5 +65,36 @@ TEST_CASE("CHECK NETWORK", "[IO]") {
     REQUIRE(edge_weights.at(3) == 300);
     REQUIRE(edge_weights.at(4) == 400);
     REQUIRE(edge_weights.at(5) == 500);
+
+    REQUIRE(network->edge_id(0, 2) == 0);
+    REQUIRE(network->edge_id(1, 2) == 1);
+    REQUIRE(network->edge_id(0, 3) == 2);
+    REQUIRE(network->edge_id(2, 3) == 3);
+    REQUIRE(network->edge_id(2, 4) == 4);
+    REQUIRE(network->edge_id(3, 4) == 5);
+  }
+
+  SECTION("Check loaded ods") {
+    auto od_pairs = network->od_pairs();
+    auto dep_times = network->dep_time();
+
+    REQUIRE(network->totalNumPeople() == 4);
+
+    REQUIRE(od_pairs.at(0)[0] == 0);
+    REQUIRE(od_pairs.at(0)[1] == 4);
+
+    REQUIRE(od_pairs.at(1)[0] == 1);
+    REQUIRE(od_pairs.at(1)[1] == 4);
+
+    REQUIRE(od_pairs.at(2)[0] == 1);
+    REQUIRE(od_pairs.at(2)[1] == 4);
+
+    REQUIRE(od_pairs.at(3)[0] == 0);
+    REQUIRE(od_pairs.at(3)[1] == 4);
+
+    REQUIRE(dep_times.at(0) == 0);
+    REQUIRE(dep_times.at(1) == 300);
+    REQUIRE(dep_times.at(2) == 350);
+    REQUIRE(dep_times.at(3) == 400);
   }
 }

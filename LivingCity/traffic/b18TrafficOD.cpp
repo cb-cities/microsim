@@ -72,7 +72,7 @@ void B18TrafficOD::loadB18TrafficPeopleSP(
     // printf("dep time %f\n", goToWorkH);
 
     for (int p = 0; p < odNumPeople; p++) {
-      randomPerson(numPeople, trafficPersonVec[numPeople], src_vertex,
+        randomPerson(numPeople, trafficPersonVec[numPeople], src_vertex,
                    tgt_vertex, goToWorkH);
       numPeople++;
     }

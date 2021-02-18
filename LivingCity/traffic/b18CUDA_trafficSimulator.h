@@ -9,7 +9,7 @@
 #ifndef B18_TRAFFIC_SIMULATION_H
 #define B18_TRAFFIC_SIMULATION_H
 
-#include "b18TrafficPerson.h"
+#include "agent.h"
 #include "b18EdgeData.h"
 #include <vector>
 

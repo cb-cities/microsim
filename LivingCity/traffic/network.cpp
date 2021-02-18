@@ -41,7 +41,7 @@ void Network::read_od_pairs_() {
     abm::graph::weight_t weight;
     while (in.read_row(v1, v2)) {
       // std::array<abm::graph::vertex_t, 2> od = {v1, v2};
-      std::array<abm::graph::vertex_t, 2> od = {v1, v2};
+      std::vector<long> od = {v1, v2};
       od_pairs_.emplace_back(od);
     }
   } catch (std::exception &exception) {
@@ -49,28 +49,26 @@ void Network::read_od_pairs_() {
   }
 }
 
-std::vector<float> Network::read_dep_times_() {
-  std::vector<float> dep_time_vec;
+void Network::read_dep_times_() {
   try {
     csvio::CSVReader<1> in(odFileName_);
     in.read_header(csvio::ignore_extra_column, "dep_time");
     float dep_time;
     while (in.read_row(dep_time)) {
       // printf("dep time %f\n", dep_time);
-      dep_time_vec.emplace_back(dep_time);
+      dep_time_.emplace_back(dep_time);
     }
   } catch (std::exception &exception) {
     std::cout << "Read OD file: " << exception.what() << "\n";
   }
-  return dep_time_vec;
 }
 
-std::vector<std::vector<abm::graph::vertex_t>> Network::edge_vertices() {
-  std::vector<std::vector<abm::graph::vertex_t>> edge_vertices;
+std::vector<std::vector<long >> Network::edge_vertices() {
+  std::vector<std::vector<long>> edge_vertices;
   for (auto const &x : street_graph_->edge_ids_to_vertices) {
     auto edge_id = x.first;
     auto vertices = x.second;
-    std::vector<abm::graph::vertex_t> v = {std::get<0>(vertices),
+    std::vector<long> v = {std::get<0>(vertices),
                                            std::get<1>(vertices)};
     edge_vertices.emplace_back(v);
   }

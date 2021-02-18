@@ -16,7 +16,7 @@
 #include "RoadGraph/roadGraph.h"
 #include "b18EdgeData.h"
 #include "traffic/sp/graph.h"
-#include "traffic/sp/config.h"
+#include "config.h"
 
 namespace LC {
 

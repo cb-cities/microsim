@@ -11,13 +11,13 @@ using weight_t = double;
 }  // namespace graph
 }  // namespace abm
 
-struct parameters{
-    float a;
-    float b;
-    float T;
-    float s_0;
+struct IDMParameters{
+    float a = 0.557040909258405;
+    float b = 2.9020578588167;
+    float T = 0.5433027817144876;
+    float s_0 = 1.3807498735425845;
+    float dt = 0.5;
 };
-
 #endif  // _ABM_CONFIG_H_
 
 
