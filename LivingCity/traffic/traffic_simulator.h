@@ -19,15 +19,19 @@ class LCUrbanMain;
 class TrafficSimulator {
 
 public:
-  TrafficSimulator(RoadGraph *geoRoadGraph, const IDMParameters &simParameters);
+  TrafficSimulator(RoadGraph *geoRoadGraph, const IDMParameters &simParameters, std::shared_ptr<Network> network);
   ~TrafficSimulator();
 
   void reset_agent();
 
-  void load_agents(const std::shared_ptr<Network> &network);
+  void load_agents();
 
 
   const std::vector<Agent> & agents() const {return agents_;}
+
+
+//  void simulateInGPU(const std::vector<abm::graph::edge_id_t>& paths_SP);
+
 //  float deltaTime;
 //  int threadNumber;
 //  float avgTravelTime;
@@ -35,11 +39,7 @@ public:
 //  // PM
 //  B18TrafficLaneMap b18TrafficLaneMap;
 //
-//  void simulateInGPU(int numOfPasses, float startTimeH, float endTimeH,
-//                     bool useJohnsonRouting, bool useSP,
-//                     const std::shared_ptr<abm::Graph> &graph_,
-//                     std::vector<abm::graph::edge_id_t> paths_SP,
-//                     const parameters &simParameters);
+
 //
 //  // Lanes
 //  std::vector<uint> edgeIdToLaneMapNum;
@@ -84,6 +84,7 @@ public:
 
 private:
   RoadGraph *simRoadGraph_;
+  std::shared_ptr<Network> network_;
   IDMParameters simParameters_;
   std::vector<Agent> agents_;
 };

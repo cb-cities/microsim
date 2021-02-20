@@ -21,7 +21,7 @@
 #define uchar uint8_t
 #endif
 
-const int kMaxMapWidthM = 1024;
+
 const uint kMaskOutEdge = 0x000000;
 const uint kMaskInEdge = 0x800000;
 const uint kMaskLaneMap = 0x007FFFFF;
@@ -34,6 +34,7 @@ struct B18EdgeData {
   float length;
   float maxSpeedMperSec;
   uint nextIntersMapped;
+
   float curr_cum_vel = 0;
   unsigned int upstream_veh_count = 0;
   unsigned int downstream_veh_count = 0;

@@ -39,6 +39,7 @@ SET(microsim_src
         traffic/network.cpp
         traffic/b18CommandLineVersion.cpp
         traffic/traffic_simulator.cpp
+        traffic/lanemap.cpp
         src/benchmarker.cpp
 
         RoadGraph/roadGraph.cpp
@@ -185,6 +186,7 @@ if(MICROSIM_TEST_BUILD_TESTING)
     SET(microsim_test_src
             tests/network_test.cpp
             tests/traffic_simulator_test.cpp
+            tests/lanemap_test.cpp
             )
 
     add_executable(microsim_test tests/main_test.cpp ${microsim_test_src})

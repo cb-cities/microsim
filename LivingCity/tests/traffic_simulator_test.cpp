@@ -6,14 +6,15 @@ using namespace LC;
 TEST_CASE("CHECK SIMULATOR", "[SIMULATOR]") {
     const IDMParameters simParameters;
     ClientGeometry cg;
-    TrafficSimulator simulator(&cg.roadGraph, simParameters);
+    std::string networkPath = "../tests/test_data/";
+    std::string odFileName = "od.csv";
+    auto network = std::make_shared<LC::Network>(networkPath, odFileName);
+
+    TrafficSimulator simulator(&cg.roadGraph, simParameters,network);
 
     SECTION("Check loaded agents") {
-        std::string networkPath = "../tests/test_data/";
-        std::string odFileName = "od.csv";
-        auto network = std::make_shared<LC::Network>(networkPath, odFileName);
 
-        simulator.load_agents(network);
+        simulator.load_agents();
 
         auto agents = simulator.agents();
         REQUIRE(agents.size() == 4);

@@ -125,10 +125,10 @@ void B18CommandLineVersion::runB18Simulation() {
   ************************************************************************************************/
 
   ClientGeometry cg;
-  TrafficSimulator simulator(&cg.roadGraph, simParameters);
+  TrafficSimulator simulator(&cg.roadGraph, simParameters,network);
 
   // create a set of people for simulation (trafficPersonVec)
-  simulator.load_agents(network);
+  simulator.load_agents();
   //
 //  // if useSP, convert all_paths to indexPathVec format and run simulation
 //  simulator.simulateInGPU(numOfPasses, startSimulationH, endSimulationH,

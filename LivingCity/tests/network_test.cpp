@@ -46,11 +46,11 @@ TEST_CASE("CHECK NETWORK", "[IO]") {
     REQUIRE(edges_val3.at(0) == 2);
     REQUIRE(edges_val3.at(1) == 3);
 
-    auto edges_val4 = edge_vals.at(4);
+    auto edges_val4 = edge_vals.at(5);
     REQUIRE(edges_val4.at(0) == 2);
     REQUIRE(edges_val4.at(1) == 4);
 
-    auto edges_val5 = edge_vals.at(5);
+    auto edges_val5 = edge_vals.at(4);
     REQUIRE(edges_val5.at(0) == 3);
     REQUIRE(edges_val5.at(1) == 4);
   }
@@ -63,15 +63,15 @@ TEST_CASE("CHECK NETWORK", "[IO]") {
     REQUIRE(edge_weights.at(1) == 100);
     REQUIRE(edge_weights.at(2) == 200);
     REQUIRE(edge_weights.at(3) == 300);
-    REQUIRE(edge_weights.at(4) == 400);
-    REQUIRE(edge_weights.at(5) == 500);
+    REQUIRE(edge_weights.at(5) == 400);
+    REQUIRE(edge_weights.at(4) == 500);
 
     REQUIRE(network->edge_id(0, 2) == 0);
     REQUIRE(network->edge_id(1, 2) == 1);
     REQUIRE(network->edge_id(0, 3) == 2);
     REQUIRE(network->edge_id(2, 3) == 3);
-    REQUIRE(network->edge_id(2, 4) == 4);
-    REQUIRE(network->edge_id(3, 4) == 5);
+    REQUIRE(network->edge_id(2, 4) == 6);
+    REQUIRE(network->edge_id(3, 4) == 4);
   }
 
   SECTION("Check loaded ods") {

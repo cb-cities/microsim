@@ -15,9 +15,10 @@ const float intersectionClearance = 7.8f;
 const bool calculatePollution = true;
 
 TrafficSimulator::TrafficSimulator(RoadGraph *originalRoadGraph,
-                                   const IDMParameters &inputSimParameters)
+                                   const IDMParameters &inputSimParameters, std::shared_ptr<Network> network)
     : simParameters_(inputSimParameters) {
   simRoadGraph_ = new RoadGraph(*originalRoadGraph);
+  network_ =  network;
 }
 
 TrafficSimulator::~TrafficSimulator() { delete simRoadGraph_; }
@@ -29,17 +30,17 @@ void TrafficSimulator::reset_agent() {
   }
 }
 
-void TrafficSimulator::load_agents(const std::shared_ptr<Network> &network) {
+void TrafficSimulator::load_agents() {
 
-  auto totalNumPeople = network->totalNumPeople();
-  if (network->totalNumPeople() == 0) {
+  auto totalNumPeople = network_->totalNumPeople();
+  if (network_->totalNumPeople() == 0) {
     printf("ERROR: No agent to simulate\n");
     return;
   }
   agents_.clear();
 
-  auto dep_times = network->dep_time();
-  auto ods = network->od_pairs();
+  auto dep_times = network_->dep_time();
+  auto ods = network_->od_pairs();
 
   for (int i = 0; i < totalNumPeople; i++) {
     auto src_vertex = ods[i][0];
@@ -83,24 +84,18 @@ void TrafficSimulator::load_agents(const std::shared_ptr<Network> &network) {
 //
 //} //
 //
-////////////////////////////////////////////////////
-//// GPU
-////////////////////////////////////////////////////
-//void TrafficSimulator::simulateInGPU(
-//    int numOfPasses, float startTimeH, float endTimeH, bool useJohnsonRouting,
-//    bool useSP, const std::shared_ptr<abm::Graph> &graph_,
-//    std::vector<abm::graph::edge_id_t> paths_SP,
-//    const parameters &simParameters) {
+//////////////////////////////////////////////////////
+////// GPU
+//////////////////////////////////////////////////////
+//void TrafficSimulator::simulateInGPU(const std::vector<abm::graph::edge_id_t>& paths_SP) {
+//
 //  Benchmarker passesBench("Simulation passes");
 //  Benchmarker finishCudaBench("Cuda finish");
 //  Benchmarker laneMapCreation("Lane_Map_creation", true);
 //
 //  laneMapCreation.startMeasuring();
-//  if (useSP) {
-//    createLaneMapSP(graph_);
-//  } else {
-//    createLaneMap();
-//  }
+//  createLaneMapSP(graph_);
+//
 //  laneMapCreation.stopAndEndBenchmark();
 //
 //  Benchmarker microsimulationInGPU("Microsimulation_in_GPU", true);
@@ -373,6 +368,8 @@ void TrafficSimulator::load_agents(const std::shared_ptr<Network> &network) {
 //  microsimulationInGPU.stopAndEndBenchmark();
 //  finishCudaBench.stopAndEndBenchmark();
 //} //
+
+
 //
 //void writePeopleFile(int numOfPass, const std::shared_ptr<abm::Graph> &graph_,
 //                     int start_time, int end_time,
