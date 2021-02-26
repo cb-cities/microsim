@@ -33,4 +33,8 @@ TEST_CASE("CHECK LANEMAP", "[lanemap]") {
     REQUIRE(lanemap_array.size() == 9 * 1024 * 2);
     REQUIRE(lanemap_array.at(399) == 0xFF);
   }
+  SECTION("Check intersections") {
+    auto &interections = lanemap.intersections();
+    REQUIRE(interections.size() == 5);
+  }
 }
