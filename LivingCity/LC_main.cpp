@@ -24,6 +24,6 @@ int main(int argc, char *argv[]) {
   intersectionBench.endBenchmark();
   peopleBench.endBenchmark();
 
-  memory_logger.End();
+//  memory_logger.End();
   return 0;
 }

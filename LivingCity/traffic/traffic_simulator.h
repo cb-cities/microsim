@@ -9,7 +9,10 @@
 
 #include "network.h"
 #include "agent.h"
+#include "lanemap.h"
+#include "b18CUDA_trafficSimulator.h"
 #include "src/benchmarker.h"
+
 
 
 namespace LC {
@@ -30,7 +33,7 @@ public:
   const std::vector<Agent> & agents() const {return agents_;}
 
 
-//  void simulateInGPU(const std::vector<abm::graph::edge_id_t>& paths_SP);
+  void simulateInGPU(const std::vector<abm::graph::edge_id_t>& paths_SP);
 
 //  float deltaTime;
 //  int threadNumber;
@@ -67,18 +70,19 @@ public:
 //  std::vector<uchar> trafficLights;
 //  std::vector<B18IntersectionData> intersections;
 //
-//  // measurements
-//  std::vector<float> accSpeedPerLinePerTimeInterval;
-//  std::vector<float> numVehPerLinePerTimeInterval;
+  // measurements
+  std::vector<float> accSpeedPerLinePerTimeInterval;
+  std::vector<float> numVehPerLinePerTimeInterval;
+
 //
-//  void save_edges(const std::vector<std::vector<unsigned>> &edge_upstream_count,
-//                  std::vector<std::vector<unsigned>> &edge_downstream_count);
-//
-//  void savePeopleAndRoutesSP(int numOfPass,
-//                             const std::shared_ptr<abm::Graph> &graph_,
-//                             const std::vector<abm::graph::edge_id_t> &paths_SP,
-//                             int start_time, int end_time);
-//
+  void save_edges(const std::vector<std::vector<unsigned>> &edge_upstream_count,
+                  std::vector<std::vector<unsigned>> &edge_downstream_count);
+
+  void savePeopleAndRoutesSP(int numOfPass,
+                             const std::shared_ptr<abm::Graph> &graph_,
+                             const std::vector<abm::graph::edge_id_t> &paths_SP,
+                             int start_time, int end_time);
+
 //  // pollution
 //  B18GridPollution gridPollution;
 
@@ -87,6 +91,8 @@ private:
   std::shared_ptr<Network> network_;
   IDMParameters simParameters_;
   std::vector<Agent> agents_;
+  Lanemap lanemap_;
+  double      deltaTime = 0.5;
 };
 } // namespace LC
 

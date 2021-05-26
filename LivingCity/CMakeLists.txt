@@ -131,7 +131,7 @@ find_package(CUDA REQUIRED)
 # contraction hierachy lib
 find_library(CHROUTING_LIB chrouting ${microsim_SOURCE_DIR}/pandana_ch/)
 
-add_library(lmicro_sim SHARED ${microsim_src})
+find_library(KITROUTING_LIB routingkit ${microsim_SOURCE_DIR}/RoutingKit/lib)
 
 # include directories
 add_library(lmicrosim SHARED ${microsim_src})
@@ -141,6 +141,7 @@ target_include_directories(lmicrosim
         ${microsim_SOURCE_DIR}/traffic/
         ${microsim_SOURCE_DIR}/external/
         ${microsim_SOURCE_DIR}/glew/include/
+        ${microsim_SOURCE_DIR}/RoutingKit/include/
         ${OpenCV_INCLUDE_DIRS}
         ${BOOST_INCLUDE_DIRS}
         ${CUDA_INCLUDE_DIRS}
@@ -190,7 +191,7 @@ if(MICROSIM_TEST_BUILD_TESTING)
             )
 
     add_executable(microsim_test tests/main_test.cpp ${microsim_test_src})
-    target_link_libraries(microsim_test lmicrosim)
+    target_link_libraries(microsim_test lmicrosim lmicrosim_cuda)
     add_test(NAME microsim_test COMMAND $<TARGET_FILE:microsim_test>)
     enable_testing()
 endif()

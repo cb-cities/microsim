@@ -52,7 +52,7 @@ inline void printMemoryUsage() {
 }
 ////////////////////////////////
 // VARIABLES
-LC::B18TrafficPerson *trafficPersonVec_d;
+LC::Agent *trafficPersonVec_d;
 uint *indexPathVec_d;
 LC::B18EdgeData *edgesData_d;
 
@@ -81,7 +81,7 @@ float* numVehPerLinePerTimeInterval_d;
 
 void b18InitCUDA(
         bool fistInitialization,
-        std::vector<LC::B18TrafficPerson>& trafficPersonVec,
+        std::vector<LC::Agent>& trafficPersonVec,
         std::vector<uint> &indexPathVec,
         std::vector<LC::B18EdgeData>& edgesData,
         std::vector<uchar>& laneMap,
@@ -97,7 +97,7 @@ void b18InitCUDA(
     const uint numStepsPerSample = 30.0f / deltaTime; //each min
     const uint numStepsTogether = 12; //change also in density (10 per hour)
     { // people
-        size_t size = trafficPersonVec.size() * sizeof(LC::B18TrafficPerson);
+        size_t size = trafficPersonVec.size() * sizeof(LC::Agent);
         if (fistInitialization) gpuErrchk(cudaMalloc((void **) &trafficPersonVec_d, size));   // Allocate array on device
         gpuErrchk(cudaMemcpy(trafficPersonVec_d, trafficPersonVec.data(), size, cudaMemcpyHostToDevice));
     }
@@ -156,9 +156,9 @@ void b18FinishCUDA(void){
     cudaFree(numVehPerLinePerTimeInterval_d);
 }//
 
-void b18GetDataCUDA(std::vector<LC::B18TrafficPerson>& trafficPersonVec, std::vector<LC::B18EdgeData> &edgesData){
+void b18GetDataCUDA(std::vector<LC::Agent>& trafficPersonVec, std::vector<LC::B18EdgeData> &edgesData){
     // copy back people
-    size_t size = trafficPersonVec.size() * sizeof(LC::B18TrafficPerson);
+    size_t size = trafficPersonVec.size() * sizeof(LC::Agent);
     size_t size_edges = edgesData.size() * sizeof(LC::B18EdgeData);
     cudaMemcpy(trafficPersonVec.data(),trafficPersonVec_d,size,cudaMemcpyDeviceToHost);//cudaMemcpyHostToDevice
     cudaMemcpy(edgesData.data(),edgesData_d,size_edges,cudaMemcpyDeviceToHost);//cudaMemcpyHostToDevice
@@ -182,6 +182,7 @@ __device__ void calculateGapsLC(
     ushort initShift = ceil(posInMToCheck);
     uchar laneChar;
     bool found = false;
+    int kMaxMapWidthM = 1024;
 
     // CHECK FORWARD
     //printf("initShift %u numOfCells %u\n",initShift,numOfCells);
@@ -447,15 +448,16 @@ __global__ void kernel_trafficSimulation(
         float currentTime,
         uint mapToReadShift,
         uint mapToWriteShift,
-        LC::B18TrafficPerson *trafficPersonVec,
+        LC::Agent *trafficPersonVec,
         uint *indexPathVec,
         LC::B18EdgeData* edgesData,
         uchar *laneMap,
         LC::B18IntersectionData *intersections,
         uchar *trafficLights,
         float deltaTime,
-        const parameters simParameters)
+        const IDMParameters simParameters)
 {
+    int kMaxMapWidthM = 1024;
     int p = blockIdx.x * blockDim.x + threadIdx.x;
     //printf("p %d Numpe %d\n",p,numPeople);
     if (p < numPeople) {//CUDA check (inside margins)
@@ -813,7 +815,6 @@ __global__ void kernel_trafficSimulation(
 
         ///////////////////////////////
         // COLOR
-        trafficPersonVec[p].color = p << 8;
         //if (clientMain->ui.b18RenderSimulationCheckBox->isChecked()) {
         //if(G::global().getInt("cuda_carInfoRendering_type")==0){
         //qsrand(p);
@@ -1289,7 +1290,7 @@ __global__ void kernel_intersectionOneSimulation(
 // Kernel that executes on the CUDA device
 __global__ void kernel_sampleTraffic(
         int numPeople,
-        LC::B18TrafficPerson *trafficPersonVec,
+        LC::Agent *trafficPersonVec,
         uint *indexPathVec,
         float *accSpeedPerLinePerTimeInterval,
         float *numVehPerLinePerTimeInterval, //this could have been int
@@ -1306,7 +1307,7 @@ __global__ void kernel_sampleTraffic(
 }
 __global__ void kernel_resetPeople(
         int numPeople,
-        LC::B18TrafficPerson *trafficPersonVec) {
+        LC::Agent *trafficPersonVec) {
     int p = blockIdx.x * blockDim.x + threadIdx.x;
     if (p < numPeople) {//CUDA check (inside margins)
         trafficPersonVec[p].active = 0;
@@ -1332,7 +1333,7 @@ void b18SimulateTrafficCUDA(float currentTime,
                             uint numPeople,
                             uint numIntersections,
                             float deltaTime,
-                            const parameters simParameters,
+                            const IDMParameters simParameters,
                             int numBlocks,
                             int threadsPerBlock) {
     intersectionBench.startMeasuring();

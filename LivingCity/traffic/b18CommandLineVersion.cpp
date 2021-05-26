@@ -56,7 +56,6 @@ void B18CommandLineVersion::runB18Simulation() {
   auto network = std::make_shared<Network>(networkPathSP, odDemandPath);
   loadNetwork.stopAndEndBenchmark();
 
-
   /************************************************************************************************
     Route Finding
   ************************************************************************************************/
@@ -124,16 +123,14 @@ void B18CommandLineVersion::runB18Simulation() {
     Start Simulation
   ************************************************************************************************/
 
-  ClientGeometry cg;
-  TrafficSimulator simulator(&cg.roadGraph, simParameters,network);
-
-  // create a set of people for simulation (trafficPersonVec)
-  simulator.load_agents();
+//  ClientGeometry cg;
+//  TrafficSimulator simulator(&cg.roadGraph, simParameters,network);
+//
+//  // create a set of people for simulation (trafficPersonVec)
+//  simulator.load_agents();
   //
 //  // if useSP, convert all_paths to indexPathVec format and run simulation
-//  simulator.simulateInGPU(numOfPasses, startSimulationH, endSimulationH,
-//                          useJohnsonRouting, useSP, street_graph, all_paths,
-//                          simParameters);
+//  simulator.simulateInGPU(all_paths);
 }
 
 } // namespace LC

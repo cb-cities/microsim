@@ -19,7 +19,7 @@ public:
   explicit Lanemap(const std::shared_ptr<abm::Graph> &graph) {
     create_edgesData_(graph);
     create_LaneMap_();
-    create_intersections_ (graph);
+    create_intersections_(graph);
   };
 
   void resetIntersections(std::vector<B18IntersectionData> &intersections,
@@ -47,11 +47,19 @@ public:
     return intersections_;
   }
 
+  void read_path(std::vector<abm::graph::edge_id_t> paths);
+
+  const std::vector<uint>& indexPathVec ()const { return indexPathVec_;}
+
+  const std::vector<uchar>& traffic_lights () const {return traffic_lights_;}
+
+
 private:
   std::vector<uchar> laneMap_;
   std::vector<B18EdgeData> edgesData_;
   std::vector<B18IntersectionData> intersections_;
-    std::vector<uchar> traffic_lights_;
+  std::vector<uchar> traffic_lights_;
+  std::vector<uint> indexPathVec_;
 
   std::map<uint, std::shared_ptr<abm::Graph::Edge>> laneMapNumToEdgeDesc_;
   std::map<std::shared_ptr<abm::Graph::Edge>, uint> edgeDescToLaneMapNum_;

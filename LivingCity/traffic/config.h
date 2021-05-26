@@ -10,7 +10,6 @@ using edge_id_t = long long;
 using weight_t = double;
 }  // namespace graph
 }  // namespace abm
-
 struct IDMParameters{
     float a = 0.557040909258405;
     float b = 2.9020578588167;

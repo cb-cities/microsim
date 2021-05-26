@@ -7,6 +7,7 @@ using namespace LC;
 TEST_CASE("CHECK LANEMAP", "[lanemap]") {
   std::string networkPath = "../tests/test_data/";
   std::string odFileName = "od.csv";
+
   auto network = std::make_shared<Network>(networkPath, odFileName);
   auto graph = network->street_graph();
   auto lanemap = Lanemap(graph);
@@ -36,5 +37,28 @@ TEST_CASE("CHECK LANEMAP", "[lanemap]") {
   SECTION("Check intersections") {
     auto &interections = lanemap.intersections();
     REQUIRE(interections.size() == 5);
+  }
+  SECTION("Check paths") {
+    std::string route_path = "../tests/test_data/all_paths_ch.txt";
+    std::vector<abm::graph::edge_id_t> all_paths;
+
+    std::ifstream inputFile(route_path);
+    // test file open
+    if (inputFile) {
+      abm::graph::vertex_t value;
+      // read the elements in the file into a vector
+      while (inputFile >> value) {
+        all_paths.push_back(value);
+      }
+    }
+    lanemap.read_path(all_paths);
+    auto indexPath = lanemap.indexPathVec();
+    auto eid2index = lanemap.edgeIdToLaneMapNum();
+    REQUIRE(indexPath.at(0) == eid2index.at(2));
+    REQUIRE(indexPath.at(1) == eid2index.at(6));
+    REQUIRE(indexPath.at(2) == -1);
+    REQUIRE(indexPath.at(3) == eid2index.at(0));
+    REQUIRE(indexPath.at(4) == eid2index.at(4));
+    REQUIRE(indexPath.at(5) == -1);
   }
 }

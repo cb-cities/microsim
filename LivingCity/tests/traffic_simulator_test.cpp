@@ -9,6 +9,19 @@ TEST_CASE("CHECK SIMULATOR", "[SIMULATOR]") {
     std::string networkPath = "../tests/test_data/";
     std::string odFileName = "od.csv";
     auto network = std::make_shared<LC::Network>(networkPath, odFileName);
+    std::string route_path = "../tests/test_data/all_paths_ch.txt";
+    std::vector<abm::graph::edge_id_t> all_paths;
+
+    std::ifstream inputFile(route_path);
+    // test file open
+    if (inputFile) {
+        abm::graph::vertex_t value;
+        // read the elements in the file into a vector
+        while (inputFile >> value) {
+            all_paths.push_back(value);
+        }
+    }
+    network->map_person2init_edge (all_paths);
 
     TrafficSimulator simulator(&cg.roadGraph, simParameters,network);
 
@@ -40,4 +53,11 @@ TEST_CASE("CHECK SIMULATOR", "[SIMULATOR]") {
         REQUIRE(a3.time_departure == 400);
 
     }
+    SECTION("Check simulation") {
+
+        simulator.load_agents();
+        simulator.simulateInGPU (all_paths);
+
+    }
+
 }
