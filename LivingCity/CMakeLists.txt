@@ -154,6 +154,7 @@ target_link_libraries(lmicrosim
         ${LAPACK_LIBRARIES}
         ${OpenCV_LIBS}
         ${CHROUTING_LIB}
+        ${KITROUTING_LIB}
         Qt5::Widgets)
 
 

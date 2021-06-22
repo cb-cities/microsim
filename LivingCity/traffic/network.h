@@ -27,12 +27,20 @@ public:
 
   std::vector<std::vector<double>> edge_weights();
 
+  std::vector<unsigned int> edge_weights_kit();
+
+
+  std::vector<unsigned int> heads();
+
+  std::vector<unsigned int> tails();
+
+
   abm::graph::vertex_t num_edges() { return street_graph_->edges_.size(); }
   int num_vertices() {
     return street_graph_->vertices_data_.size();
   }
 
-  const std::vector<std::vector<long>> &od_pairs() { return od_pairs_; }
+  const std::vector<std::vector<unsigned int>> &od_pairs() { return od_pairs_; }
   const std::vector<float> &dep_time() const { return dep_time_; }
   const unsigned long totalNumPeople() const { return od_pairs_.size(); }
   void
@@ -43,7 +51,7 @@ private:
   std::string nodeFileName_;
   std::string odFileName_;
   std::shared_ptr<abm::Graph> street_graph_;
-  std::vector<std::vector<long>> od_pairs_;
+  std::vector<std::vector<unsigned int>> od_pairs_;
   std::vector<float> dep_time_;
 
   void loadABMGraph_();

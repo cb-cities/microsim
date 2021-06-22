@@ -54,11 +54,11 @@ TEST_CASE("CHECK LANEMAP", "[lanemap]") {
     lanemap.read_path(all_paths);
     auto indexPath = lanemap.indexPathVec();
     auto eid2index = lanemap.edgeIdToLaneMapNum();
-    REQUIRE(indexPath.at(0) == eid2index.at(2));
-    REQUIRE(indexPath.at(1) == eid2index.at(6));
+    REQUIRE(indexPath.at(0) == eid2index.at(1));
+    REQUIRE(indexPath.at(1) == eid2index.at(3));
     REQUIRE(indexPath.at(2) == -1);
     REQUIRE(indexPath.at(3) == eid2index.at(0));
-    REQUIRE(indexPath.at(4) == eid2index.at(4));
+    REQUIRE(indexPath.at(4) == eid2index.at(1));
     REQUIRE(indexPath.at(5) == -1);
   }
 }
