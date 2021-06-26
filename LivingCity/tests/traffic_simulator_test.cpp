@@ -22,7 +22,7 @@ TEST_CASE("CHECK SIMULATOR", "[SIMULATOR]") {
         }
     }
     network->map_person2init_edge (all_paths);
-    TrafficSimulator simulator(&cg.roadGraph, simParameters,network);
+    TrafficSimulator simulator(&cg.roadGraph, simParameters,network,"./test_results/");
 
     SECTION("Check loaded agents") {
 
@@ -54,7 +54,7 @@ TEST_CASE("CHECK SIMULATOR", "[SIMULATOR]") {
     }
     SECTION("Check simulation") {
         simulator.load_agents();
-        simulator.simulateInGPU (all_paths);
+        simulator.simulateInGPU (all_paths,0,600);
     }
 
 }

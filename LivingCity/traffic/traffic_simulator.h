@@ -6,6 +6,7 @@
 #include <qt5/QtCore/qcoreapplication.h>
 #include <thread>
 #include <unistd.h>
+#include <boost/filesystem.hpp>
 
 #include "agent.h"
 #include "b18CUDA_trafficSimulator.h"
@@ -21,7 +22,7 @@ class TrafficSimulator {
 
 public:
   TrafficSimulator(RoadGraph *geoRoadGraph, const IDMParameters &simParameters,
-                   std::shared_ptr<Network> network);
+                   std::shared_ptr<Network> network, const std::string& save_path = "./results/");
   ~TrafficSimulator();
 
   void reset_agent();
@@ -30,7 +31,8 @@ public:
 
   const std::vector<Agent> &agents() const { return agents_; }
 
-  void simulateInGPU(const std::vector<abm::graph::edge_id_t> &paths_SP);
+  void simulateInGPU(const std::vector<abm::graph::edge_id_t> &paths_SP,
+                     float start_time, float end_time);
 
   //  float deltaTime;
   //  int threadNumber;
@@ -72,8 +74,9 @@ public:
   std::vector<float> numVehPerLinePerTimeInterval;
 
   //
-  void save_edges(const std::vector<std::vector<unsigned>> &edge_upstream_count,
-                  std::vector<std::vector<unsigned>> &edge_downstream_count);
+  void
+  save_edges(const std::vector<std::vector<unsigned>> &edge_upstream_count,
+             const std::vector<std::vector<unsigned>> &edge_downstream_count);
 
   void savePeopleAndRoutesSP(int numOfPass,
                              const std::shared_ptr<abm::Graph> &graph_,
@@ -84,12 +87,21 @@ public:
   //  B18GridPollution gridPollution;
 
 private:
+  void writePeopleFile(int numOfPass, const std::shared_ptr<abm::Graph> &graph_,
+                       int start_time, int end_time,
+                       const std::vector<Agent> &agents_, float deltaTime);
+  void writeRouteFile(int numOfPass,
+                      const std::vector<abm::graph::edge_id_t> &paths_SP,
+                      int start_time, int end_time);
+  void writeIndexPathVecFile(int numOfPass, int start_time, int end_time,
+                             const std::vector<uint> &indexPathVec);
   RoadGraph *simRoadGraph_;
   std::shared_ptr<Network> network_;
   IDMParameters simParameters_;
   std::vector<Agent> agents_;
   Lanemap lanemap_;
   double deltaTime = 0.5;
+  std::string save_path_ = "./";
 };
 } // namespace LC
 
