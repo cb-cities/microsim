@@ -51,7 +51,6 @@ void TrafficSimulator::load_agents() {
     Agent agent(src_vertex, tgt_vertex, dep_time, simParameters_);
     agent.indexPathInit = graph->person_to_init_edge_[i];
     agent.indexPathCurr = graph->person_to_init_edge_[i];
-    std::cout << agent.indexPathCurr << std::endl;
     agents_.emplace_back(agent);
   }
 
@@ -333,7 +332,7 @@ void TrafficSimulator::writePeopleFile(
     QTextStream streamP(&peopleFile);
     streamP << "p,init_intersection,end_intersection,time_departure,traveled_"
                "time(s),"
-               "co,gas,distance,avg_v(m/s),status,\n";
+               "co,gas,distance,cum_distance,avg_v(m/s),status,\n";
 
     for (int p = 0; p < agents_.size(); p++) {
       streamP << p;
@@ -344,6 +343,7 @@ void TrafficSimulator::writePeopleFile(
       streamP << "," << agents_[p].co;
       streamP << "," << agents_[p].gas;
       streamP << "," << agents_[p].dist_traveled;
+      streamP << "," << agents_[p].cum_length;
       streamP << "," << (agents_[p].cum_v / agents_[p].num_steps);
       streamP << "," << agents_[p].active;
       streamP << "\n";

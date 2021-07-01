@@ -64,6 +64,7 @@ struct Agent {
   unsigned short num_steps = 0;
   float co = 0;
   float gas;
+  float cum_length = 0;
 
   // IDM
   float v = 0;     // current velocity

@@ -8,16 +8,23 @@ namespace LC {
 // using namespace std::chrono;
 
 void B18CommandLineVersion::runB18Simulation() {
-  QSettings settings("../command_line_options.ini", QSettings::IniFormat);
+  QSettings settings("./command_line_options.ini", QSettings::IniFormat);
   bool usePrevPaths = settings.value("USE_PREV_PATHS", false).toBool();
   auto networkPath =
       settings.value("NETWORK_PATH", "../berkeley_2018/new_full_network/")
           .toString();
   std::string networkPathSP = networkPath.toStdString();
+  auto save_path_orig = settings.value("SAVE_PATH", "./results/").toString();
+  std::string save_path = save_path_orig.toStdString();
+
   const float start = settings.value("START", 5 * 3600).toFloat();
   const float end = settings.value("END", 12 * 3600).toFloat();
   const bool showBenchmarks = settings.value("SHOW_BENCHMARKS", false).toBool();
-  const IDMParameters simParameters;
+  IDMParameters simParameters;
+  simParameters.a = settings.value("a", 0.557).toFloat();
+  simParameters.b = settings.value("b", 2.902).toFloat();
+  simParameters.T = settings.value("T", 0.543).toFloat();
+  simParameters.s_0 = settings.value("s_0", 1.38).toFloat();
 
   std::string odDemandPath =
       settings.value("OD_DEMAND_FILENAME", "od_demand_5to12.csv")
@@ -85,11 +92,6 @@ void B18CommandLineVersion::runB18Simulation() {
     routingCH.stopAndEndBenchmark();
 
     CHoutputNodesToEdgesConversion.startMeasuring();
-    std::cout << all_paths_ch.size() << "; " << all_paths_ch[0].size()
-              << std::endl;
-    std::cout << all_paths_ch.size() << "; " << all_paths_ch[10].size()
-              << std::endl;
-
     // convert from nodes to edges
     for (int i = 0; i < all_paths_ch.size(); i++) {
       for (int j = 0; j < all_paths_ch[i].size() - 1; j++) {
@@ -200,7 +202,7 @@ void B18CommandLineVersion::runB18Simulation() {
 
   ClientGeometry cg;
   TrafficSimulator simulator(&cg.roadGraph, simParameters, network,
-                             "./case1_results/");
+                             save_path);
 
   simulator.load_agents();
   simulator.simulateInGPU(all_paths, start, end);
