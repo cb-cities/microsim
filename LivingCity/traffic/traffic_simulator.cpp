@@ -331,7 +331,7 @@ void TrafficSimulator::writePeopleFile(
               << std::endl;
     QTextStream streamP(&peopleFile);
     streamP << "p,init_intersection,end_intersection,time_departure,traveled_"
-               "time(s),"
+               "time(s),waited_steps,slowdown_steps,"
                "co,gas,distance,cum_distance,avg_v(m/s),status,\n";
 
     for (int p = 0; p < agents_.size(); p++) {
@@ -339,7 +339,9 @@ void TrafficSimulator::writePeopleFile(
       streamP << "," << agents_[p].init_intersection;
       streamP << "," << agents_[p].end_intersection;
       streamP << "," << agents_[p].time_departure;
-      streamP << "," << agents_[p].num_steps * deltaTime;
+      streamP << "," << agents_[p].num_steps;
+      streamP << "," << agents_[p].waited_steps;
+      streamP << "," << agents_[p].slow_down_steps;
       streamP << "," << agents_[p].co;
       streamP << "," << agents_[p].gas;
       streamP << "," << agents_[p].dist_traveled;

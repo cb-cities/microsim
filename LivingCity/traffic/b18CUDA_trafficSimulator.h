@@ -33,5 +33,7 @@ extern void b18SimulateTrafficCUDA(float currentTime, uint numPeople,
                                    uint numIntersections, float deltaTime, const IDMParameters simParameters,
                                    int numBlocks, int threadsPerBlock);
 
+
+
 #endif // B18_TRAFFIC_SIMULATION_H
 

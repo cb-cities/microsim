@@ -65,6 +65,8 @@ struct Agent {
   float co = 0;
   float gas;
   float cum_length = 0;
+  unsigned short waited_steps = 0;
+  unsigned short slow_down_steps = 0;
 
   // IDM
   float v = 0;     // current velocity
