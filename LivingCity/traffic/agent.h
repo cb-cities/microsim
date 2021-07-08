@@ -24,6 +24,7 @@ struct Agent {
     a = param.a;
     b = param.b;
     T = param.T;
+    s_0 = param.s_0;
   }
 
   unsigned int init_intersection;
@@ -63,23 +64,26 @@ struct Agent {
   // data
   unsigned short num_steps = 0;
   float co = 0;
-  float gas;
+  float gas = 0;
   float cum_length = 0;
   unsigned short waited_steps = 0;
   unsigned short slow_down_steps = 0;
 
   // IDM
   float v = 0;     // current velocity
+  float delta_v = 0; // velocity difference to the front car
+  float s = 0; //space to the front car
   float a;         // acceleration
   float b;         // break
   float T;         // Time heading
+  float s_0;       // min car following dist
   float cum_v = 0; // Cumulative velocity of each person across all iterations
 
   // lane changing
   unsigned short LC_initOKLanes;
   unsigned short LC_endOKLanes;
   unsigned short LC_stateofLaneChanging = 0;
-
+  int num_lane_change = 0;
   int isInIntersection;
 };
 

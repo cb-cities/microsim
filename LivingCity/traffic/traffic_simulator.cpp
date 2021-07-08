@@ -332,7 +332,7 @@ void TrafficSimulator::writePeopleFile(
     QTextStream streamP(&peopleFile);
     streamP << "p,init_intersection,end_intersection,time_departure,traveled_"
                "time(s),waited_steps,slowdown_steps,"
-               "co,gas,distance,cum_distance,avg_v(m/s),status,\n";
+               "co,gas,distance,cum_distance,avg_v(m/s),status,num_lc\n";
 
     for (int p = 0; p < agents_.size(); p++) {
       streamP << p;
@@ -348,6 +348,7 @@ void TrafficSimulator::writePeopleFile(
       streamP << "," << agents_[p].cum_length;
       streamP << "," << (agents_[p].cum_v / agents_[p].num_steps);
       streamP << "," << agents_[p].active;
+        streamP << "," << agents_[p].num_lane_change;
       streamP << "\n";
     }
 
