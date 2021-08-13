@@ -16,27 +16,23 @@ TEST_CASE("CHECK LANEMAP", "[lanemap]") {
     auto &edge_data = lanemap.edgesData();
     auto &edgeIdToLaneMapNum = lanemap.edgeIdToLaneMapNum();
 
-    REQUIRE(edge_data.size() == 9);
-    REQUIRE(edgeIdToLaneMapNum.size() == 6 + 1);
+    REQUIRE(edge_data.size() == 12);
+    REQUIRE(edgeIdToLaneMapNum.size() == 6);
 
     auto i0 = edgeIdToLaneMapNum.at(0);
     auto e0 = edge_data.at(i0);
-    REQUIRE(e0.length == 50);
+    REQUIRE(e0.length == 2000);
     REQUIRE(e0.nextInters == 2);
-
-    auto i6 = edgeIdToLaneMapNum.at(6);
-    auto e6 = edge_data.at(i6);
-    REQUIRE(e6.length == 400);
-    REQUIRE(e6.nextInters == 4);
+//
+//    auto i6 = edgeIdToLaneMapNum.at(6);
+//    auto e6 = edge_data.at(i6);
+//    REQUIRE(e6.length == 400);
+//    REQUIRE(e6.nextInters == 4);
   }
   SECTION("Check Lanemap") {
     auto &lanemap_array = lanemap.lanemap_array();
-    REQUIRE(lanemap_array.size() == 9 * 1024 * 2);
+    REQUIRE(lanemap_array.size() == 12 * 1024 * 2);
     REQUIRE(lanemap_array.at(399) == 0xFF);
-  }
-  SECTION("Check intersections") {
-    auto &interections = lanemap.intersections();
-    REQUIRE(interections.size() == 5);
   }
   SECTION("Check paths") {
     std::string route_path = "../tests/test_data/all_paths_ch.txt";
@@ -60,5 +56,20 @@ TEST_CASE("CHECK LANEMAP", "[lanemap]") {
     REQUIRE(indexPath.at(3) == eid2index.at(0));
     REQUIRE(indexPath.at(4) == eid2index.at(1));
     REQUIRE(indexPath.at(5) == -1);
+  }
+  SECTION("Check Intersections") {
+      auto &intersections = lanemap.intersections ();
+      auto &edgeIdToLaneMapNum = lanemap.edgeIdToLaneMapNum();
+      REQUIRE(intersections.size() == 5);
+
+      auto &intersection2 = intersections[2];
+      std::vector<unsigned int> dir_01 = {edgeIdToLaneMapNum[0],edgeIdToLaneMapNum[1]};
+      auto &q_01 = intersection2.dir2q.at(dir_01);
+      q_01->queue[q_01->q_ptr] = 1000;
+      q_01->q_ptr ++;
+      auto & paird_q = intersection2.paired_queues.at(0);
+      auto &q_01_vect = paird_q.at(0);
+      REQUIRE(q_01_vect.queue[0] == 1000);
+      REQUIRE(q_01_vect.q_ptr == 1);
   }
 }

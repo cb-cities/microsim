@@ -7,6 +7,7 @@
 #include "config.h"
 #include "traffic/sp/graph.h"
 #include <QVector3D>
+#include <set>
 
 namespace LC {
 
@@ -22,8 +23,8 @@ public:
     create_intersections_(graph);
   };
 
-  void resetIntersections(std::vector<B18IntersectionData> &intersections,
-                          std::vector<uchar> &trafficLights);
+//  void resetIntersections(std::vector<B18IntersectionData> &intersections,
+//                          std::vector<uchar> &trafficLights);
 
   const std::vector<B18EdgeData> &edgesData() const { return edgesData_; }
 

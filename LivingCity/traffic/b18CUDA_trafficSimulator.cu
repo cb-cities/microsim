@@ -470,7 +470,7 @@ __device__ uint lanemap_pos(const uint currentEdge, const uint laneNum,
                             const uint pos_in_lane) {
   uint kMaxMapWidthM = 1024;
   uint num_cell = pos_in_lane / kMaxMapWidthM;
-  return currentEdge + kMaxMapWidthM * laneNum + kMaxMapWidthM * num_cell +
+  return kMaxMapWidthM*currentEdge + kMaxMapWidthM * laneNum + kMaxMapWidthM * num_cell +
          pos_in_lane % kMaxMapWidthM;
 }
 
@@ -577,9 +577,7 @@ __device__ void check_front_car(LC::Agent &agent, uchar *laneMap,
   // NEXT LINE
   // e) MOVING ALONG IN THE NEXT EDGE
   if (!found && numCellsCheck > 0) { // check if in next line
-    if ((agent.nextEdge != -1) &&
-        (agent.edgeNextInters !=
-         agent.end_intersection)) { // we haven't arrived to
+    if ((agent.nextEdge != -1)) { // we haven't arrived to
       // destination next line)
       ushort nextEdgeLaneToBe = agent.numOfLaneInEdge; // same lane
 
@@ -614,8 +612,7 @@ __device__ void check_front_car(LC::Agent &agent, uchar *laneMap,
   agent.delta_v = delta_v;
 }
 
-__device__ void update_agent_info(LC::Agent &agent, float deltaTime,
-                                  const IDMParameters simParameters) {
+__device__ void update_agent_info(LC::Agent &agent, float deltaTime) {
 
   // update speed
   float thirdTerm = 0;
@@ -623,7 +620,7 @@ __device__ void update_agent_info(LC::Agent &agent, float deltaTime,
     // if (found == true) { //car in front and slower than us
     // 2.1.2 calculate dv_dt
     float s_star =
-        simParameters.s_0 +
+        agent.s_0 +
         fmax(0.0f, (agent.v * agent.T + (agent.v * agent.delta_v) /
                                             (2 * sqrtf(agent.a * agent.b))));
     thirdTerm = powf(((s_star) / (agent.s)), 2);
@@ -648,84 +645,77 @@ __device__ void update_agent_info(LC::Agent &agent, float deltaTime,
   agent.posInLaneM += numMToMove;
 }
 
-__device__ void change_lane(LC::Agent *trafficPersonVec, int p,
-                            const IDMParameters simParameters,
-                            uint *indexPathVec, uchar *laneMap,
+__device__ void change_lane(LC::Agent &agent, uchar *laneMap,
                             uint mapToReadShift, uchar *trafficLights) {
 
-  if (trafficPersonVec[p].posInLaneM >
-      trafficPersonVec[p].length) { // skip if will go to next edge
+
+  if (agent.posInLaneM > agent.length) { // skip if will go to next edge
     return;
   }
 
-  uint currentEdge = indexPathVec[trafficPersonVec[p].indexPathCurr];
-  uint nextEdge = indexPathVec[trafficPersonVec[p].indexPathCurr + 1];
-  if (trafficPersonVec[p].edgeNumLanes < 2 || nextEdge == -1) {
+  if (agent.edgeNumLanes < 2 || agent.nextEdge == -1) {
     return; // skip if reach the end or have no lane to change
   }
 
-  if (trafficPersonVec[p].v > 3.0f && // at least 10km/h to try to change lane
-      trafficPersonVec[p].delta_v < -0.1f && // decelerating
-      trafficPersonVec[p].num_steps % 5 ==
-          0) { // just check every (5 steps) 5 seconds and make sure the agent
-               // has enough speed
+
+
+  if (agent.v > 3.0f &&           // at least 10km/h to try to change lane
+      agent.delta_v < -1.0f &&    // decelerating
+      agent.num_steps % 5 == 0) { // just check every (5 steps) 5 seconds and
+                                  // make sure the agent has enough speed
     // LC 1 update lane changing status
-    if (trafficPersonVec[p].LC_stateofLaneChanging == 0) {
-      // 2.2-exp((x-1)^2)
-      float x = trafficPersonVec[p].posInLaneM / trafficPersonVec[p].length;
-
-      if (x > 0.4f) { // just after 40% of the road
-        float probabiltyMandatoryState = 2.2 - exp((x - 1) * (x - 1));
-
-        // if (((float) qrand() / RAND_MAX) < probabiltyMandatoryState) {
-        if ((((int)(x * 100) % 100) / 100.0f) <
-            probabiltyMandatoryState) { // pseudo random number
-          trafficPersonVec[p].LC_stateofLaneChanging = 1;
-        }
-      }
-    }
-
+//    if (agent.LC_stateofLaneChanging == 0) {
+//      // 2.2-exp((x-1)^2)
+//      float x = agent.posInLaneM / agent.length;
+//
+//      if (x > 0.4f) { // just after 40% of the road
+//        float probabiltyMandatoryState = 2.2 - exp((x - 1) * (x - 1));
+//
+//        // if (((float) qrand() / RAND_MAX) < probabiltyMandatoryState) {
+//        if ((((int)(x * 100) % 100) / 100.0f) <
+//            probabiltyMandatoryState) { // pseudo random number
+//          agent.LC_stateofLaneChanging = 1;
+//        }
+//      }
+//    }
     ////////////////////////////////////////////////////
     // LC 2 NOT MANDATORY STATE
-    if (trafficPersonVec[p].LC_stateofLaneChanging == 0) {
+    if (agent.LC_stateofLaneChanging == 0) {
+
       // discretionary change: v slower than the current road limit and
       // deccelerating and moving
-      if ((trafficPersonVec[p].v <
-           (trafficPersonVec[p].maxSpeedMperSec * 0.8f)) &&
-          trafficPersonVec[p].v > 3.0f) {
-        bool leftLane = trafficPersonVec[p].numOfLaneInEdge >
-                        0; // at least one lane on the left
+      if ((agent.v < (agent.maxSpeedMperSec * 0.8f)) && agent.v > 3.0f) {
+        bool leftLane =
+            agent.numOfLaneInEdge > 0; // at least one lane on the left
         bool rightLane =
-            trafficPersonVec[p].numOfLaneInEdge <
-            trafficPersonVec[p].edgeNumLanes - 1; // at least one lane
+            agent.numOfLaneInEdge < agent.edgeNumLanes - 1; // at least one lane
 
         if (leftLane && rightLane) {
-          if (int(trafficPersonVec[p].v) % 2 ==
-              0) { // pseudo random for change lane
+          if (int(agent.v) % 2 == 0) { // pseudo random for change lane
             leftLane = false;
           }
         }
 
         ushort laneToCheck;
         if (leftLane) {
-          laneToCheck = trafficPersonVec[p].numOfLaneInEdge - 1;
+          laneToCheck = agent.numOfLaneInEdge - 1;
         } else {
-          laneToCheck = trafficPersonVec[p].numOfLaneInEdge + 1;
+          laneToCheck = agent.numOfLaneInEdge + 1;
         }
 
         uchar v_a, v_b;
         float gap_a, gap_b;
         // printf("p %u LC 1 %u\n",p,laneToCheck);
         uchar trafficLightState =
-            trafficLights[currentEdge + trafficPersonVec[p].numOfLaneInEdge];
+            trafficLights[agent.currentEdge + agent.numOfLaneInEdge];
 
         calculateGapsLC(mapToReadShift, laneMap, trafficLightState, laneToCheck,
-                        currentEdge, trafficPersonVec[p].posInLaneM,
-                        trafficPersonVec[p].length, v_a, v_b, gap_a, gap_b);
+                        agent.currentEdge, agent.posInLaneM, agent.length, v_a,
+                        v_b, gap_a, gap_b);
 
         if (gap_a == 1000.0f && gap_b == 1000.0f) { // lag and lead car very far
-          trafficPersonVec[p].numOfLaneInEdge = laneToCheck; // CHANGE LINE
-          trafficPersonVec[p].num_lane_change += 1;
+          agent.numOfLaneInEdge = laneToCheck;      // CHANGE LINE
+          agent.num_lane_change += 1;
         } else { // NOT ALONE
           float b1A = 0.05f, b2A = 0.15f;
           float b1B = 0.15f, b2B = 0.40f;
@@ -734,9 +724,8 @@ __device__ void change_lane(LC::Agent *trafficPersonVec, int p,
           bool acceptLC = true;
 
           if (gap_a != 1000.0f) {
-            g_na_D = fmax(simParameters.s_0,
-                          simParameters.s_0 + b1A * trafficPersonVec[p].v +
-                              b2A * (trafficPersonVec[p].v - v_a * 3.0f));
+            g_na_D = fmax(agent.s_0, agent.s_0 + b1A * agent.v +
+                                         b2A * (agent.v - v_a * 3.0f));
 
             if (gap_a < g_na_D) { // gap smaller than critical gap
               acceptLC = false;
@@ -744,9 +733,8 @@ __device__ void change_lane(LC::Agent *trafficPersonVec, int p,
           }
 
           if (acceptLC && gap_b != 1000.0f) {
-            g_bn_D = fmax(simParameters.s_0,
-                          simParameters.s_0 + b1B * v_b * 3.0f +
-                              b2B * (v_b * 3.0f - trafficPersonVec[p].v));
+            g_bn_D = fmax(agent.s_0, agent.s_0 + b1B * v_b * 3.0f +
+                                         b2B * (v_b * 3.0f - agent.v));
 
             if (gap_b < g_bn_D) { // gap smaller than critical gap
               acceptLC = false;
@@ -754,8 +742,8 @@ __device__ void change_lane(LC::Agent *trafficPersonVec, int p,
           }
 
           if (acceptLC) {
-            trafficPersonVec[p].numOfLaneInEdge = laneToCheck; // CHANGE LINE
-            trafficPersonVec[p].num_lane_change += 1;
+            agent.numOfLaneInEdge = laneToCheck; // CHANGE LINE
+            agent.num_lane_change += 1;
           }
         }
       }
@@ -764,82 +752,63 @@ __device__ void change_lane(LC::Agent *trafficPersonVec, int p,
   }
 }
 
-__device__ void write2lane_map(LC::Agent *trafficPersonVec, int p,
-                               LC::B18EdgeData *edgesData, uint *indexPathVec,
-                               uchar *laneMap, uint mapToWriteShift) {
-  int kMaxMapWidthM = 1024;
-  uint currentEdge = indexPathVec[trafficPersonVec[p].indexPathCurr];
-  uint nextEdge = indexPathVec[trafficPersonVec[p].indexPathCurr + 1];
+__device__ void write2lane_map(LC::Agent &agent, LC::B18EdgeData *edgesData,
+                               uint *indexPathVec, uchar *laneMap,
+                               uint mapToWriteShift) {
   // write to the lanemap if still on the edge
-  if (trafficPersonVec[p].posInLaneM <
-      trafficPersonVec[p].length) { // does not reach an intersection
-    uchar vInMpS =
-        (uchar)(trafficPersonVec[p].v * 3); // speed in m/s to fit in uchar
-    ushort posInLineCells = (ushort)(trafficPersonVec[p].posInLaneM);
-    const uint posToSample =
-        mapToWriteShift +
-        kMaxMapWidthM * (currentEdge + trafficPersonVec[p].numOfLaneInEdge) +
-        posInLineCells;
-    laneMap[posToSample] = vInMpS;
+  if (agent.posInLaneM < agent.length) { // does not reach an intersection
+    auto posToSample =
+        lanemap_pos(agent.currentEdge, agent.numOfLaneInEdge, agent.posInLaneM);
+    uchar vInMpS = (uchar)(agent.v * 3); // speed in m/s to fit in uchar
+    laneMap[mapToWriteShift + posToSample] = vInMpS;
     return;
   }
   // 2.2.1 find next edge
-  auto numMToMove = trafficPersonVec[p].posInLaneM - trafficPersonVec[p].length;
-  trafficPersonVec[p].dist_traveled += trafficPersonVec[p].length;
-  atomicAdd(&(edgesData[indexPathVec[trafficPersonVec[p].indexPathCurr]]
-                  .downstream_veh_count),
-            1);
+  auto numMToMove = agent.posInLaneM - agent.length;
+  agent.dist_traveled += agent.length;
+  atomicAdd(&(edgesData[agent.currentEdge].downstream_veh_count), 1);
 
-  if (nextEdge == -1) {             // if(curr_intersection==end_intersection)
-    trafficPersonVec[p].active = 2; // finished
+  if (agent.nextEdge == -1) { // if(curr_intersection==end_intersection)
+    agent.active = 2;         // finished
     return;
   }
   // move to the next edge
-  trafficPersonVec[p].indexPathCurr++;
-  trafficPersonVec[p].maxSpeedMperSec =
-      trafficPersonVec[p].nextEdgemaxSpeedMperSec;
-  trafficPersonVec[p].edgeNumLanes = trafficPersonVec[p].nextEdgeNumLanes;
-  trafficPersonVec[p].edgeNextInters = trafficPersonVec[p].nextEdgeNextInters;
-  trafficPersonVec[p].length = trafficPersonVec[p].nextEdgeLength;
-  trafficPersonVec[p].posInLaneM = numMToMove;
+  agent.indexPathCurr++;
+  agent.maxSpeedMperSec = agent.nextEdgemaxSpeedMperSec;
+  agent.edgeNumLanes = agent.nextEdgeNumLanes;
+  agent.edgeNextInters = agent.nextEdgeNextInters;
+  agent.length = agent.nextEdgeLength;
+  agent.posInLaneM = numMToMove;
+  agent.currentEdge = indexPathVec[agent.indexPathCurr];
 
-  atomicAdd(&(edgesData[indexPathVec[trafficPersonVec[p].indexPathCurr]]
-                  .upstream_veh_count),
-            1);
-  if (trafficPersonVec[p].numOfLaneInEdge >= trafficPersonVec[p].edgeNumLanes) {
-    trafficPersonVec[p].numOfLaneInEdge =
-        trafficPersonVec[p].edgeNumLanes -
-        1; // change line if there are less roads
+  atomicAdd(&(edgesData[agent.currentEdge].upstream_veh_count), 1);
+  if (agent.numOfLaneInEdge >= agent.edgeNumLanes) {
+    agent.numOfLaneInEdge =
+        agent.edgeNumLanes - 1; // change line if there are less roads
   }
 
   ////////////
   // update next edge
-  uint nextNEdge = indexPathVec[trafficPersonVec[p].indexPathCurr + 1];
+  uint nextNEdge = indexPathVec[agent.indexPathCurr + 1];
   // trafficPersonVec[p].nextEdge=nextEdge;
   if (nextNEdge != -1) {
     // trafficPersonVec[p].nextPathEdge++;
-    trafficPersonVec[p].LC_initOKLanes = 0xFF;
-    trafficPersonVec[p].LC_endOKLanes = 0xFF;
+    agent.LC_initOKLanes = 0xFF;
+    agent.LC_endOKLanes = 0xFF;
 
     // 2.2.3 update person edgeData
     // trafficPersonVec[p].nextEdge=nextEdge;
-    trafficPersonVec[p].nextEdgemaxSpeedMperSec =
-        edgesData[nextNEdge].maxSpeedMperSec;
-    trafficPersonVec[p].nextEdgeNumLanes = edgesData[nextNEdge].numLines;
-    trafficPersonVec[p].nextEdgeNextInters =
-        edgesData[nextNEdge].nextIntersMapped;
-    trafficPersonVec[p].nextEdgeLength = edgesData[nextNEdge].length;
+    agent.nextEdgemaxSpeedMperSec = edgesData[nextNEdge].maxSpeedMperSec;
+    agent.nextEdgeNumLanes = edgesData[nextNEdge].numLines;
+    agent.nextEdgeNextInters = edgesData[nextNEdge].nextIntersMapped;
+    agent.nextEdgeLength = edgesData[nextNEdge].length;
   }
 
-  trafficPersonVec[p].LC_stateofLaneChanging = 0;
-  uchar vInMpS =
-      (uchar)(trafficPersonVec[p].v * 3); // speed in m/s to fit in uchar
-  ushort posInLineCells = (ushort)(trafficPersonVec[p].posInLaneM);
-  const uint posToSample =
-      mapToWriteShift +
-      kMaxMapWidthM * (currentEdge + trafficPersonVec[p].numOfLaneInEdge) +
-      posInLineCells;
-  laneMap[posToSample] = vInMpS;
+  agent.LC_stateofLaneChanging = 0;
+  auto posToSample =
+      lanemap_pos(agent.currentEdge, agent.numOfLaneInEdge, agent.posInLaneM);
+  uchar vInMpS = (uchar)(agent.v * 3); // speed in m/s to fit in uchar
+  laneMap[mapToWriteShift + posToSample] = vInMpS;
 }
 
 // Kernel that executes on the CUDA device
@@ -876,16 +845,12 @@ __global__ void kernel_trafficSimulation(
 
   // 2.1.1 Find front car
   check_front_car(agent, laneMap, deltaTime, mapToReadShift);
-
   // 2.1.2 Update agent information using the front car info
-  update_agent_info(agent, deltaTime, simParameters);
-
-  //   2.1.3 Perform lane changing if necessary
-  change_lane(trafficPersonVec, p, simParameters, indexPathVec, laneMap,
-              mapToReadShift, trafficLights);
+  update_agent_info(agent, deltaTime);
+  //  2.1.3 Perform lane changing if necessary
+  change_lane(agent, laneMap, mapToReadShift, trafficLights);
   // 2.1.4 write the updated agent info to lanemap
-  write2lane_map(trafficPersonVec, p, edgesData, indexPathVec, laneMap,
-                 mapToWriteShift);
+  write2lane_map(agent, edgesData, indexPathVec, laneMap, mapToWriteShift);
 
 } //
 

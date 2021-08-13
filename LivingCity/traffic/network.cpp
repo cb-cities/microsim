@@ -15,7 +15,7 @@ Network::Network(const std::string &networkPath,
   edgeFileName_ = networkPath + "edges.csv";
   nodeFileName_ = networkPath + "nodes.csv";
   odFileName_ = networkPath + odFileName;
-  street_graph_ = std::make_shared<abm::Graph>(true, networkPath);
+  street_graph_ = std::make_shared<abm::Graph>(false, networkPath);
 
   loadABMGraph_();
   read_od_pairs_();
