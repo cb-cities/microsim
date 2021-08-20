@@ -34,6 +34,7 @@ namespace LC {
 struct B18EdgeData {
   ushort numLines;
   uint nextInters;
+  uint vertex[2];
   float length;
   float maxSpeedMperSec;
   uint nextIntersMapped;
@@ -42,20 +43,34 @@ struct B18EdgeData {
   unsigned int downstream_veh_count = 0;
 };
 
-struct IntersectionQ{
-        int queue[3] = {};
-        int q_ptr = 0;
-    };
+//struct IntersectionQ{
+//        int queue[3] = {};
+//        int q_ptr = 0;
+//    };
+//
+//struct  B18IntersectionData{
+//    std::vector<std::vector<IntersectionQ>> paired_queues;
+//    std::map<std::vector<unsigned int>,IntersectionQ*> dir2q;
+//    //  ushort state;
+//  ushort state;
+//  ushort stateLine;
+//  ushort totalInOutEdges;
+//  uint edge[24]; // up to six arms intersection
+//  float nextEvent;
+//};
 
-struct  B18IntersectionData{
-    std::vector<std::vector<IntersectionQ>> paired_queues;
-    std::map<std::vector<unsigned int>,IntersectionQ*> dir2q;
-    //  ushort state;
-  ushort state;
-  ushort stateLine;
-  ushort totalInOutEdges;
-  uint edge[24]; // up to six arms intersection
-  float nextEvent;
+struct B18IntersectionData{
+    int lanemap_id[6];
+    int queue[30][5];
+    int pos[30] = {0};
+    unsigned num_edge;
+    unsigned num_queue;
+    ushort state;
+    ushort stateLine;
+    ushort totalInOutEdges;
+    uint edge[24]; // up to six arms intersection
+    float nextEvent;
+
 };
 
 

@@ -213,6 +213,7 @@ void TrafficSimulator::simulateInGPU(
 
   std::vector<std::vector<unsigned>> edge_upstream_count;
   std::vector<std::vector<unsigned>> edge_downstream_count;
+  std::vector<std::vector<unsigned>> intersection_count;
   while (currentTime < endTime) {
     // std::cout << "Current Time " << currentTime << "\n";
     // std::cout << "count " << count << "\n";
@@ -238,7 +239,7 @@ void TrafficSimulator::simulateInGPU(
       Benchmarker getDataCudatrafficPersonAndEdgesData(
           "Get data agents_ and edgesData (first time)");
       getDataCudatrafficPersonAndEdgesData.startMeasuring();
-      b18GetDataCUDA(agents_, edgesData);
+      b18GetDataCUDA(agents_, edgesData, intersections);
       getDataCudatrafficPersonAndEdgesData.stopAndEndBenchmark();
 
       std::vector<unsigned> upstream_counts(graph_->edges_.size());
@@ -255,6 +256,14 @@ void TrafficSimulator::simulateInGPU(
       }
       edge_upstream_count.emplace_back(upstream_counts);
       edge_downstream_count.emplace_back(downstream_counts);
+
+      // intersection monitoring
+      auto &intersection2 = intersections[2];
+      std::vector<unsigned> intersection_counts(intersection2.num_queue);
+      for (unsigned i = 0; i < intersection2.num_queue; i++) {
+        intersection_counts[i] = intersection2.pos[i];
+      }
+      intersection_count.emplace_back(intersection_counts);
       //      timerLoop.restart();
     }
 
@@ -270,7 +279,7 @@ void TrafficSimulator::simulateInGPU(
 
   Benchmarker getDataCudatrafficPersonAndEdgesData(
       "Get data agents_ and edgesData (second time)");
-  b18GetDataCUDA(agents_, edgesData);
+  b18GetDataCUDA(agents_, edgesData, intersections);
   getDataCudatrafficPersonAndEdgesData.startMeasuring();
   getDataCudatrafficPersonAndEdgesData.stopAndEndBenchmark();
   b18GetSampleTrafficCUDA(accSpeedPerLinePerTimeInterval,
@@ -306,6 +315,7 @@ void TrafficSimulator::simulateInGPU(
   // list
   fileOutput.startMeasuring();
   save_edges(edge_upstream_count, edge_downstream_count);
+  save_intersection (intersection_count);
   savePeopleAndRoutesSP(0, graph_, paths_SP, (int)0, (int)1);
   fileOutput.stopAndEndBenchmark();
   getDataBench.stopAndEndBenchmark();
@@ -348,7 +358,7 @@ void TrafficSimulator::writePeopleFile(
       streamP << "," << agents_[p].cum_length;
       streamP << "," << (agents_[p].cum_v / agents_[p].num_steps);
       streamP << "," << agents_[p].active;
-        streamP << "," << agents_[p].num_lane_change;
+      streamP << "," << agents_[p].num_lane_change;
       streamP << "\n";
     }
 
@@ -481,6 +491,19 @@ void TrafficSimulator::save_edges(
       downFile << e << ",";
     }
     downFile << "\n";
+  }
+}
+
+void TrafficSimulator::save_intersection(
+    const std::vector<std::vector<unsigned>> &intersection_count) {
+
+  std::ofstream file(save_path_ + "intersection_count.csv");
+
+  for (const auto &et : intersection_count) {
+    for (const auto &e : et) {
+      file << e << ",";
+    }
+    file << "\n";
   }
 }
 

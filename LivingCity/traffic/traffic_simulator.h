@@ -2,11 +2,11 @@
 #ifndef LC_B18_TRAFFIC_SIMULATOR_H
 #define LC_B18_TRAFFIC_SIMULATOR_H
 
+#include <boost/filesystem.hpp>
 #include <qt5/QtCore/QSettings>
 #include <qt5/QtCore/qcoreapplication.h>
 #include <thread>
 #include <unistd.h>
-#include <boost/filesystem.hpp>
 
 #include "agent.h"
 #include "b18CUDA_trafficSimulator.h"
@@ -22,7 +22,8 @@ class TrafficSimulator {
 
 public:
   TrafficSimulator(RoadGraph *geoRoadGraph, const IDMParameters &simParameters,
-                   std::shared_ptr<Network> network, const std::string& save_path = "./results/");
+                   std::shared_ptr<Network> network,
+                   const std::string &save_path = "./results/");
   ~TrafficSimulator();
 
   void reset_agent();
@@ -77,6 +78,9 @@ public:
   void
   save_edges(const std::vector<std::vector<unsigned>> &edge_upstream_count,
              const std::vector<std::vector<unsigned>> &edge_downstream_count);
+
+  void save_intersection(
+      const std::vector<std::vector<unsigned>> &intersection_count);
 
   void savePeopleAndRoutesSP(int numOfPass,
                              const std::shared_ptr<abm::Graph> &graph_,

@@ -23,8 +23,8 @@ public:
     create_intersections_(graph);
   };
 
-//  void resetIntersections(std::vector<B18IntersectionData> &intersections,
-//                          std::vector<uchar> &trafficLights);
+  //  void resetIntersections(std::vector<B18IntersectionData> &intersections,
+  //                          std::vector<uchar> &trafficLights);
 
   const std::vector<B18EdgeData> &edgesData() const { return edgesData_; }
 
@@ -50,10 +50,9 @@ public:
 
   void read_path(std::vector<abm::graph::edge_id_t> paths);
 
-  const std::vector<uint>& indexPathVec ()const { return indexPathVec_;}
+  const std::vector<uint> &indexPathVec() const { return indexPathVec_; }
 
-  const std::vector<uchar>& traffic_lights () const {return traffic_lights_;}
-
+  const std::vector<uchar> &traffic_lights() const { return traffic_lights_; }
 
 private:
   std::vector<uchar> laneMap_;
@@ -71,6 +70,7 @@ private:
   void create_edgesData_(const std::shared_ptr<abm::Graph> &graph);
   void create_LaneMap_();
   void create_intersections_(const std::shared_ptr<abm::Graph> &graph);
+//  void convert_intersections_(const std::shared_ptr<abm::Graph> &graph);
 };
 } // namespace LC
 

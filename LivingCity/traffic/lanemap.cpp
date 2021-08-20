@@ -51,6 +51,8 @@ void Lanemap::create_edgesData_(const std::shared_ptr<abm::Graph> &graph) {
     const int numWidthNeeded = ceil(edge_val[0] / kMaxMapWidthM_);
     edgesData_[tNumMapWidth].numLines = numLanes;
     edgesData_[tNumMapWidth].nextInters = std::get<1>(std::get<0>(x));
+    edgesData_[tNumMapWidth].vertex[0] = std::get<0>(std::get<0>(x));
+    edgesData_[tNumMapWidth].vertex[1] = std::get<1>(std::get<0>(x));
 
     edgeDescToLaneMapNum_.insert(std::make_pair(x.second, tNumMapWidth));
     laneMapNumToEdgeDesc_.insert(std::make_pair(tNumMapWidth, x.second));
@@ -83,36 +85,56 @@ void Lanemap::read_path(std::vector<abm::graph::edge_id_t> paths) {
   }
 }
 
+// void Lanemap::create_intersections_(const std::shared_ptr<abm::Graph> &graph)
+// {
+//  intersections_.resize(graph->vertex_edges_.size()); // as many as vertices
+//  traffic_lights_.assign(tNumMapWidth_, 0);
+//  for (const auto &vertex_edges : graph->vertex_edges_) {
+//    auto vertex = std::get<0>(vertex_edges);
+//    auto &intersection = intersections_[vertex];
+//    // match the edges
+//    auto edges = graph->vertex_in_edges_[vertex];
+//    //    auto out_edges = graph->vertex_out_edges_[vertex];
+//    //    edges.insert( edges.end(), out_edges.begin(), out_edges.end() );
+//    for (unsigned i = 0; i < edges.size(); i++) {
+//      auto edge_in = edges[i];
+//      auto inedge_id =
+//          graph->edge_ids_[edge_in->first.first][edge_in->first.second];
+//      auto lanemap_id_in = edgeIdToLaneMapNum_[inedge_id];
+//      for (unsigned j = i + 1; j < edges.size(); j++) {
+//        auto edge_out = edges[j];
+//        auto outedge_id =
+//            graph->edge_ids_[edge_out->first.first][edge_out->first.second];
+//        auto lanemap_id_out = edgeIdToLaneMapNum_[outedge_id];
+//
+//        IntersectionQ q_in, q_out;
+//        std::vector<IntersectionQ> q_pair = {q_in, q_out};
+//        intersection.paired_queues.emplace_back(q_pair);
+//        std::vector<unsigned int> dir1 = {lanemap_id_in, lanemap_id_out};
+//        std::vector<unsigned int> dir2 = {lanemap_id_out, lanemap_id_in};
+//        intersection.dir2q[dir1] = &intersection.paired_queues.back()[0];
+//        intersection.dir2q[dir2] = &intersection.paired_queues.back()[1];
+//      }
+//    }
+//  }
+//}
+//
 void Lanemap::create_intersections_(const std::shared_ptr<abm::Graph> &graph) {
   intersections_.resize(graph->vertex_edges_.size()); // as many as vertices
   traffic_lights_.assign(tNumMapWidth_, 0);
   for (const auto &vertex_edges : graph->vertex_edges_) {
     auto vertex = std::get<0>(vertex_edges);
-    auto & intersection = intersections_[vertex];
-    // match the edges
+    auto &intersection = intersections_[vertex];
     auto edges = graph->vertex_in_edges_[vertex];
-//    auto out_edges = graph->vertex_out_edges_[vertex];
-//    edges.insert( edges.end(), out_edges.begin(), out_edges.end() );
+    intersection.num_edge = edges.size();
     for (unsigned i = 0; i < edges.size(); i++) {
-      auto edge_in = edges[i];
-      auto inedge_id =
-          graph->edge_ids_[edge_in->first.first][edge_in->first.second];
-      auto lanemap_id_in = edgeIdToLaneMapNum_[inedge_id];
-      for (unsigned j = i + 1; j < edges.size(); j++) {
-        auto edge_out = edges[j];
-        auto outedge_id =
-            graph->edge_ids_[edge_out->first.first][edge_out->first.second];
-        auto lanemap_id_out = edgeIdToLaneMapNum_[outedge_id];
-
-        IntersectionQ q_in, q_out;
-        std::vector<IntersectionQ> q_pair = {q_in, q_out};
-        intersection.paired_queues.emplace_back(q_pair);
-        std::vector<unsigned int> dir1 = {lanemap_id_in,lanemap_id_out};
-        std::vector<unsigned int> dir2 = {lanemap_id_out,lanemap_id_in};
-        intersection.dir2q[dir1] = &intersection.paired_queues.back()[0];
-        intersection.dir2q[dir2] = &intersection.paired_queues.back()[1];
-      }
+      auto edge = edges[i];
+      auto edge_id = graph->edge_ids_[edge->first.first][edge->first.second];
+      auto lanemap_id = edgeIdToLaneMapNum_[edge_id];
+      intersection.lanemap_id[i] = lanemap_id;
     }
+    unsigned num_queue = intersection.num_edge * (intersection.num_edge - 1);
+    intersection.num_queue = num_queue;
   }
 }
 
