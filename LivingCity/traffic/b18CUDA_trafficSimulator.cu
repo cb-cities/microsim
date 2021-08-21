@@ -791,24 +791,23 @@ __device__ uint find_queue_id(LC::Agent &agent,
   return idx;
 }
 
-__device__ void update_intersection(int agent_id, LC::Agent &agent,
+__device__ bool update_intersection(int agent_id, LC::Agent &agent,
                                     LC::B18EdgeData *edgesData,
                                     LC::B18IntersectionData *intersections) {
   if (agent.posInLaneM < agent.length) { // does not reach an intersection
-    return;
+    return false;
   }
   if (agent.nextEdge == -1) { // reach destination
-    return;
+    return false;
   }
   auto intersetcion_id = find_intersetcion_id(agent, edgesData);
   auto &intersection = intersections[intersetcion_id];
   int queue_id = find_queue_id(agent, intersection);
-//  int queue_id = 1;
   auto &queue = intersection.queue[queue_id];
   auto &queue_ptr = intersection.pos[queue_id];
-  //  queue[queue_ptr] = agent_id;
-//    intersection.pos[0] = 10;
+  queue[queue_ptr] = agent_id;
   atomicAdd(&(queue_ptr), 1);
+  return true;
 }
 
 __device__ void write2lane_map(LC::Agent &agent, LC::B18EdgeData *edgesData,
@@ -910,9 +909,11 @@ __global__ void kernel_trafficSimulation(
   //  2.1.3 Perform lane changing if necessary
   change_lane(agent, laneMap, mapToReadShift, trafficLights);
   // 2.14 check intersection
-  update_intersection(p, agent, edgesData, intersections);
+  bool added2queue = update_intersection(p, agent, edgesData, intersections);
   // 2.1.4 write the updated agent info to lanemap
-  write2lane_map(agent, edgesData, indexPathVec, laneMap, mapToWriteShift);
+  if (not added2queue) {
+    write2lane_map(agent, edgesData, indexPathVec, laneMap, mapToWriteShift);
+  }
 
 } //
 
@@ -983,57 +984,171 @@ move forward time if changed (otherwise check in next iteration) break;
 
 }//
 */
+__device__ bool check_space(int space, int eid, uchar *laneMap,uint mapToReadShift){
+    for (auto b = 0; b < space; b++) {
+        // just right LANE !!!!!!!
+        auto pos = lanemap_pos(eid, 0, b);
+        auto laneChar =
+                laneMap[mapToReadShift + pos]; // get byte of edge (proper line)
+        if (laneChar != 0xFF) {
+            return false;
+        }
+    }
+    return true;
+}
 
-__global__ void
-kernel_intersectionOneSimulation(uint numIntersections, float currentTime,
-                                 LC::B18IntersectionData *intersections,
-                                 uchar *trafficLights) {
+__device__ void move2nextEdge(LC::Agent & agent, int numMToMove,LC::B18EdgeData *edgesData, uint *indexPathVec,uchar *laneMap){
+    agent.indexPathCurr++;
+    agent.maxSpeedMperSec = agent.nextEdgemaxSpeedMperSec;
+    agent.edgeNumLanes = agent.nextEdgeNumLanes;
+    agent.edgeNextInters = agent.nextEdgeNextInters;
+    agent.length = agent.nextEdgeLength;
+    agent.posInLaneM = numMToMove;
+    agent.currentEdge = indexPathVec[agent.indexPathCurr];
+    atomicAdd(&(edgesData[agent.currentEdge].upstream_veh_count), 1);
+    if (agent.numOfLaneInEdge >= agent.edgeNumLanes) {
+        agent.numOfLaneInEdge =
+                agent.edgeNumLanes - 1; // change line if there are less roads
+    }
+    ////////////
+    // update next edge
+    uint nextNEdge = indexPathVec[agent.indexPathCurr + 1];
+    // trafficPersonVec[p].nextEdge=nextEdge;
+    if (nextNEdge != -1) {
+        // trafficPersonVec[p].nextPathEdge++;
+        agent.LC_initOKLanes = 0xFF;
+        agent.LC_endOKLanes = 0xFF;
+        // 2.2.3 update person edgeData
+        // trafficPersonVec[p].nextEdge=nextEdge;
+        agent.nextEdgemaxSpeedMperSec = edgesData[nextNEdge].maxSpeedMperSec;
+        agent.nextEdgeNumLanes = edgesData[nextNEdge].numLines;
+        agent.nextEdgeNextInters = edgesData[nextNEdge].nextIntersMapped;
+        agent.nextEdgeLength = edgesData[nextNEdge].length;
+    }
+
+    agent.LC_stateofLaneChanging = 0;
+    auto posToSample =
+            lanemap_pos(agent.currentEdge, agent.numOfLaneInEdge, agent.posInLaneM);
+    uchar vInMpS = (uchar)(agent.v * 3); // speed in m/s to fit in uchar
+    laneMap[mapToWriteShift + posToSample] = vInMpS;
+
+}
+__device__ bool empty_queue(LC::B18IntersectionData & intersection,
+                            int queue_ptr,
+                            LC::Agent *trafficPersonVec,
+                            LC::B18EdgeData *edgesData, uint *indexPathVec,
+                            uchar *laneMap,uint mapToReadShift,uint mapToWriteShift){
+    auto & q1 = intersection.queue[queue_ptr];
+    auto & n1 = intersection.pos[queue_ptr];
+    unsigned eid1 = intersection.end_edge[queue_ptr];
+    int numMToMove1 = n1*3;
+    bool enough_space1 = check_space(numMToMove1,eid1,laneMap,mapToReadShift);
+
+    if (enough_space1) {
+        for (int  i = 0;  i < n1; ++ i) {
+            auto & agent = trafficPersonVec[q1[i]];
+            move2nextEdge (agent, numMToMove1,edgesData,indexPathVec,laneMap);// move to the next edge
+            numMToMove1 -= 3;
+        }
+        n1 = 0; // cleared, reset the pointer
+    }
+}
+
+__device__ void place_stop(int eid, LC::B18EdgeData *edgesData,uchar *laneMap,uint mapToWriteShift){
+    auto & edge = edgesData[eid];
+    auto pos = edge.length - 3;
+    for (int i = 0; i < edge.numLines; ++i) {
+        auto posToSample =
+                lanemap_pos(eid, i , pos);
+        laneMap[mapToWriteShift + posToSample] = 0;
+    }
+}
+
+__global__ void kernel_intersectionOneSimulation(
+    uint numIntersections, uint mapToWriteShift,
+    LC::B18EdgeData *edgesData, LC::B18IntersectionData *intersections, uint *indexPathVec,LC::Agent *trafficPersonVec,
+    uchar *laneMap) {
 
   int i = blockIdx.x * blockDim.x + threadIdx.x;
-  if (i < numIntersections) {       // CUDA check (inside margins)
-    const float deltaEvent = 20.0f; /// !!!!
-    if (currentTime > intersections[i].nextEvent &&
-        intersections[i].totalInOutEdges > 0) {
-
-      uint edgeOT = intersections[i].edge[intersections[i].state];
-      uchar numLinesO = edgeOT >> 24;
-      uint edgeONum = edgeOT & kMaskLaneMap; // 0xFFFFF;
-
-      // red old traffic lights
-      if ((edgeOT & kMaskInEdge) ==
-          kMaskInEdge) { // Just do it if we were in in
-        for (int nL = 0; nL < numLinesO; nL++) {
-          trafficLights[edgeONum + nL] = 0x00; // red old traffic light
-        }
-      }
-
-      for (int iN = 0; iN <= intersections[i].totalInOutEdges + 1;
-           iN++) { // to give a round
-        intersections[i].state = (intersections[i].state + 1) %
-                                 intersections[i].totalInOutEdges; // next light
-
-        if ((intersections[i].edge[intersections[i].state] & kMaskInEdge) ==
-            kMaskInEdge) { // 0x800000
-          // green new traffic lights
-          uint edgeIT = intersections[i].edge[intersections[i].state];
-          uint edgeINum = edgeIT & kMaskLaneMap; //  0xFFFFF; //get edgeI
-          uchar numLinesI = edgeIT >> 24;
-
-          for (int nL = 0; nL < numLinesI; nL++) {
-            trafficLights[edgeINum + nL] = 0xFF;
-          }
-
-          // trafficLights[edgeINum]=0xFF;
-          break;
-        }
-      } // green new traffic light
-
-      intersections[i].nextEvent = currentTime + deltaEvent;
-    }
-    //////////////////////////////////////////////////////
+  if (i >= numIntersections) {
+    return; // CUDA check (inside margins)
   }
+  auto &intersection = intersections[i];
+  auto &queues = intersection.queue;
+  auto &queue_counter = intersection.pos;
+  unsigned start_ptr = intersection.queue_ptr;
+  unsigned end_ptr = intersection.num_queue / 2;
+  while (intersection.queue_ptr + 1 != start_ptr) {
+    if (intersection.queue_ptr + 1 < end_ptr) {
+      intersection.queue_ptr++;
+    } else {
+      intersection.queue_ptr = 0;
+    }
+    unsigned n1 = queue_counter[intersection.queue_ptr];
+    unsigned n2 = queue_counter[end_ptr + intersection.queue_ptr];
+    if (n1 + n2 > 0) {
+      bool empty1 = empty_queue(intersection,intersection.queue_ptr, trafficPersonVec, edgesData, indexPathVec, laneMap, mapToReadShift,mapToWriteShift);
+      bool empty2 = empty_queue(intersection,end_ptr + intersection.queue_ptr, trafficPersonVec, edgesData, indexPathVec, laneMap, mapToReadShift,mapToWriteShift);
+      if (empty1 or empty2){
+          break;
+      }
+    }
+  }
+  // add stop sign for full queues
+  for (unsigned j = 0; j < intersection.num_queue; j++) {
+    auto num_cars = queue_counter[j];
+    if (num_cars > 5) {
+      auto start_edgeid = intersection.start_edge[j];
+      place_stop(start_edgeid,edgesData,laneMap,mapToWriteShift);
+    }
+  }
+}
 
-} //
+//  if (i < numIntersections) {       // CUDA check (inside margins)
+//    const float deltaEvent = 20.0f; /// !!!!
+//    if (currentTime > intersections[i].nextEvent &&
+//        intersections[i].totalInOutEdges > 0) {
+//
+//      uint edgeOT = intersections[i].edge[intersections[i].state];
+//      uchar numLinesO = edgeOT >> 24;
+//      uint edgeONum = edgeOT & kMaskLaneMap; // 0xFFFFF;
+//
+//      // red old traffic lights
+//      if ((edgeOT & kMaskInEdge) ==
+//          kMaskInEdge) { // Just do it if we were in in
+//        for (int nL = 0; nL < numLinesO; nL++) {
+//          trafficLights[edgeONum + nL] = 0x00; // red old traffic light
+//        }
+//      }
+//
+//      for (int iN = 0; iN <= intersections[i].totalInOutEdges + 1;
+//           iN++) { // to give a round
+//        intersections[i].state = (intersections[i].state + 1) %
+//                                 intersections[i].totalInOutEdges; // next
+//                                 light
+//
+//        if ((intersections[i].edge[intersections[i].state] & kMaskInEdge) ==
+//            kMaskInEdge) { // 0x800000
+//          // green new traffic lights
+//          uint edgeIT = intersections[i].edge[intersections[i].state];
+//          uint edgeINum = edgeIT & kMaskLaneMap; //  0xFFFFF; //get edgeI
+//          uchar numLinesI = edgeIT >> 24;
+//
+//          for (int nL = 0; nL < numLinesI; nL++) {
+//            trafficLights[edgeINum + nL] = 0xFF;
+//          }
+//
+//          // trafficLights[edgeINum]=0xFF;
+//          break;
+//        }
+//      } // green new traffic light
+//
+//      intersections[i].nextEvent = currentTime + deltaEvent;
+//    }
+//    //////////////////////////////////////////////////////
+//  }
+
+//} //
 
 // Kernel that executes on the CUDA device
 __global__ void kernel_sampleTraffic(
@@ -1085,7 +1200,7 @@ void b18SimulateTrafficCUDA(float currentTime, uint numPeople,
   const uint numStepsTogether = 12; // change also in density (10 per hour)
   ////////////////////////////////////////////////////////////
   // 1. CHANGE MAP: set map to use and clean the other
-  if (readFirstMapC == true) {
+  if (readFirstMapC) {
     mapToReadShift = 0;
     mapToWriteShift = halfLaneMap;
     gpuErrchk(
@@ -1117,15 +1232,16 @@ void b18SimulateTrafficCUDA(float currentTime, uint numPeople,
   peopleBench.stopMeasuring();
 
   // Sample if necessary.
-  if ((((float)((int)currentTime)) == (currentTime)) &&
-      ((int)currentTime % ((int)30)) == 0) { // 3min //(sample double each 3min)
-    int samplingNumber = (currentTime - startTime) / (30 * numStepsTogether);
-    uint offset = numIntersections * samplingNumber;
-    // printf("Sample %d\n", samplingNumber);
-    kernel_sampleTraffic<<<ceil(numPeople / 1024.0f), 1024>>>(
-        numPeople, trafficPersonVec_d, indexPathVec_d,
-        accSpeedPerLinePerTimeInterval_d, numVehPerLinePerTimeInterval_d,
-        offset);
-    gpuErrchk(cudaPeekAtLastError());
-  }
+  //  if ((((float)((int)currentTime)) == (currentTime)) &&
+  //      ((int)currentTime % ((int)30)) == 0) { // 3min //(sample double each
+  //      3min)
+  //    int samplingNumber = (currentTime - startTime) / (30 *
+  //    numStepsTogether); uint offset = numIntersections * samplingNumber;
+  //    // printf("Sample %d\n", samplingNumber);
+  //    kernel_sampleTraffic<<<ceil(numPeople / 1024.0f), 1024>>>(
+  //        numPeople, trafficPersonVec_d, indexPathVec_d,
+  //        accSpeedPerLinePerTimeInterval_d, numVehPerLinePerTimeInterval_d,
+  //        offset);
+  //    gpuErrchk(cudaPeekAtLastError());
+  //  }
 } //
