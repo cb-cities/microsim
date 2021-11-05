@@ -71,13 +71,18 @@ struct Agent {
 
   // IDM
   float v = 0;     // current velocity
-  float delta_v = 0; // velocity difference to the front car
+  float delta_v = -10; // velocity difference to the front car
   float s = 0; //space to the front car
   float a;         // acceleration
   float b;         // break
   float T;         // Time heading
   float s_0;       // min car following dist
   float cum_v = 0; // Cumulative velocity of each person across all iterations
+  float front_speed = 0;
+  float dv_dt = 0;
+  float thirdTerm = 0;
+  float m2move;
+  int located_eid = 0;
 
   // lane changing
   unsigned short LC_initOKLanes;
@@ -85,6 +90,9 @@ struct Agent {
   unsigned short LC_stateofLaneChanging = 0;
   int num_lane_change = 0;
   int isInIntersection;
+
+  // intersection queue
+  bool in_queue = false;
 };
 
 } // namespace LC

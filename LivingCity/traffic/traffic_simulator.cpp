@@ -259,6 +259,14 @@ void TrafficSimulator::simulateInGPU(
 
       // intersection monitoring
       auto &intersection2 = intersections[2];
+      std::cout << intersection2.max_queue << "; " << intersection2.pos[2]
+                << std::endl;
+      auto &q1 = intersection2.queue[2];
+      for (int i = 0; i < 20; ++i) {
+        std::cout << q1[i] << "; ";
+      }
+      std::cout << "end" << std::endl;
+
       std::vector<unsigned> intersection_counts(intersection2.num_queue);
       for (unsigned i = 0; i < intersection2.num_queue; i++) {
         intersection_counts[i] = intersection2.pos[i];
@@ -272,7 +280,6 @@ void TrafficSimulator::simulateInGPU(
   std::cout << "Total # iterations = " << count << "\n";
   // std::cerr << std::setw(90) << " " << "\rDone" << std::endl;
   simulateBench.stopAndEndBenchmark();
-
   getDataBench.startMeasuring();
 
   // 3. Finish
@@ -298,7 +305,8 @@ void TrafficSimulator::simulateInGPU(
   //
   //    auto avgTravelTime = (totalNumSteps * deltaTime) /
   //                    (agents_.size() * 60.0f); // in min
-  //    printf("Total num steps %.1f Avg %.2f min Avg CO %.2f\nSimulation time =
+  //    printf("Total num steps %.1f Avg %.2f min Avg CO %.2f\nSimulation time
+  //    =
   //    "
   //           "%d ms\n",
   //           totalNumSteps, avgTravelTime, totalCO / agents_.size(),
@@ -315,7 +323,7 @@ void TrafficSimulator::simulateInGPU(
   // list
   fileOutput.startMeasuring();
   save_edges(edge_upstream_count, edge_downstream_count);
-  save_intersection (intersection_count);
+  save_intersection(intersection_count);
   savePeopleAndRoutesSP(0, graph_, paths_SP, (int)0, (int)1);
   fileOutput.stopAndEndBenchmark();
   getDataBench.stopAndEndBenchmark();
@@ -342,7 +350,9 @@ void TrafficSimulator::writePeopleFile(
     QTextStream streamP(&peopleFile);
     streamP << "p,init_intersection,end_intersection,time_departure,traveled_"
                "time(s),waited_steps,slowdown_steps,"
-               "co,gas,distance,cum_distance,avg_v(m/s),status,num_lc\n";
+               "dv,v,dv_dt,front_v,m2move,space,third_term,max_speed, "
+               "cum_distance,avg_v(m/s),status,lane_number,change_lane, eid, "
+               "located_eid\n";
 
     for (int p = 0; p < agents_.size(); p++) {
       streamP << p;
@@ -352,13 +362,22 @@ void TrafficSimulator::writePeopleFile(
       streamP << "," << agents_[p].num_steps;
       streamP << "," << agents_[p].waited_steps;
       streamP << "," << agents_[p].slow_down_steps;
-      streamP << "," << agents_[p].co;
-      streamP << "," << agents_[p].gas;
-      streamP << "," << agents_[p].dist_traveled;
+      streamP << "," << agents_[p].delta_v;
+      streamP << "," << agents_[p].v;
+      streamP << "," << agents_[p].dv_dt;
+      streamP << "," << agents_[p].front_speed;
+      streamP << "," << agents_[p].m2move;
+      streamP << "," << agents_[p].s;
+      streamP << "," << agents_[p].thirdTerm;
+      streamP << "," << agents_[p].maxSpeedMperSec;
       streamP << "," << agents_[p].cum_length;
       streamP << "," << (agents_[p].cum_v / agents_[p].num_steps);
       streamP << "," << agents_[p].active;
+      streamP << "," << agents_[p].numOfLaneInEdge;
       streamP << "," << agents_[p].num_lane_change;
+      streamP << "," << agents_[p].currentEdge;
+      streamP << "," << agents_[p].located_eid;
+
       streamP << "\n";
     }
 

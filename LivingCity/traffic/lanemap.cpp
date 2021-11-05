@@ -129,7 +129,8 @@ void Lanemap::create_intersections_(const std::shared_ptr<abm::Graph> &graph) {
     intersection.num_edge = edges.size();
     intersection.queue_ptr = 0;
     unsigned queue_counter = 0;
-    for (unsigned i = 0; i < edges.size(); i++) {// go through each edge to construct queues
+    for (unsigned i = 0; i < edges.size();
+         i++) { // go through each edge to construct queues
       auto edge1 = edges[i];
       auto edge_id1 = graph->edge_ids_[edge1->first.first][edge1->first.second];
       auto lanemap_id1 = edgeIdToLaneMapNum_[edge_id1];
@@ -139,11 +140,12 @@ void Lanemap::create_intersections_(const std::shared_ptr<abm::Graph> &graph) {
            j++) { // construct the edge names for the first part of queue list
         auto edge2 = edges[j];
         auto edge_id2 =
-            graph->edge_ids_[edge1->first.first][edge1->first.second];
+            graph->edge_ids_[edge2->first.first][edge2->first.second];
         auto lanemap_id2 = edgeIdToLaneMapNum_[edge_id2];
 
         intersection.start_edge[queue_counter] = lanemap_id1;
         intersection.end_edge[queue_counter] = lanemap_id2;
+        queue_counter++;
       }
     }
     // reverse the process for second half of the queue list

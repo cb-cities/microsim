@@ -79,28 +79,33 @@ TEST_CASE("CHECK LANEMAP", "[lanemap]") {
     REQUIRE(intersections.size() == 5);
 
     auto &intersection2 = intersections[2];
-    int lanemap_id0 = edgeIdToLaneMapNum[0];
-    int lanemap_id1 = edgeIdToLaneMapNum[4];
-    std::cout << lanemap_id0 << ";" << lanemap_id1 << ";" << std::endl;
-    int num_edge = intersection2.num_edge;
-    int pos0, pos1;
-    for (unsigned i = 0; i < num_edge; i++) {
-      std::cout << intersection2.lanemap_id[i] << std::endl;
-      if (lanemap_id0 == intersection2.lanemap_id[i]) {
-        pos0 = i;
-      }
-      if (lanemap_id1 == intersection2.lanemap_id[i]) {
-        pos1 = i;
-      }
+    for (unsigned i = 0; i < intersection2.num_queue; i++) {
+      std::cout << intersection2.start_edge[i] << ";"
+                << intersection2.end_edge[i] << ";" << std::endl;
     }
-    int base_idx = 0;
-    if (pos0 > pos1) {
-      base_idx += intersection2.num_queue;
-      int temp = pos1;
-      pos1 = pos0;
-      pos0 = temp;
-    }
-    int idx = (pos0 * num_edge - (pos0 * (pos0 + 1)) / 2 + pos1 - pos0 - 1);
-    std::cout << pos0 << ";" << pos1 << ";" << idx;
+
+    //    int lanemap_id0 = edgeIdToLaneMapNum[0];
+    //    int lanemap_id1 = edgeIdToLaneMapNum[4];
+    //    std::cout << lanemap_id0 << ";" << lanemap_id1 << ";" << std::endl;
+    //    int num_edge = intersection2.num_edge;
+    //    int pos0, pos1;
+    //    for (unsigned i = 0; i < num_edge; i++) {
+    //      std::cout << intersection2.lanemap_id[i] << std::endl;
+    //      if (lanemap_id0 == intersection2.lanemap_id[i]) {
+    //        pos0 = i;
+    //      }
+    //      if (lanemap_id1 == intersection2.lanemap_id[i]) {
+    //        pos1 = i;
+    //      }
+    //    }
+    //    int base_idx = 0;
+    //    if (pos0 > pos1) {
+    //      base_idx += intersection2.num_queue;
+    //      int temp = pos1;
+    //      pos1 = pos0;
+    //      pos0 = temp;
+    //    }
+    //    int idx = (pos0 * num_edge - (pos0 * (pos0 + 1)) / 2 + pos1 - pos0 -
+    //    1); std::cout << pos0 << ";" << pos1 << ";" << idx;
   }
 }

@@ -61,13 +61,14 @@ struct B18EdgeData {
 
 struct B18IntersectionData{
     int lanemap_id[6];
-    int queue[30][10];
+    int queue[30][30];
     int start_edge[30];
     int end_edge[30];
     int pos[30] = {0};
     unsigned num_edge;
     unsigned num_queue;
     unsigned queue_ptr;
+    unsigned max_queue;
 
     ushort state;
     ushort stateLine;
