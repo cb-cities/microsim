@@ -93,6 +93,7 @@ struct Agent {
 
   // intersection queue
   bool in_queue = false;
+  int num_steps_in_queue = 0;
 };
 
 } // namespace LC
