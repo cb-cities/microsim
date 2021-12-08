@@ -261,9 +261,20 @@ void TrafficSimulator::simulateInGPU(
       auto &intersection2 = intersections[2];
       std::cout << intersection2.max_queue << "; " << intersection2.pos[2]
                 << std::endl;
-      auto &q1 = intersection2.queue[2];
       for (int i = 0; i < 20; ++i) {
-        std::cout << q1[i] << "; ";
+        std::cout << intersection2.pos[i] << "; ";
+      }
+      auto edgeidmap = lanemap_.edgeIdToLaneMapNum();
+      std::cout << edgeidmap[0] << ";" << edgeidmap[1] << ";" << edgeidmap[4]
+                << "count" << std::endl;
+      for (int i = 0; i < 20; ++i) {
+        auto lanemap_number = intersection2.start_edge[i];
+        std::cout << lanemap_number << "; ";
+      }
+      std::cout << "start" << std::endl;
+
+      for (int i = 0; i < 20; ++i) {
+        std::cout << intersection2.end_edge[i] << "; ";
       }
       std::cout << "end" << std::endl;
 
@@ -349,7 +360,7 @@ void TrafficSimulator::writePeopleFile(
               << std::endl;
     QTextStream streamP(&peopleFile);
     streamP << "p,init_intersection,end_intersection,time_departure,traveled_"
-               "time(s),waited_steps,slowdown_steps,"
+               "time(s),inqueue_time,slowdown_steps,"
                "dv,v,dv_dt,front_v,m2move,space,third_term,max_speed, "
                "cum_distance,avg_v(m/s),status,lane_number,change_lane, eid, "
                "located_eid\n";
@@ -360,7 +371,7 @@ void TrafficSimulator::writePeopleFile(
       streamP << "," << agents_[p].end_intersection;
       streamP << "," << agents_[p].time_departure;
       streamP << "," << agents_[p].num_steps;
-      streamP << "," << agents_[p].waited_steps;
+      streamP << "," << agents_[p].num_steps_in_queue;
       streamP << "," << agents_[p].slow_down_steps;
       streamP << "," << agents_[p].delta_v;
       streamP << "," << agents_[p].v;

@@ -701,8 +701,8 @@ __device__ void change_lane(LC::Agent &agent, uchar *laneMap,
   if (agent.posInLaneM > agent.length) { // skip if will go to next edge
     return;
   }
-  if (agent.edgeNumLanes < 2 || agent.nextEdge == -1) {
-    return; // skip if reach the end or have no lane to change
+  if (agent.edgeNumLanes < 2 || agent.nextEdge == -1 || agent.v > 0.9 * agent.maxSpeedMperSec) {
+    return; // skip if reach the destination/have no lane to change/cruising (avoid periodic lane changing)
   }
 
   if (agent.v > 3.0f &&           // at least 10km/h to try to change lane
@@ -892,7 +892,7 @@ __global__ void kernel_trafficSimulation(
   change_lane(agent, laneMap, mapToReadShift, trafficLights);
   // 2.14 check intersection
   bool added2queue = update_intersection(p, agent, edgesData, intersections);
-  // 2.1.4 write the updated agent info to lanemap
+//  // 2.1.4 write the updated agent info to lanemap
   if (not added2queue) {
     write2lane_map(agent, edgesData, indexPathVec, laneMap, mapToWriteShift);
   }
@@ -1030,7 +1030,7 @@ __device__ bool empty_queue(LC::B18IntersectionData &intersection,
   int numMToMove1 = (n1 + 1) * 3;
   int edge_length = edgesData[eid1].length;
   bool enough_space1 =
-      check_space(numMToMove1, eid1, edge_length, laneMap, mapToReadShift);
+      check_space(numMToMove1+1000, eid1, edge_length, laneMap, mapToReadShift);// check 3m ahead
   intersection.max_queue = max(intersection.max_queue, n1);
   if (enough_space1) {
     for (int i = 0; i < n1; ++i) {
@@ -1100,7 +1100,7 @@ __global__ void kernel_intersectionOneSimulation(
       break;
     }
   }
-  //   add stop sign for full queues
+//     add stop sign for full queues
   for (unsigned j = 0; j < intersection.num_queue; j++) {
     auto num_cars = queue_counter[j];
     if (num_cars > 3) {

@@ -17,28 +17,30 @@ public:
   //! Destructor
   ~Network() = default;
 
-  const std::shared_ptr<abm::Graph> street_graph() const {return street_graph_;}
+  const std::shared_ptr<abm::Graph> street_graph() const {
+    return street_graph_;
+  }
 
   abm::graph::vertex_t edge_id(abm::graph::vertex_t v1,
                                abm::graph::vertex_t v2) {
+    if (!street_graph_->directed_)// Handle undirect cases
+      if (v1 > v2)
+        std::swap(v1, v2);
+
     return street_graph_->edge_ids_[v1][v2];
   }
-  std::vector<std::vector<long >> edge_vertices();
+  std::vector<std::vector<long>> edge_vertices();
 
   std::vector<std::vector<double>> edge_weights();
 
   std::vector<unsigned int> edge_weights_kit();
 
-
   std::vector<unsigned int> heads();
 
   std::vector<unsigned int> tails();
 
-
   abm::graph::vertex_t num_edges() { return street_graph_->edges_.size(); }
-  int num_vertices() {
-    return street_graph_->vertices_data_.size();
-  }
+  int num_vertices() { return street_graph_->vertices_data_.size(); }
 
   const std::vector<std::vector<unsigned int>> &od_pairs() { return od_pairs_; }
   const std::vector<float> &dep_time() const { return dep_time_; }

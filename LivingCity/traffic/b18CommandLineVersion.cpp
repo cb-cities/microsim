@@ -80,7 +80,7 @@ void B18CommandLineVersion::runB18Simulation() {
     routingCH.startMeasuring();
     auto graph_ch = std::make_shared<MTC::accessibility::Accessibility>(
         network->num_vertices(), network->edge_vertices(),
-        network->edge_weights(), false);
+        network->edge_weights(), true);
 
     std::vector<long> sources, targets;
     for (const auto &od : network->od_pairs()) {
