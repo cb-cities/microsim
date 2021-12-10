@@ -1030,7 +1030,7 @@ __device__ bool empty_queue(LC::B18IntersectionData &intersection,
   int numMToMove1 = (n1 + 1) * 3;
   int edge_length = edgesData[eid1].length;
   bool enough_space1 =
-      check_space(numMToMove1+1000, eid1, edge_length, laneMap, mapToReadShift);// check 3m ahead
+      check_space(numMToMove1+6, eid1, edge_length, laneMap, mapToReadShift);// check 6m ahead
   intersection.max_queue = max(intersection.max_queue, n1);
   if (enough_space1) {
     for (int i = 0; i < n1; ++i) {
