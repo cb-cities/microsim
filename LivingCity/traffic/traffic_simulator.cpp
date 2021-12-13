@@ -235,7 +235,7 @@ void TrafficSimulator::simulateInGPU(
                            threadsPerBlock);
     //    std::cout<<currentTime<<std::endl;
 
-    if (count % 120 == 0) {
+    if (count % 10 == 0) {
       Benchmarker getDataCudatrafficPersonAndEdgesData(
           "Get data agents_ and edgesData (first time)");
       getDataCudatrafficPersonAndEdgesData.startMeasuring();
@@ -259,7 +259,7 @@ void TrafficSimulator::simulateInGPU(
 
       // intersection monitoring
       auto &intersection2 = intersections[2];
-      std::cout << intersection2.max_queue << "; " << intersection2.pos[2]
+      std::cout << count << "; "  << intersection2.max_queue << "; " << intersection2.pos[2]
                 << std::endl;
       for (int i = 0; i < 20; ++i) {
         std::cout << intersection2.pos[i] << "; ";
@@ -361,7 +361,7 @@ void TrafficSimulator::writePeopleFile(
     QTextStream streamP(&peopleFile);
     streamP << "p,init_intersection,end_intersection,time_departure,traveled_"
                "time(s),inqueue_time,slowdown_steps,"
-               "dv,v,dv_dt,front_v,m2move,space,third_term,max_speed, "
+               "index,v,dv_dt,front_v,m2move,space,third_term,max_speed, "
                "cum_distance,avg_v(m/s),status,lane_number,change_lane, eid, "
                "located_eid\n";
 
@@ -373,7 +373,7 @@ void TrafficSimulator::writePeopleFile(
       streamP << "," << agents_[p].num_steps;
       streamP << "," << agents_[p].num_steps_in_queue;
       streamP << "," << agents_[p].slow_down_steps;
-      streamP << "," << agents_[p].delta_v;
+      streamP << "," << agents_[p].indexPathCurr;
       streamP << "," << agents_[p].v;
       streamP << "," << agents_[p].dv_dt;
       streamP << "," << agents_[p].front_speed;

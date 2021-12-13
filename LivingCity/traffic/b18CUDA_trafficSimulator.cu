@@ -539,16 +539,16 @@ __device__ void initialize_agent(LC::Agent &agent, LC::B18EdgeData *edgesData,
   // 1.4 try to place the car
   ushort lN = agent.edgeNumLanes - 1;
   bool enough_space = true;
-  for (auto b = 0; b < agent.s_0; b++) {
-    // just right LANE !!!!!!!
-    auto pos = lanemap_pos(agent.currentEdge, agent.length, lN, b);
-    auto laneChar =
-        laneMap[mapToReadShift + pos]; // get byte of edge (proper line)
-    if (laneChar != 0xFF) {
-      enough_space = false;
-      break;
-    }
-  }
+//  for (auto b = 0; b < agent.s_0; b++) {
+//    // just right LANE !!!!!!!
+//    auto pos = lanemap_pos(agent.currentEdge, agent.length, lN, b);
+//    auto laneChar =
+//        laneMap[mapToReadShift + pos]; // get byte of edge (proper line)
+//    if (laneChar != 0xFF) {
+//      enough_space = false;
+//      break;
+//    }
+//  }
   if (enough_space) {
     agent.v = 0;
     agent.LC_stateofLaneChanging = 0;
@@ -985,7 +985,11 @@ __device__ bool check_space(int space, int eid, int edge_length, uchar *laneMap,
 __device__ void move2nextEdge(LC::Agent &agent, int numMToMove,
                               LC::B18EdgeData *edgesData, uint *indexPathVec,
                               uchar *laneMap, uint mapToWriteShift) {
+//    if (agent.indexPathCurr>85){
+//        return;
+//    }
 
+  agent.in_queue = false;
   agent.indexPathCurr++;
   agent.maxSpeedMperSec = agent.nextEdgemaxSpeedMperSec;
   agent.edgeNumLanes = agent.nextEdgeNumLanes;
@@ -998,7 +1002,7 @@ __device__ void move2nextEdge(LC::Agent &agent, int numMToMove,
     agent.numOfLaneInEdge =
         agent.edgeNumLanes - 1; // change line if there are less roads
   }
-  ////////////
+//  ////////////
   // update next edge
   uint nextNEdge = indexPathVec[agent.indexPathCurr + 1];
   agent.nextEdge = nextNEdge;
@@ -1019,7 +1023,8 @@ __device__ void move2nextEdge(LC::Agent &agent, int numMToMove,
                                  agent.numOfLaneInEdge, agent.posInLaneM);
   uchar vInMpS = (uchar)(agent.v * 3); // speed in m/s to fit in uchar
   laneMap[mapToWriteShift + posToSample] = vInMpS;
-  agent.in_queue = false;
+  agent.cum_length += numMToMove;
+  agent.num_steps += numMToMove / 3;
 }
 __device__ bool empty_queue(LC::B18IntersectionData &intersection,
                             int queue_ptr, LC::Agent *trafficPersonVec,
@@ -1059,6 +1064,49 @@ __device__ void place_stop(LC::Agent &agent, LC::B18EdgeData *edgesData,
   }
 }
 
+__device__ void check_queues(unsigned intersection_id, uint mapToWriteShift,
+                             uint mapToReadShift, LC::B18EdgeData *edgesData,
+                             LC::B18IntersectionData *intersections,
+                             uint *indexPathVec, LC::Agent *trafficPersonVec,
+                             uchar *laneMap) {
+  auto &intersection = intersections[intersection_id];
+  auto &queues = intersection.queue;
+  auto &queue_counter = intersection.pos;
+  unsigned start_ptr = intersection.queue_ptr;
+  unsigned end_ptr = intersection.num_queue / 2;
+  while (intersection.queue_ptr + 1 != start_ptr) {
+    unsigned ptr1 = intersection.queue_ptr;           // current direction
+    unsigned ptr2 = end_ptr + intersection.queue_ptr; // opposite direction
+    if (queue_counter[ptr1] + queue_counter[ptr2] > 0) {
+      bool empty1 =
+          empty_queue(intersection, ptr1, trafficPersonVec, edgesData,
+                      indexPathVec, laneMap, mapToReadShift, mapToWriteShift);
+      bool empty2 =
+          empty_queue(intersection, ptr2, trafficPersonVec, edgesData,
+                      indexPathVec, laneMap, mapToReadShift, mapToWriteShift);
+      //
+      if (empty1 and empty2) { // if queue cleared, go to the next queue
+        if (intersection.queue_ptr + 1 < end_ptr) {
+          intersection.queue_ptr += 1;
+        } else {
+          intersection.queue_ptr = 0;
+          if (start_ptr == 0)
+            break;
+        }
+      }
+      break;
+    } else { // no car in the queue, go to the next state
+      if (intersection.queue_ptr + 1 < end_ptr) {
+        intersection.queue_ptr += 1;
+      } else {
+        intersection.queue_ptr = 0;
+        if (start_ptr == 0)
+          break;
+      }
+    }
+  }
+}
+
 __global__ void kernel_intersectionOneSimulation(
     uint numIntersections, uint mapToWriteShift, uint mapToReadShift,
     LC::B18EdgeData *edgesData, LC::B18IntersectionData *intersections,
@@ -1068,50 +1116,20 @@ __global__ void kernel_intersectionOneSimulation(
   if (i >= numIntersections) {
     return; // CUDA check (inside margins)
   }
-  auto &intersection = intersections[i];
-  auto &queues = intersection.queue;
-  auto &queue_counter = intersection.pos;
-  unsigned start_ptr = intersection.queue_ptr;
-  unsigned end_ptr = intersection.num_queue / 2;
-  while (intersection.queue_ptr + 1 != start_ptr) {
-    unsigned n1 = queue_counter[intersection.queue_ptr];
-    unsigned n2 = queue_counter[end_ptr + intersection.queue_ptr];
-    if (n1 + n2 > 0) {
-      bool empty1 = empty_queue(intersection, intersection.queue_ptr,
-                                trafficPersonVec, edgesData, indexPathVec,
-                                laneMap, mapToReadShift, mapToWriteShift);
-      bool empty2 = empty_queue(intersection, end_ptr + intersection.queue_ptr,
-                                trafficPersonVec, edgesData, indexPathVec,
-                                laneMap, mapToReadShift, mapToWriteShift);
-      //
-      if (!empty1 or !empty2) {
-        if (intersection.queue_ptr == 0) {
-          intersection.queue_ptr = end_ptr - 1;
-        } else {
-          intersection.queue_ptr -= 1;
-        }
-      } // if not clear, try it again for the next time
-      break;
-    }
-    if (intersection.queue_ptr + 1 < end_ptr) {
-      intersection.queue_ptr += 1;
-    } else {
-      intersection.queue_ptr = 0;
-      if (start_ptr == 0)
-        break;
-    }
-  }
+  check_queues(i, mapToWriteShift, mapToReadShift, edgesData, intersections,
+               indexPathVec, trafficPersonVec, laneMap);
+
   //     add stop sign for full queues
-  for (unsigned j = 0; j < intersection.num_queue; j++) {
-    auto num_cars = queue_counter[j];
-    if (num_cars > 3) {
-      auto &q1 = intersection.queue[j];
-      auto &agent = trafficPersonVec[q1[0]];
-      auto eid = intersection.start_edge[j];
-      agent.located_eid = eid;
-      place_stop(agent, edgesData, laneMap, mapToWriteShift);
-    }
-  }
+  //  for (unsigned j = 0; j < intersection.num_queue; j++) {
+  //    auto num_cars = queue_counter[j];
+  //    if (num_cars > 3) {
+  //      auto &q1 = intersection.queue[j];
+  //      auto &agent = trafficPersonVec[q1[0]];
+  //      auto eid = intersection.start_edge[j];
+  //      agent.located_eid = eid;
+  //      place_stop(agent, edgesData, laneMap, mapToWriteShift);
+  //    }
+  //  }
 }
 
 //  if (i < numIntersections) {       // CUDA check (inside margins)
