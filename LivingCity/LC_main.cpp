@@ -2,7 +2,7 @@
 
 #include "src/benchmarker.h"
 #include "src/linux_host_memory_logger.h"
-#include "traffic/b18CommandLineVersion.h"
+#include "traffic/simulation_interface.h"
 #include <QDebug>
 
 // NOTE: Check command_line_options for default options.
@@ -16,14 +16,14 @@ int main(int argc, char *argv[]) {
                          "/command_line_options.ini",
                      QSettings::IniFormat);
 
-  LC::B18CommandLineVersion cl;
-  cl.runB18Simulation();
+  LC::SimulationInterface interface;
+  interface.run_simulation();
   printf(">>Simulation Ended\n");
 
   mainBench.stopAndEndBenchmark();
   intersectionBench.endBenchmark();
   peopleBench.endBenchmark();
 
-//  memory_logger.End();
+  //  memory_logger.End();
   return 0;
 }

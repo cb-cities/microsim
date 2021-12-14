@@ -15,9 +15,9 @@
 
 namespace LC {
 
-class B18CommandLineVersion{
+class SimulationInterface{
   public:
-    void runB18Simulation();
+    void run_simulation();
 };
 
 }  // namespace LC

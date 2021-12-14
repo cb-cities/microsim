@@ -1,41 +1,31 @@
-#include "b18CommandLineVersion.h"
+#include "simulation_interface.h"
 #include <chrono>
-#include <routingkit/contraction_hierarchy.h>
-#include <routingkit/customizable_contraction_hierarchy.h>
-
 namespace LC {
 
 // using namespace std::chrono;
 
-void B18CommandLineVersion::runB18Simulation() {
+void SimulationInterface::run_simulation() {
+  /************************************************************************************************
+    Parse Simulation parameters
+  ************************************************************************************************/
   QSettings settings("./command_line_options.ini", QSettings::IniFormat);
   bool usePrevPaths = settings.value("USE_PREV_PATHS", false).toBool();
-  auto networkPath =
+  auto input_path =
       settings.value("NETWORK_PATH", "../berkeley_2018/new_full_network/")
           .toString();
-  std::string networkPathSP = networkPath.toStdString();
+  std::string networkPath = input_path.toStdString();
   auto save_path_orig = settings.value("SAVE_PATH", "./results/").toString();
   std::string save_path = save_path_orig.toStdString();
 
   const float start = settings.value("START", 5 * 3600).toFloat();
   const float end = settings.value("END", 12 * 3600).toFloat();
   const bool showBenchmarks = settings.value("SHOW_BENCHMARKS", false).toBool();
-  IDMParameters simParameters;
-  simParameters.a = settings.value("a", 0.557).toFloat();
-  simParameters.b = settings.value("b", 2.902).toFloat();
-  simParameters.T = settings.value("T", 0.543).toFloat();
-  simParameters.s_0 = settings.value("s_0", 1.38).toFloat();
-
   std::string odDemandPath =
       settings.value("OD_DEMAND_FILENAME", "od_demand_5to12.csv")
           .toString()
           .toStdString();
 
-  std::cout << "b18CommandLineVersion received the parameters "
-            << "[a: " << simParameters.a << ", b: " << simParameters.b
-            << ", T: " << simParameters.T << ", s_0: " << simParameters.s_0
-            << "]" << std::endl;
-
+  IDMParameters simParameters;
   // new benchmarks
   if (showBenchmarks) {
     Benchmarker::enableShowBenchmarks();
@@ -54,7 +44,7 @@ void B18CommandLineVersion::runB18Simulation() {
   ************************************************************************************************/
   // make the graph from edges file and load the OD demand from od file
   loadNetwork.startMeasuring();
-  auto network = std::make_shared<Network>(networkPathSP, odDemandPath);
+  auto network = std::make_shared<Network>(networkPath, odDemandPath);
   loadNetwork.stopAndEndBenchmark();
 
   /************************************************************************************************
@@ -64,7 +54,7 @@ void B18CommandLineVersion::runB18Simulation() {
   std::vector<std::vector<int>> all_paths_ch;
   if (usePrevPaths) {
     // open file
-    const std::string &pathsFileName = networkPathSP + "all_paths_ch.txt";
+    const std::string &pathsFileName = networkPath + "all_paths_ch.txt";
     std::cout << "Loading " << pathsFileName << " as paths file\n";
     std::ifstream inputFile(pathsFileName);
     // test file open
@@ -105,7 +95,7 @@ void B18CommandLineVersion::runB18Simulation() {
     CHoutputNodesToEdgesConversion.stopAndEndBenchmark();
 
     // write paths to file so that we can just load them instead
-    const std::string &pathsFileName = networkPathSP + "all_paths_ch.txt";
+    const std::string &pathsFileName = networkPath + "all_paths_ch.txt";
     std::cout << "Save " << pathsFileName << " as paths file\n";
     std::ofstream output_file(pathsFileName);
     std::ostream_iterator<abm::graph::vertex_t> output_iterator(output_file,
@@ -186,7 +176,7 @@ void B18CommandLineVersion::runB18Simulation() {
   //    CHoutputNodesToEdgesConversion.stopAndEndBenchmark();
   //
   //  //  // write paths to file so that we can just load them instead
-  //  //  const std::string &pathsFileName = networkPathSP + "all_paths_ch.txt";
+  //  //  const std::string &pathsFileName = networkPath + "all_paths_ch.txt";
   //  //  std::cout << "Save " << pathsFileName << " as paths file\n";
   //  //  std::ofstream output_file(pathsFileName);
   //  //  std::ostream_iterator<abm::graph::vertex_t>
@@ -201,8 +191,7 @@ void B18CommandLineVersion::runB18Simulation() {
   ************************************************************************************************/
 
   ClientGeometry cg;
-  TrafficSimulator simulator(&cg.roadGraph, simParameters, network,
-                             save_path);
+  TrafficSimulator simulator(&cg.roadGraph, simParameters, network, save_path);
 
   simulator.load_agents();
   simulator.simulateInGPU(all_paths, start, end);

@@ -1,6 +1,6 @@
 #include "catch.hpp"
 #include "traffic_simulator.h"
-#include "b18CommandLineVersion.h"
+#include "simulation_interface.h"
 
 using namespace LC;
 TEST_CASE("CHECK SIMULATOR", "[SIMULATOR]") {

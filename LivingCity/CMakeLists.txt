@@ -37,10 +37,11 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 SET(microsim_src
         traffic/sp/graph.cc
         traffic/network.cpp
-        traffic/b18CommandLineVersion.cpp
-        traffic/traffic_simulator.cpp
-        traffic/lanemap.cpp
-        src/benchmarker.cpp
+        traffic/od.cpp
+#        traffic/simulation_interface.cpp
+#        traffic/traffic_simulator.cpp
+#        traffic/lanemap.cpp
+#        src/benchmarker.cpp
 
         RoadGraph/roadGraph.cpp
         RoadGraph/roadGraphEdge.cpp
@@ -160,7 +161,7 @@ target_link_libraries(lmicrosim
 
 
 cuda_add_library(lmicrosim_cuda
-        traffic/b18CommandLineVersion.h
+        traffic/simulation_interface.h
         traffic/b18CUDA_trafficSimulator.cu
         OPTIONS -arch sm_50)
 
@@ -187,14 +188,15 @@ include_directories(SYSTEM ${microsim_SOURCE_DIR} Qt5::Widgets)
 if(MICROSIM_TEST_BUILD_TESTING)
     # Unit test
     SET(microsim_test_src
-#            tests/network_test.cpp
+            tests/network_test.cpp
+            tests/od_test.cpp
 #            tests/traffic_simulator_test.cpp
-            tests/lanemap_test.cpp
+#            tests/lanemap_test.cpp
 #            tests/scenario_testing.cpp
             )
 
     add_executable(microsim_test tests/main_test.cpp ${microsim_test_src})
-    target_link_libraries(microsim_test lmicrosim lmicrosim_cuda)
+    target_link_libraries(microsim_test lmicrosim)
     add_test(NAME microsim_test COMMAND $<TARGET_FILE:microsim_test>)
     enable_testing()
 endif()

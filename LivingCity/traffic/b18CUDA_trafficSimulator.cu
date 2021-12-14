@@ -28,6 +28,7 @@
 // CONSTANTS
 
 __constant__ float intersectionClearance = 7.8f; // TODO(pavan): WHAT IS THIS?
+using namespace LC;
 
 #define gpuErrchk(ans)                                                         \
   { gpuAssert((ans), __FILE__, __LINE__); }

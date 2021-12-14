@@ -1,66 +1,62 @@
-#pragma once
-
 #include "RoadGraph/roadGraph.h"
 #include "config.h"
 #include "traffic/sp/graph.h"
 
 namespace LC {
 
-/**
- * RoadGraph.
- **/
+//! Network Class
+//! \brief Base class for the network used in the traffic simulation
 class Network {
-
 public:
-  Network(const std::string &networkPath, const std::string &odFileName);
+  // Constructor with network path
+  //! \param[in] networkPath network file path
+  Network(const std::string &networkPath);
 
   //! Destructor
   ~Network() = default;
 
+  //! return the abm street graph
   const std::shared_ptr<abm::Graph> street_graph() const {
     return street_graph_;
   }
 
+  // Get edge_id from node ids
+  //! \param[in] v1 node id for one end of the edge
+  //! \param[in] v2 node id for the other end of the edge
+  //! \retval edge id
   abm::graph::vertex_t edge_id(abm::graph::vertex_t v1,
                                abm::graph::vertex_t v2) {
-    if (!street_graph_->directed_)// Handle undirect cases
+    if (!street_graph_->directed_) // Handle undirect cases
       if (v1 > v2)
         std::swap(v1, v2);
 
     return street_graph_->edge_ids_[v1][v2];
   }
+
+  std::vector<std::vector<double>> edge_weights() { return edge_weights_; };
+
+  abm::graph::vertex_t num_edges() { return street_graph_->edges_.size(); }
+
+  int num_vertices() { return street_graph_->vertices_data_.size(); }
+
   std::vector<std::vector<long>> edge_vertices();
-
-  std::vector<std::vector<double>> edge_weights();
-
-  std::vector<unsigned int> edge_weights_kit();
 
   std::vector<unsigned int> heads();
 
   std::vector<unsigned int> tails();
 
-  abm::graph::vertex_t num_edges() { return street_graph_->edges_.size(); }
-  int num_vertices() { return street_graph_->vertices_data_.size(); }
-
-  const std::vector<std::vector<unsigned int>> &od_pairs() { return od_pairs_; }
-  const std::vector<float> &dep_time() const { return dep_time_; }
-  const unsigned long totalNumPeople() const { return od_pairs_.size(); }
-  void
-  map_person2init_edge(const std::vector<abm::graph::edge_id_t> &all_paths);
-
 private:
   std::string edgeFileName_;
   std::string nodeFileName_;
-  std::string odFileName_;
+  //! abm street graph (base graph for the network, defined in the sp folder)
   std::shared_ptr<abm::Graph> street_graph_;
-  std::vector<std::vector<unsigned int>> od_pairs_;
-  std::vector<float> dep_time_;
+  //! edge weights for route finding
+  std::vector<std::vector<double>> edge_weights_;
 
+  //! initialize abm graph (the base graph)
   void loadABMGraph_();
-
-  void read_od_pairs_();
-
-  void read_dep_times_();
+  //! initialize edge weights (free flow time)
+  void init_edge_weights_();
 };
 
 } // namespace LC

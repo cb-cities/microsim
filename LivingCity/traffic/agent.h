@@ -17,19 +17,24 @@ namespace LC {
 
 struct Agent {
   Agent() = default;
-  Agent(uint srcvertex, uint tgtvertex, float dep_time, IDMParameters param) {
+  Agent(uint srcvertex, uint tgtvertex, AgentType type, float dep_time) {
     init_intersection = srcvertex;
     end_intersection = tgtvertex;
     time_departure = dep_time;
-    a = param.a;
-    b = param.b;
-    T = param.T;
-    s_0 = param.s_0;
+    agent_type = type;
+    if (agent_type == CAR) {
+      IDMParametersCar param;
+      a = param.a;
+      b = param.b;
+      T = param.T;
+      s_0 = param.s_0;
+    }
   }
 
   unsigned int init_intersection;
   unsigned int end_intersection;
   float time_departure;
+  AgentType agent_type;
   float dist_traveled = 0;
 
   unsigned short active = 0;          // 0 inactive 1 active 2 finished
@@ -70,13 +75,13 @@ struct Agent {
   unsigned short slow_down_steps = 0;
 
   // IDM
-  float v = 0;     // current velocity
+  float v = 0;         // current velocity
   float delta_v = -10; // velocity difference to the front car
-  float s = 0; //space to the front car
-  float a;         // acceleration
-  float b;         // break
-  float T;         // Time heading
-  float s_0;       // min car following dist
+  float s = 0;         // space to the front car
+  float a;             // acceleration
+  float b;             // break
+  float T;             // Time heading
+  float s_0;           // min car following dist
   float cum_v = 0; // Cumulative velocity of each person across all iterations
   float front_speed = 0;
   float dv_dt = 0;
