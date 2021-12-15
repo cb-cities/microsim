@@ -32,7 +32,6 @@ void Network::loadABMGraph_() {
 std::vector<std::vector<long>> Network::edge_vertices() {
   std::vector<std::vector<long>> edge_vertices;
   for (auto const &x : street_graph_->edge_ids_to_vertices) {
-    auto edge_id = x.first;
     auto vertices = x.second;
     std::vector<long> v = {std::get<0>(vertices), std::get<1>(vertices)};
     edge_vertices.emplace_back(v);

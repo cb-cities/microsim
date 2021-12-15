@@ -10,11 +10,10 @@ const float intersectionClearance = 7.8f;
 const bool calculatePollution = true;
 
 extern TrafficSimulator::TrafficSimulator(
-    RoadGraph *originalRoadGraph, const IDMParameters &inputSimParameters,
-    std::shared_ptr<Network> network, const std::string &save_path)
-    : simParameters_(inputSimParameters) {
-  simRoadGraph_ = new RoadGraph(*originalRoadGraph);
+        std::shared_ptr<Network> network, std::shared_ptr<OD> od,
+        const std::string &save_path){
   network_ = network;
+  od_ = od;
   lanemap_ = Lanemap(network->street_graph());
   save_path_ = save_path;
   boost::filesystem::path dir(save_path_);
@@ -23,7 +22,7 @@ extern TrafficSimulator::TrafficSimulator(
   }
 }
 
-TrafficSimulator::~TrafficSimulator() { delete simRoadGraph_; }
+TrafficSimulator::~TrafficSimulator() {}
 
 void TrafficSimulator::reset_agent() {
   for (int p = 0; p < agents_.size(); p++) {
@@ -146,10 +145,10 @@ void TrafficSimulator::simulateInGPU(
   uint count = 0;
 
   std::vector<uint> indexPathVec = lanemap_.indexPathVec();
-  std::vector<B18EdgeData> edgesData = lanemap_.edgesData();
+  std::vector<EdgeData> edgesData = lanemap_.edgesData();
   std::vector<uchar> laneMap = lanemap_.lanemap_array();
   std::cout << "edgesData size" << edgesData.size() << std::endl;
-  std::vector<B18IntersectionData> intersections = lanemap_.intersections();
+  std::vector<IntersectionData> intersections = lanemap_.intersections();
   std::vector<uchar> trafficLights = lanemap_.traffic_lights();
   auto graph_ = network_->street_graph();
 

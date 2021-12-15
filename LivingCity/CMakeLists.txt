@@ -38,9 +38,10 @@ SET(microsim_src
         traffic/sp/graph.cc
         traffic/network.cpp
         traffic/od.cpp
+        traffic/lanemap.cpp
 #        traffic/simulation_interface.cpp
 #        traffic/traffic_simulator.cpp
-#        traffic/lanemap.cpp
+
 #        src/benchmarker.cpp
 
         RoadGraph/roadGraph.cpp
@@ -190,8 +191,8 @@ if(MICROSIM_TEST_BUILD_TESTING)
     SET(microsim_test_src
             tests/network_test.cpp
             tests/od_test.cpp
+            tests/lanemap_test.cpp
 #            tests/traffic_simulator_test.cpp
-#            tests/lanemap_test.cpp
 #            tests/scenario_testing.cpp
             )
 

@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #include "agent.h"
-#include "b18EdgeData.h"
+#include "edge_data.h"
 #include <iostream>
 #include <vector>
 
@@ -62,7 +62,7 @@ inline void printMemoryUsage() {
 // VARIABLES
 LC::Agent *trafficPersonVec_d;
 uint *indexPathVec_d;
-LC::B18EdgeData *edgesData_d;
+LC::EdgeData *edgesData_d;
 
 __constant__ bool calculatePollution = true;
 __constant__ float cellSize = 1.0f;
@@ -80,7 +80,7 @@ uint mapToWriteShift;
 uint halfLaneMap;
 float startTime;
 
-LC::B18IntersectionData *intersections_d;
+LC::IntersectionData *intersections_d;
 uchar *trafficLights_d;
 
 float *accSpeedPerLinePerTimeInterval_d;
@@ -88,9 +88,9 @@ float *numVehPerLinePerTimeInterval_d;
 
 void b18InitCUDA(
     bool fistInitialization, std::vector<LC::Agent> &trafficPersonVec,
-    std::vector<uint> &indexPathVec, std::vector<LC::B18EdgeData> &edgesData,
+    std::vector<uint> &indexPathVec, std::vector<LC::EdgeData> &edgesData,
     std::vector<uchar> &laneMap, std::vector<uchar> &trafficLights,
-    std::vector<LC::B18IntersectionData> &intersections, float startTimeH,
+    std::vector<LC::IntersectionData> &intersections, float startTimeH,
     float endTimeH, std::vector<float> &accSpeedPerLinePerTimeInterval,
     std::vector<float> &numVehPerLinePerTimeInterval, float deltaTime) {
   // printf(">>b18InitCUDA firstInitialization %s\n",
@@ -116,7 +116,7 @@ void b18InitCUDA(
                          cudaMemcpyHostToDevice));
   }
   { // edgeData
-    size_t sizeD = edgesData.size() * sizeof(LC::B18EdgeData);
+    size_t sizeD = edgesData.size() * sizeof(LC::EdgeData);
     if (fistInitialization)
       gpuErrchk(
           cudaMalloc((void **)&edgesData_d, sizeD)); // Allocate array on device
@@ -133,7 +133,7 @@ void b18InitCUDA(
     halfLaneMap = laneMap.size() / 2;
   }
   { // intersections
-    size_t sizeI = intersections.size() * sizeof(LC::B18IntersectionData);
+    size_t sizeI = intersections.size() * sizeof(LC::IntersectionData);
     if (fistInitialization)
       gpuErrchk(cudaMalloc((void **)&intersections_d,
                            sizeI)); // Allocate array on device
@@ -185,13 +185,13 @@ void b18FinishCUDA(void) {
 } //
 
 void b18GetDataCUDA(std::vector<LC::Agent> &trafficPersonVec,
-                    std::vector<LC::B18EdgeData> &edgesData,
-                    std::vector<LC::B18IntersectionData> &intersections) {
+                    std::vector<LC::EdgeData> &edgesData,
+                    std::vector<LC::IntersectionData> &intersections) {
   // copy back people
   size_t size = trafficPersonVec.size() * sizeof(LC::Agent);
-  size_t size_edges = edgesData.size() * sizeof(LC::B18EdgeData);
+  size_t size_edges = edgesData.size() * sizeof(LC::EdgeData);
   size_t size_intersections =
-      intersections.size() * sizeof(LC::B18IntersectionData);
+      intersections.size() * sizeof(LC::IntersectionData);
 
   cudaMemcpy(trafficPersonVec.data(), trafficPersonVec_d, size,
              cudaMemcpyDeviceToHost); // cudaMemcpyHostToDevice
@@ -308,7 +308,7 @@ __device__ void calculateGapsLC(uint mapToReadShift, uchar *laneMap,
 } //
 
 __device__ void calculateLaneCarShouldBe(uint curEdgeLane, uint nextEdge,
-                                         LC::B18IntersectionData *intersections,
+                                         LC::IntersectionData *intersections,
                                          uint edgeNextInters,
                                          ushort edgeNumLanes,
                                          ushort &initOKLanes,
@@ -513,7 +513,7 @@ __device__ void calculateLaneCarShouldBe(uint curEdgeLane, uint nextEdge,
   }
 } //
 
-__device__ void initialize_agent(LC::Agent &agent, LC::B18EdgeData *edgesData,
+__device__ void initialize_agent(LC::Agent &agent, LC::EdgeData *edgesData,
                                  uint *indexPathVec, uchar *laneMap,
                                  uint mapToReadShift, uint mapToWriteShift) {
 
@@ -757,7 +757,7 @@ __device__ void change_lane(LC::Agent &agent, uchar *laneMap,
 }
 
 __device__ uint find_intersetcion_id(LC::Agent &agent,
-                                     LC::B18EdgeData *edgesData) {
+                                     LC::EdgeData *edgesData) {
   // find the intersection id
   auto &current_edge = edgesData[agent.currentEdge];
   auto &next_edge = edgesData[agent.nextEdge];
@@ -773,7 +773,7 @@ __device__ uint find_intersetcion_id(LC::Agent &agent,
 }
 
 __device__ uint find_queue_id(LC::Agent &agent,
-                              LC::B18IntersectionData &intersection) {
+                              LC::IntersectionData &intersection) {
   for (unsigned i = 0; i < intersection.num_queue; i++) {
     if (agent.currentEdge == intersection.start_edge[i] and
         agent.nextEdge == intersection.end_edge[i]) {
@@ -804,8 +804,8 @@ __device__ uint find_queue_id(LC::Agent &agent,
 __shared__ int mutex;
 
 __device__ bool update_intersection(int agent_id, LC::Agent &agent,
-                                    LC::B18EdgeData *edgesData,
-                                    LC::B18IntersectionData *intersections) {
+                                    LC::EdgeData *edgesData,
+                                    LC::IntersectionData *intersections) {
   if (agent.posInLaneM < agent.length) { // does not reach an intersection
     return false;
   }
@@ -837,7 +837,7 @@ __device__ bool update_intersection(int agent_id, LC::Agent &agent,
   return true;
 }
 
-__device__ void write2lane_map(LC::Agent &agent, LC::B18EdgeData *edgesData,
+__device__ void write2lane_map(LC::Agent &agent, LC::EdgeData *edgesData,
                                uint *indexPathVec, uchar *laneMap,
                                uint mapToWriteShift) {
   // write to the lanemap if still on the edge
@@ -850,8 +850,8 @@ __device__ void write2lane_map(LC::Agent &agent, LC::B18EdgeData *edgesData,
 // Kernel that executes on the CUDA device
 __global__ void kernel_trafficSimulation(
     int numPeople, float currentTime, uint mapToReadShift, uint mapToWriteShift,
-    LC::Agent *trafficPersonVec, uint *indexPathVec, LC::B18EdgeData *edgesData,
-    uchar *laneMap, LC::B18IntersectionData *intersections,
+    LC::Agent *trafficPersonVec, uint *indexPathVec, LC::EdgeData *edgesData,
+    uchar *laneMap, LC::IntersectionData *intersections,
     uchar *trafficLights, float deltaTime, const IDMParameters simParameters) {
 
   int p = blockIdx.x * blockDim.x + threadIdx.x;
@@ -906,9 +906,9 @@ __global__ void kernel_trafficSimulation(
 __global__ void kernel_intersectionSTOPSimulation(
      uint numIntersections,
      float currentTime,
-     LC::B18IntersectionData *intersections,
+     LC::IntersectionData *intersections,
      uchar *trafficLights,
-     LC::B18EdgeData* edgesData,//for the length
+     LC::EdgeData* edgesData,//for the length
      uchar* laneMap,//to check if there are cars
      uint mapToReadShift) {
      int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -984,7 +984,7 @@ __device__ bool check_space(int space, int eid, int edge_length, uchar *laneMap,
 }
 
 __device__ void move2nextEdge(LC::Agent &agent, int numMToMove,
-                              LC::B18EdgeData *edgesData, uint *indexPathVec,
+                              LC::EdgeData *edgesData, uint *indexPathVec,
                               uchar *laneMap, uint mapToWriteShift) {
 //    if (agent.indexPathCurr>85){
 //        return;
@@ -1027,9 +1027,9 @@ __device__ void move2nextEdge(LC::Agent &agent, int numMToMove,
   agent.cum_length += numMToMove;
   agent.num_steps += numMToMove / 3;
 }
-__device__ bool empty_queue(LC::B18IntersectionData &intersection,
+__device__ bool empty_queue(LC::IntersectionData &intersection,
                             int queue_ptr, LC::Agent *trafficPersonVec,
-                            LC::B18EdgeData *edgesData, uint *indexPathVec,
+                            LC::EdgeData *edgesData, uint *indexPathVec,
                             uchar *laneMap, uint mapToReadShift,
                             uint mapToWriteShift) {
   auto &q1 = intersection.queue[queue_ptr];
@@ -1053,7 +1053,7 @@ __device__ bool empty_queue(LC::B18IntersectionData &intersection,
   return false;
 }
 
-__device__ void place_stop(LC::Agent &agent, LC::B18EdgeData *edgesData,
+__device__ void place_stop(LC::Agent &agent, LC::EdgeData *edgesData,
                            uchar *laneMap, uint mapToWriteShift) {
   auto &edge = edgesData[agent.currentEdge];
   for (int j = 0; j < 5; ++j) {
@@ -1066,8 +1066,8 @@ __device__ void place_stop(LC::Agent &agent, LC::B18EdgeData *edgesData,
 }
 
 __device__ void check_queues(unsigned intersection_id, uint mapToWriteShift,
-                             uint mapToReadShift, LC::B18EdgeData *edgesData,
-                             LC::B18IntersectionData *intersections,
+                             uint mapToReadShift, LC::EdgeData *edgesData,
+                             LC::IntersectionData *intersections,
                              uint *indexPathVec, LC::Agent *trafficPersonVec,
                              uchar *laneMap) {
   auto &intersection = intersections[intersection_id];
@@ -1110,7 +1110,7 @@ __device__ void check_queues(unsigned intersection_id, uint mapToWriteShift,
 
 __global__ void kernel_intersectionOneSimulation(
     uint numIntersections, uint mapToWriteShift, uint mapToReadShift,
-    LC::B18EdgeData *edgesData, LC::B18IntersectionData *intersections,
+    LC::EdgeData *edgesData, LC::IntersectionData *intersections,
     uint *indexPathVec, LC::Agent *trafficPersonVec, uchar *laneMap) {
 
   int i = blockIdx.x * blockDim.x + threadIdx.x;

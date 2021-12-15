@@ -10,20 +10,20 @@
 #define B18_TRAFFIC_SIMULATION_H
 
 #include "agent.h"
-#include "b18EdgeData.h"
+#include "edge_data.h"
 #include <vector>
 
 extern void b18InitCUDA(
     bool fistInitialization, // crate buffers
     std::vector<LC::Agent> &trafficPersonVec, std::vector<uint> &indexPathVec,
-    std::vector<LC::B18EdgeData> &edgesData, std::vector<uchar> &laneMap,
+    std::vector<LC::EdgeData> &edgesData, std::vector<uchar> &laneMap,
     std::vector<uchar> &trafficLights,
-    std::vector<LC::B18IntersectionData> &intersections, float startTimeH,
+    std::vector<LC::IntersectionData> &intersections, float startTimeH,
     float endTimeH, std::vector<float> &accSpeedPerLinePerTimeInterval,
     std::vector<float> &numVehPerLinePerTimeInterval, float deltaTime);
 extern void b18GetDataCUDA(std::vector<LC::Agent> &trafficPersonVec,
-                           std::vector<LC::B18EdgeData> &edgesData,
-                           std::vector<LC::B18IntersectionData> &intersections);
+                           std::vector<LC::EdgeData> &edgesData,
+                           std::vector<LC::IntersectionData> &intersections);
 extern void
 b18GetSampleTrafficCUDA(std::vector<float> &accSpeedPerLinePerTimeInterval,
                         std::vector<float> &numVehPerLinePerTimeInterval);

@@ -25,61 +25,48 @@
 #endif
 
 
-const uint kMaskOutEdge = 0x000000;
-const uint kMaskInEdge = 0x800000;
-const uint kMaskLaneMap = 0x007FFFFF;
-
 namespace LC {
-
-struct B18EdgeData {
+//! EdgeData Class
+//! \brief Data structure that hold essential information for a road/edge in ONE direction
+struct EdgeData {
+    //! number of lanes
   ushort numLines;
-  uint nextInters;
+    //! Two end nodes of the edge
   uint vertex[2];
+  //! Length of the edge (road)
   float length;
+  //! max speed for the road (m/s)
   float maxSpeedMperSec;
-  uint nextIntersMapped;
 
+  //! upstream vehicle count for the edge (number of vehicles enters the edge)
   unsigned int upstream_veh_count = 0;
+  //! downstream vehicle count for the edge (number of vehicles leaves the edge)
   unsigned int downstream_veh_count = 0;
 };
 
-//struct IntersectionQ{
-//        int queue[3] = {};
-//        int q_ptr = 0;
-//    };
-//
-//struct  B18IntersectionData{
-//    std::vector<std::vector<IntersectionQ>> paired_queues;
-//    std::map<std::vector<unsigned int>,IntersectionQ*> dir2q;
-//    //  ushort state;
-//  ushort state;
-//  ushort stateLine;
-//  ushort totalInOutEdges;
-//  uint edge[24]; // up to six arms intersection
-//  float nextEvent;
-//};
 
-struct B18IntersectionData{
-    int lanemap_id[6];
+//! IntersectionData Class
+//! \brief Data structure that hold essential information for a intersection
+struct IntersectionData{
+    //! Potential queues (for each direction) in the intersection
     int queue[30][30];
+    //! Entering eid for each queue
     int start_edge[30];
+    //! Leaving eid for each queue
     int end_edge[30];
+    //! Ptr position for each queue (number of cars in queue)
     int pos[30] = {0};
-    unsigned num_edge;
-    unsigned num_queue;
-    unsigned queue_ptr;
-    unsigned max_queue;
 
-    ushort state;
-    ushort stateLine;
-    ushort totalInOutEdges;
-    uint edge[24]; // up to six arms intersection
-    float nextEvent;
+    unsigned num_edge;
+    unsigned num_queue{0};
+    //! Ptr for the next queue to check
+    unsigned queue_ptr{0};
+    unsigned max_queue;
 
 };
 
 
-//struct B18IntersectionData {
+//struct IntersectionData {
 //  ushort state;
 //  ushort stateLine;
 //  ushort totalInOutEdges;

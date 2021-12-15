@@ -12,17 +12,23 @@
 #include "b18CUDA_trafficSimulator.h"
 #include "lanemap.h"
 #include "network.h"
+#include "od.h"
 #include "src/benchmarker.h"
 
 namespace LC {
 
-class LCUrbanMain;
-
+//! Traffic Simulator Class
+//! \brief Class that assembles network, od to perform agent based car following
+//! simulation
 class TrafficSimulator {
 
 public:
-  TrafficSimulator(RoadGraph *geoRoadGraph, const IDMParameters &simParameters,
-                   std::shared_ptr<Network> network,
+  // Constructor for the simulator class
+  //! \param[in] network ptr to the network
+  //! \param[in] od ptr to the ods
+  //! \param[in] save_path path to save simulation results
+
+  TrafficSimulator(std::shared_ptr<Network> network, std::shared_ptr<OD> od,
                    const std::string &save_path = "./results/");
   ~TrafficSimulator();
 
@@ -47,7 +53,7 @@ public:
   //  // Lanes
   //  std::vector<uint> edgeIdToLaneMapNum;
   //  std::vector<uchar> laneMap;
-  //  std::vector<B18EdgeData> edgesData;
+  //  std::vector<EdgeData> edgesData;
   //  std::map<RoadGraph::roadGraphEdgeDesc_BI, uint> edgeDescToLaneMapNum;
   //  std::map<uint, RoadGraph::roadGraphEdgeDesc_BI> laneMapNumToEdgeDesc;
   //  std::map<uint, std::shared_ptr<abm::Graph::Edge>> laneMapNumToEdgeDescSP;
@@ -68,7 +74,7 @@ public:
   //
   //  // Traffic lights
   //  std::vector<uchar> trafficLights;
-  //  std::vector<B18IntersectionData> intersections;
+  //  std::vector<IntersectionData> intersections;
   //
   // measurements
   std::vector<float> accSpeedPerLinePerTimeInterval;
@@ -99,10 +105,8 @@ private:
                       int start_time, int end_time);
   void writeIndexPathVecFile(int numOfPass, int start_time, int end_time,
                              const std::vector<uint> &indexPathVec);
-  RoadGraph *simRoadGraph_;
   std::shared_ptr<Network> network_;
-  IDMParameters simParameters_;
-  std::vector<Agent> agents_;
+  std::shared_ptr<OD> od_;
   Lanemap lanemap_;
   double deltaTime = 0.5;
   std::string save_path_ = "./";

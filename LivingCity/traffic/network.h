@@ -26,10 +26,6 @@ public:
   //! \retval edge id
   abm::graph::vertex_t edge_id(abm::graph::vertex_t v1,
                                abm::graph::vertex_t v2) {
-    if (!street_graph_->directed_) // Handle undirect cases
-      if (v1 > v2)
-        std::swap(v1, v2);
-
     return street_graph_->edge_ids_[v1][v2];
   }
 
