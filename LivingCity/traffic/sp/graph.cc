@@ -142,7 +142,7 @@ bool abm::Graph::read_graph_osm(const std::string &filename) {
   try {
     csvio::CSVReader<8> in(filename);
     in.read_header(csvio::ignore_extra_column, "uniqueid", "osmid_u", "osmid_v",
-                   "length", "lanes", "speed_mph", "u", "v");
+                   "edge_length", "lanes", "speed_mph", "u", "v");
     std::vector<float> edge_vals(3);
     abm::graph::vertex_t nvertices = 0;
     float length, lanes, speed_mph;

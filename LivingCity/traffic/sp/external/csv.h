@@ -131,7 +131,7 @@ namespace csvio{
                         with_file_line{
                         void format_error_message()const{
                                 std::snprintf(error_message_buffer, sizeof(error_message_buffer),
-                                        "Line number %d in file \"%s\" exceeds the maximum length of 2^24-1."
+                                        "Line number %d in file \"%s\" exceeds the maximum edge_length of 2^24-1."
                                         , file_line, file_name);
                         }
                 };

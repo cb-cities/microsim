@@ -8,11 +8,19 @@
 #include <thread>
 #include <unistd.h>
 
-#include "agent.h"
-#include "b18CUDA_trafficSimulator.h"
-#include "lanemap.h"
+#include <QSettings>
+#include <qt5/QtCore/qcoreapplication.h>
+#include <string>
+
+#include "Geometry/client_geometry.h"
+#include "traffic/traffic_simulator.h"
+
 #include "network.h"
+#include "pandana_ch/accessibility.h"
+#include "agent.h"
+#include "lanemap.h"
 #include "od.h"
+#include "cuda_simulator.h"
 #include "src/benchmarker.h"
 
 namespace LC {
@@ -26,59 +34,15 @@ public:
   // Constructor for the simulator class
   //! \param[in] network ptr to the network
   //! \param[in] od ptr to the ods
+  //! \param[in] lanemap ptr to the lanemap
   //! \param[in] save_path path to save simulation results
-
   TrafficSimulator(std::shared_ptr<Network> network, std::shared_ptr<OD> od,
+                   std::shared_ptr<Lanemap> lanemap,
                    const std::string &save_path = "./results/");
-  ~TrafficSimulator();
 
-  void reset_agent();
+  ~TrafficSimulator() = default;
 
-  void load_agents();
-
-  const std::vector<Agent> &agents() const { return agents_; }
-
-  void simulateInGPU(const std::vector<abm::graph::edge_id_t> &paths_SP,
-                     float start_time, float end_time);
-
-  //  float deltaTime;
-  //  int threadNumber;
-  //  float avgTravelTime;
-  //
-  //  // PM
-  //  B18TrafficLaneMap b18TrafficLaneMap;
-  //
-
-  //
-  //  // Lanes
-  //  std::vector<uint> edgeIdToLaneMapNum;
-  //  std::vector<uchar> laneMap;
-  //  std::vector<EdgeData> edgesData;
-  //  std::map<RoadGraph::roadGraphEdgeDesc_BI, uint> edgeDescToLaneMapNum;
-  //  std::map<uint, RoadGraph::roadGraphEdgeDesc_BI> laneMapNumToEdgeDesc;
-  //  std::map<uint, std::shared_ptr<abm::Graph::Edge>> laneMapNumToEdgeDescSP;
-  //  std::map<std::shared_ptr<abm::Graph::Edge>, uint> edgeDescToLaneMapNumSP;
-  //  void createLaneMap();
-  //  void createLaneMapSP(const std::shared_ptr<abm::Graph> &graph_);
-  //
-  //  // car path
-  //  void generateCarPaths(bool useJohnsonRouting);
-  //
-  //  // People
-  //
-  //  std::vector<uint> indexPathVec;
-  //
-  //  void resetPeopleJobANDintersections();
-  //  void saveODToFile(){}; // TODO
-  //  void loadODFromFile(){};
-  //
-  //  // Traffic lights
-  //  std::vector<uchar> trafficLights;
-  //  std::vector<IntersectionData> intersections;
-  //
-  // measurements
-  std::vector<float> accSpeedPerLinePerTimeInterval;
-  std::vector<float> numVehPerLinePerTimeInterval;
+  void simulateInGPU(float start_time, float end_time);
 
   //
   void
@@ -105,10 +69,15 @@ private:
                       int start_time, int end_time);
   void writeIndexPathVecFile(int numOfPass, int start_time, int end_time,
                              const std::vector<uint> &indexPathVec);
+
+  //! Find shortest path for each agent
+  void route_finding_();
+
   std::shared_ptr<Network> network_;
   std::shared_ptr<OD> od_;
-  Lanemap lanemap_;
-  double deltaTime = 0.5;
+  std::shared_ptr<Lanemap> lanemap_;
+    //! simulation time resolution
+  double deltaTime_ = 0.5;
   std::string save_path_ = "./";
 };
 } // namespace LC

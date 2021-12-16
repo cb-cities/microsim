@@ -784,7 +784,7 @@ float area3D_Polygon(Loop3D &pin) {
   }
 
   // scale to get area before projection
-  an = sqrt(ax * ax + ay * ay + az * az); // length of normal vector
+  an = sqrt(ax * ax + ay * ay + az * az); // edge_length of normal vector
 
   switch (coord) {
   case 1:

@@ -14,6 +14,11 @@ using weight_t = double;
 namespace LC {
 enum AgentType { CAR };
 
+//! Number of threads per cuda block
+const int CUDAThreadsPerBlock {384};
+//! Length of each cell in the lane map
+const int kMaxMapWidthM_{1024}; // size of the bin
+
 struct IDMParametersCar {
   float a = 0.557040909258405;    // acceleration
   float b = 2.9020578588167;      // break

@@ -39,8 +39,9 @@ SET(microsim_src
         traffic/network.cpp
         traffic/od.cpp
         traffic/lanemap.cpp
+        traffic/traffic_simulator.cpp
 #        traffic/simulation_interface.cpp
-#        traffic/traffic_simulator.cpp
+#
 
 #        src/benchmarker.cpp
 
@@ -163,7 +164,7 @@ target_link_libraries(lmicrosim
 
 cuda_add_library(lmicrosim_cuda
         traffic/simulation_interface.h
-        traffic/b18CUDA_trafficSimulator.cu
+        traffic/cuda_simulator.cu
         OPTIONS -arch sm_50)
 
 target_link_libraries(lmicrosim_cuda ${CUDA_LIBRARIES})
@@ -192,7 +193,7 @@ if(MICROSIM_TEST_BUILD_TESTING)
             tests/network_test.cpp
             tests/od_test.cpp
             tests/lanemap_test.cpp
-#            tests/traffic_simulator_test.cpp
+            tests/traffic_simulator_test.cpp
 #            tests/scenario_testing.cpp
             )
 

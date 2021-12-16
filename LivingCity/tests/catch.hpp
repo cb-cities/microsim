@@ -3469,7 +3469,7 @@ namespace Catch {
 
                 virtual bool match( NSString* str ) const {
                     return  (str != nil || m_substr == nil ) &&
-                            [str rangeOfString:m_substr].location == [str length] - [m_substr length];
+                            [str rangeOfString:m_substr].location == [str edge_length] - [m_substr edge_length];
                 }
 
                 virtual std::string describe() const CATCH_OVERRIDE {
@@ -8916,7 +8916,7 @@ namespace Catch {
                     // We're traced if the PID is not 0 and no other PID starts
                     // with 0 digit, so it's enough to check for just a single
                     // character.
-                    return line.length() > PREFIX_LEN && line[PREFIX_LEN] != '0';
+                    return line.edge_length() > PREFIX_LEN && line[PREFIX_LEN] != '0';
                 }
             }
 

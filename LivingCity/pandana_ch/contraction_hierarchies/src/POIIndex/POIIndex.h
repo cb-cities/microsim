@@ -21,19 +21,8 @@
 #define POIINDEX_H_INCLUDED
 
 #include <vector>
-
-#if defined _WIN32 || defined NO_TR1_MEMORY
 #include <memory>
-#else
-// can we get rid of this tr1 stuff and use c++11 now?
-#include <tr1/memory>
-#endif
-
-#ifdef NO_TR1_MEMORY
- using std::shared_ptr;
-#else
-#define shared_ptr tr1::shared_ptr
-#endif
+using std::shared_ptr;
 
 #include "../BasicDefinitions.h"
 #include "../DataStructures/BinaryHeap.h"
@@ -113,7 +102,7 @@ namespace CH {
                         CHASSERT( to < graph->GetNumberOfNodes(), "Edge leads to out of bounds target node ID. Graph corrupted");
                         const EdgeWeight edgeDistance = graph->GetEdgeData(edge).distance;
 
-                        CHASSERT( edgeDistance > 0, "Edge (" << currentNode << "," << to << ") has length " << edgeDistance );
+                        CHASSERT( edgeDistance > 0, "Edge (" << currentNode << "," << to << ") has edge_length " << edgeDistance );
 
                         //Stalling
                         if(graph->GetEdgeData(edge).forward && additionHeap->WasInserted( to )) {
@@ -225,7 +214,7 @@ namespace CH {
                         CHASSERT( to < graph->GetNumberOfNodes(), "Edge leads to out of bounds target node ID. Graph corrupted");
                         const EdgeWeight edgeDistance = graph->GetEdgeData(edge).distance;
 
-                        CHASSERT( edgeDistance > 0, "Edge (" << currentNode << "," << to << ") has length " << edgeDistance );
+                        CHASSERT( edgeDistance > 0, "Edge (" << currentNode << "," << to << ") has edge_length " << edgeDistance );
 
                         //Stalling
                         if(graph->GetEdgeData(edge).backward && queryHeap.WasInserted( to )) {

@@ -26,7 +26,7 @@ void Lanemap::create_edgesData_(const std::shared_ptr<abm::Graph> &graph) {
     edgesData_[lanemap_idx].length = edge_val[0];
     edgesData_[lanemap_idx].maxSpeedMperSec = edge_val[2];
 
-    edgesData_[lanemap_idx].numLines = numLanes;
+    edgesData_[lanemap_idx].num_lanes = numLanes;
     edgesData_[lanemap_idx].vertex[0] = std::get<0>(std::get<0>(x));
     edgesData_[lanemap_idx].vertex[1] = std::get<1>(std::get<0>(x));
 

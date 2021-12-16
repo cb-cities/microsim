@@ -27,11 +27,11 @@ public:
     create_intersections_(graph);
   };
 
-  const std::vector<EdgeData> &edgesData() const { return edgesData_; }
+  std::vector<EdgeData> &edgesData() { return edgesData_; }
 
-  const std::vector<uchar> &lanemap_array() const { return laneMap_; }
+  std::vector<uchar> &lanemap_array() { return laneMap_; }
 
-  const std::vector<IntersectionData> &intersections() const {
+  std::vector<IntersectionData> &intersections() {
     return intersections_;
   }
 
@@ -52,9 +52,6 @@ private:
   std::map<uint, abm::graph::edge_id_t> mid2eid_;
   //! A map that maps lanemap number to the corresponding edge object
   std::map<abm::graph::edge_id_t, uint> eid2mid_;
-
-  //! Length of each cell in the lane map
-  int kMaxMapWidthM_{1024}; // size of the bin
 
   //! Helper function that creates the edgeData. It parses the edges from the
   //! network and record the parsing sequence (id maps)

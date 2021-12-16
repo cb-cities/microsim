@@ -18,7 +18,7 @@ struct BEdgesData {
   std::vector<ushort> nextInters;
   std::vector<uchar> nextIntersType;
 
-  std::vector<ushort> lengthC;//length in cells
+  std::vector<ushort> lengthC;//edge_length in cells
   std::vector<float> maxSpeedCpSec;//speed in cells per delta time
 
   void resize(int size) {

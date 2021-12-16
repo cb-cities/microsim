@@ -30,7 +30,7 @@ namespace LC {
 //! \brief Data structure that hold essential information for a road/edge in ONE direction
 struct EdgeData {
     //! number of lanes
-  ushort numLines;
+  ushort num_lanes;
     //! Two end nodes of the edge
   uint vertex[2];
   //! Length of the edge (road)
@@ -57,11 +57,12 @@ struct IntersectionData{
     //! Ptr position for each queue (number of cars in queue)
     int pos[30] = {0};
 
-    unsigned num_edge;
+    unsigned num_edge{0};
     unsigned num_queue{0};
+    unsigned max_queue{0};
     //! Ptr for the next queue to check
     unsigned queue_ptr{0};
-    unsigned max_queue;
+
 
 };
 
