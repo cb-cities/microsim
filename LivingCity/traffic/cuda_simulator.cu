@@ -32,11 +32,11 @@ LC::EdgeData *edgesData_d;
 LC::IntersectionData *intersections_d;
 uchar *laneMap_d;
 
-__shared__ bool readFirstMapC = true;
-__shared__ uint mapToReadShift;
-__shared__ uint mapToWriteShift;
+__managed__ bool readFirstMapC = true;
+__managed__ uint mapToReadShift;
+__managed__ uint mapToWriteShift;
 __shared__ int mutex;
-__shared__ uint halfLaneMap;
+__managed__ uint halfLaneMap;
 
 #define gpuErrchk(ans)                                                         \
   { gpuAssert((ans), __FILE__, __LINE__); }
@@ -118,10 +118,6 @@ void finish_cuda(void) {
   cudaFree(edgesData_d);
   cudaFree(laneMap_d);
   cudaFree(intersections_d);
-  cudaFree(trafficLights_d);
-
-  cudaFree(accSpeedPerLinePerTimeInterval_d);
-  cudaFree(numVehPerLinePerTimeInterval_d);
 } //
 
 void cuda_get_data(std::vector<LC::Agent> &trafficPersonVec,
@@ -388,6 +384,7 @@ __device__ uint find_queue_id(LC::Agent &agent,
       return i;
     }
   }
+  return 0;
   //  int pos0, pos1;
   //  for (unsigned i = 0; i < intersection.num_edge; i++) {
   //    if (agent.edge_ptr == intersection.lanemap_id[i]) {
@@ -416,13 +413,13 @@ __device__ bool update_intersection(int agent_id, LC::Agent &agent,
                                     LC::IntersectionData *intersections) {
   auto &current_edge = edgesData[agent.edge_ptr];
   if (agent.posInLaneM <
-      current_edge.length) { // does not reach an intersection
+      agent.edge_length) { // does not reach an intersection
     return false;
   }
 
   if (agent.route_ptr + 1 == agent.route_size) { // reach destination
     agent.active = 2;
-    atomicAdd(&(edgesData[agent.edge_ptr].downstream_veh_count), 1);
+    atomicAdd(&(current_edge.downstream_veh_count), 1);
     return false;
   }
   auto intersetcion_id = find_intersetcion_id(agent, edgesData);
@@ -588,7 +585,6 @@ __device__ void check_queues(unsigned intersection_id, LC::EdgeData *edgesData,
                              LC::IntersectionData *intersections,
                              LC::Agent *trafficPersonVec, uchar *laneMap) {
   auto &intersection = intersections[intersection_id];
-  auto &queues = intersection.queue;
   auto &queue_counter = intersection.pos;
   unsigned start_ptr = intersection.queue_ptr;
 
@@ -646,7 +642,6 @@ kernel_intersectionOneSimulation(uint numIntersections, LC::EdgeData *edgesData,
 void cuda_simulate(float currentTime, uint numPeople, uint numIntersections,
                    float deltaTime, int numBlocks, int threadsPerBlock) {
   intersectionBench.startMeasuring();
-  const uint numStepsTogether = 12; // change also in density (10 per hour)
   ////////////////////////////////////////////////////////////
   // 1. CHANGE MAP: set map to use and clean the other
   if (readFirstMapC) {

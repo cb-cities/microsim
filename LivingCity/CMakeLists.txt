@@ -41,10 +41,7 @@ SET(microsim_src
         traffic/lanemap.cpp
         traffic/traffic_simulator.cpp
 #        traffic/simulation_interface.cpp
-#
-
-#        src/benchmarker.cpp
-
+        src/benchmarker.cpp
         RoadGraph/roadGraph.cpp
         RoadGraph/roadGraphEdge.cpp
         RoadGraph/roadGraphVertex.cpp

@@ -25,7 +25,6 @@ void SimulationInterface::run_simulation() {
           .toString()
           .toStdString();
 
-  IDMParameters simParameters;
   // new benchmarks
   if (showBenchmarks) {
     Benchmarker::enableShowBenchmarks();
@@ -50,60 +49,60 @@ void SimulationInterface::run_simulation() {
   /************************************************************************************************
     Route Finding (OLD)
   ************************************************************************************************/
-  std::vector<abm::graph::edge_id_t> all_paths;
-  std::vector<std::vector<int>> all_paths_ch;
-  if (usePrevPaths) {
-    // open file
-    const std::string &pathsFileName = networkPath + "all_paths_ch.txt";
-    std::cout << "Loading " << pathsFileName << " as paths file\n";
-    std::ifstream inputFile(pathsFileName);
-    // test file open
-    if (inputFile) {
-      abm::graph::vertex_t value;
-      // read the elements in the file into a vector
-      while (inputFile >> value) {
-        all_paths.push_back(value);
-      }
-    }
-  } else {
-    // compute routes use ch
-    routingCH.startMeasuring();
-    auto graph_ch = std::make_shared<MTC::accessibility::Accessibility>(
-        network->num_vertices(), network->edge_vertices(),
-        network->edge_weights(), true);
-
-    std::vector<long> sources, targets;
-    for (const auto &od : network->od_pairs()) {
-      sources.emplace_back(od[0]);
-      targets.emplace_back(od[1]);
-    }
-    all_paths_ch = graph_ch->Routes(sources, targets, 0);
-    std::cout << "# of paths = " << all_paths_ch.size() << " \n";
-    routingCH.stopAndEndBenchmark();
-
-    CHoutputNodesToEdgesConversion.startMeasuring();
-    // convert from nodes to edges
-    for (int i = 0; i < all_paths_ch.size(); i++) {
-      for (int j = 0; j < all_paths_ch[i].size() - 1; j++) {
-        auto vertex_from = all_paths_ch[i][j];
-        auto vertex_to = all_paths_ch[i][j + 1];
-        auto one_edge = network->edge_id(vertex_from, vertex_to);
-        all_paths.emplace_back(one_edge);
-      }
-      all_paths.emplace_back(-1);
-    }
-    CHoutputNodesToEdgesConversion.stopAndEndBenchmark();
-
-    // write paths to file so that we can just load them instead
-    const std::string &pathsFileName = networkPath + "all_paths_ch.txt";
-    std::cout << "Save " << pathsFileName << " as paths file\n";
-    std::ofstream output_file(pathsFileName);
-    std::ostream_iterator<abm::graph::vertex_t> output_iterator(output_file,
-                                                                "\n");
-    std::copy(all_paths.begin(), all_paths.end(), output_iterator);
-  }
-  // map person to their initial edge
-  network->map_person2init_edge(all_paths);
+//  std::vector<abm::graph::edge_id_t> all_paths;
+//  std::vector<std::vector<int>> all_paths_ch;
+//  if (usePrevPaths) {
+//    // open file
+//    const std::string &pathsFileName = networkPath + "all_paths_ch.txt";
+//    std::cout << "Loading " << pathsFileName << " as paths file\n";
+//    std::ifstream inputFile(pathsFileName);
+//    // test file open
+//    if (inputFile) {
+//      abm::graph::vertex_t value;
+//      // read the elements in the file into a vector
+//      while (inputFile >> value) {
+//        all_paths.push_back(value);
+//      }
+//    }
+//  } else {
+//    // compute routes use ch
+//    routingCH.startMeasuring();
+//    auto graph_ch = std::make_shared<MTC::accessibility::Accessibility>(
+//        network->num_vertices(), network->edge_vertices(),
+//        network->edge_weights(), true);
+//
+//    std::vector<long> sources, targets;
+//    for (const auto &od : network->od_pairs()) {
+//      sources.emplace_back(od[0]);
+//      targets.emplace_back(od[1]);
+//    }
+//    all_paths_ch = graph_ch->Routes(sources, targets, 0);
+//    std::cout << "# of paths = " << all_paths_ch.size() << " \n";
+//    routingCH.stopAndEndBenchmark();
+//
+//    CHoutputNodesToEdgesConversion.startMeasuring();
+//    // convert from nodes to edges
+//    for (int i = 0; i < all_paths_ch.size(); i++) {
+//      for (int j = 0; j < all_paths_ch[i].size() - 1; j++) {
+//        auto vertex_from = all_paths_ch[i][j];
+//        auto vertex_to = all_paths_ch[i][j + 1];
+//        auto one_edge = network->edge_id(vertex_from, vertex_to);
+//        all_paths.emplace_back(one_edge);
+//      }
+//      all_paths.emplace_back(-1);
+//    }
+//    CHoutputNodesToEdgesConversion.stopAndEndBenchmark();
+//
+//    // write paths to file so that we can just load them instead
+//    const std::string &pathsFileName = networkPath + "all_paths_ch.txt";
+//    std::cout << "Save " << pathsFileName << " as paths file\n";
+//    std::ofstream output_file(pathsFileName);
+//    std::ostream_iterator<abm::graph::vertex_t> output_iterator(output_file,
+//                                                                "\n");
+//    std::copy(all_paths.begin(), all_paths.end(), output_iterator);
+//  }
+//  // map person to their initial edge
+//  network->map_person2init_edge(all_paths);
 
   //  /************************************************************************************************
   //    Route Finding (NEW)

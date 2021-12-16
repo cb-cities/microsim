@@ -3,130 +3,130 @@
 
 namespace LC {
 
-TrafficSimulator::TrafficSimulator(std::shared_ptr<Network> network,
-                                   std::shared_ptr<OD> od,
-                                   std::shared_ptr<Lanemap> lanemap,
-                                   const std::string &save_path) {
-  network_ = network;
-  od_ = od;
-  lanemap_ = lanemap;
-  save_path_ = save_path;
-  boost::filesystem::path dir(save_path_);
-  if (boost::filesystem::create_directory(dir)) {
-    std::cout << "Save Dict Directory Created: " << save_path_ << std::endl;
-  }
-  route_finding_();
-}
-
-void TrafficSimulator::route_finding_() {
-  // compute routes use contraction hierarchy
-  auto graph_ch = std::make_shared<MTC::accessibility::Accessibility>(
-      network_->num_vertices(), network_->edge_vertices(),
-      network_->edge_weights(), false);
-
-  auto &agents = od_->agents();
-  std::vector<long> sources, targets;
-  for (const auto &agent : agents) {
-    sources.emplace_back(agent.init_intersection);
-    targets.emplace_back(agent.end_intersection);
-  }
-
-  auto node_sequence = graph_ch->Routes(sources, targets, 0);
-  auto &eid2mid = lanemap_->eid2mid();
-  //  std::cout << "# of paths = " << all_paths_ch.size() << " \n";
-
-  // add routes to each agent
-  for (int i = 0; i < node_sequence.size(); i++) {
-    auto &agent = agents[i];
-    if (node_sequence[i].size() > 100) {
-      std::cerr << "Warning: Agent " << i << "need to go through "
-                << node_sequence[i].size() << " edges!" << std::endl;
-    }
-    if (node_sequence[i].size() == 0) {
-      std::cerr << "Warning: Agent " << i << "has no route! " << std::endl;
+    TrafficSimulator::TrafficSimulator (std::shared_ptr<Network> network,
+                                        std::shared_ptr<OD> od,
+                                        std::shared_ptr<Lanemap> lanemap,
+                                        const std::string &save_path) {
+        network_ = network;
+        od_ = od;
+        lanemap_ = lanemap;
+        save_path_ = save_path;
+        boost::filesystem::path dir (save_path_);
+        if (boost::filesystem::create_directory (dir)) {
+            std::cout << "Save Dict Directory Created: " << save_path_ << std::endl;
+        }
+        route_finding_ ();
     }
 
-    for (int j = 0; j < node_sequence[i].size() - 1; j++) {
-      auto vertex_from = node_sequence[i][j];
-      auto vertex_to = node_sequence[i][j + 1];
-      auto eid = network_->edge_id(vertex_from, vertex_to);
-      auto mid = eid2mid.at(eid);
-      agent.route[agent.route_size] = mid;
-      agent.route_size++;
+    void TrafficSimulator::route_finding_ () {
+        // compute routes use contraction hierarchy
+        auto graph_ch = std::make_shared<MTC::accessibility::Accessibility> (
+                network_->num_vertices (), network_->edge_vertices (),
+                network_->edge_weights (), false);
+
+        auto &agents = od_->agents ();
+        std::vector<long> sources, targets;
+        for (const auto &agent : agents) {
+            sources.emplace_back (agent.init_intersection);
+            targets.emplace_back (agent.end_intersection);
+        }
+
+        auto node_sequence = graph_ch->Routes (sources, targets, 0);
+        auto &eid2mid = lanemap_->eid2mid ();
+        //  std::cout << "# of paths = " << all_paths_ch.size() << " \n";
+
+        // add routes to each agent
+        for (int i = 0; i < node_sequence.size (); i++) {
+            auto &agent = agents[i];
+            if (node_sequence[i].size () > 100) {
+                std::cerr << "Warning: Agent " << i << "need to go through "
+                          << node_sequence[i].size () << " edges!" << std::endl;
+            }
+            if (node_sequence[i].size () == 0) {
+                std::cerr << "Warning: Agent " << i << "has no route! " << std::endl;
+            }
+
+            for (int j = 0; j < node_sequence[i].size () - 1; j++) {
+                auto vertex_from = node_sequence[i][j];
+                auto vertex_to = node_sequence[i][j + 1];
+                auto eid = network_->edge_id (vertex_from, vertex_to);
+                auto mid = eid2mid.at (eid);
+                agent.route[agent.route_size] = mid;
+                agent.route_size++;
+            }
+        }
     }
-  }
-}
 
 //
 ////////////////////////////////////////////////////////
 //////// GPU
 ////////////////////////////////////////////////////////
-void TrafficSimulator::simulateInGPU(float startTime, float endTime) {
+    void TrafficSimulator::simulateInGPU (float startTime, float endTime) {
 
-  Benchmarker passesBench("Simulation passes");
-  Benchmarker finishCudaBench("Cuda finish");
+        Benchmarker passesBench ("Simulation passes");
+        Benchmarker finishCudaBench ("Cuda finish");
 
-  Benchmarker microsimulationInGPU("Microsimulation_in_GPU", true);
-  microsimulationInGPU.startMeasuring();
+        Benchmarker microsimulationInGPU ("Microsimulation_in_GPU", true);
+        microsimulationInGPU.startMeasuring ();
 
-  Benchmarker initCudaBench("Init Cuda step");
-  Benchmarker simulateBench("Simulation step");
-  Benchmarker getDataBench("Data retrieve step");
-  Benchmarker shortestPathBench("Shortest path step");
-  Benchmarker fileOutput("File_output", true);
-
-
-  /////////////////////////////////////
-  // 1. Init Cuda
-  initCudaBench.startMeasuring();
-  auto & agents = od_->agents();
-  auto & edgesData = lanemap_->edgesData();
-  auto & lanemap_data = lanemap_->lanemap_array();
-  auto & intersections = lanemap_->intersections();
-
-  std::cout << "Traffic person vec size = " << agents.size()
-            << std::endl;
-  std::cout << "EdgesData size = " << edgesData.size() << std::endl;
-  std::cout << "LaneMap size = " << lanemap_data.size()
-            << std::endl;
-  std::cout << "Intersections size = " << intersections.size()
-            << std::endl;
-
-  init_cuda(true, agents, edgesData,
-            lanemap_data, intersections, deltaTime_);
-
-  initCudaBench.stopAndEndBenchmark();
+        Benchmarker initCudaBench ("Init Cuda step");
+        Benchmarker simulateBench ("Simulation step");
+        Benchmarker getDataBench ("Data retrieve step");
+        Benchmarker shortestPathBench ("Shortest path step");
+        Benchmarker fileOutput ("File_output", true);
 
 
-  simulateBench.startMeasuring();
-  int numBlocks = ceil(agents.size() / 384.0f);
+        /////////////////////////////////////
+        // 1. Init Cuda
+        initCudaBench.startMeasuring ();
+        auto &agents = od_->agents ();
+        auto &edgesData = lanemap_->edgesData ();
+        auto &lanemap_data = lanemap_->lanemap_array ();
+        auto &intersections = lanemap_->intersections ();
 
-  std::cout << "Running trafficSimulation with the following configuration:"
-            << std::endl
-            << ">  Number of people: " << agents.size() << std::endl
-            << ">  Number of blocks: " << numBlocks << std::endl
-            << ">  Number of threads per block: " << CUDAThreadsPerBlock
-            << std::endl;
+        std::cout << "Traffic person vec size = " << agents.size ()
+                  << std::endl;
+        std::cout << "EdgesData size = " << edgesData.size () << std::endl;
+        std::cout << "LaneMap size = " << lanemap_data.size ()
+                  << std::endl;
+        std::cout << "Intersections size = " << intersections.size ()
+                  << std::endl;
 
-  std::cerr << "Running main loop from " << (startTime / 3600.0f) << " to "
-            << (endTime / 3600.0f) << " with " << agents.size()
-            << "person... " << std::endl;
+        init_cuda (true, agents, edgesData,
+                   lanemap_data, intersections, deltaTime_);
 
-  // 2. Run GPU Simulation
-  while (startTime < endTime) {
-      cuda_simulate (startTime, agents.size (),
-                     intersections.size (), deltaTime_, numBlocks,
-                     CUDAThreadsPerBlock);
-
-      startTime += deltaTime;
-  }
-
-  // 3. Get data from cuda
-  cuda_get_data(agents, edgesData, intersections);
-
-  // 4. Store data to local disk
+        initCudaBench.stopAndEndBenchmark ();
 
 
+        simulateBench.startMeasuring ();
+        int numBlocks = ceil (agents.size () / 384.0f);
+
+        std::cout << "Running trafficSimulation with the following configuration:"
+                  << std::endl
+                  << ">  Number of people: " << agents.size () << std::endl
+                  << ">  Number of blocks: " << numBlocks << std::endl
+                  << ">  Number of threads per block: " << CUDAThreadsPerBlock
+                  << std::endl;
+
+        std::cerr << "Running main loop from " << (startTime / 3600.0f) << " to "
+                  << (endTime / 3600.0f) << " with " << agents.size ()
+                  << "person... " << std::endl;
+
+        // 2. Run GPU Simulation
+        while (startTime < endTime) {
+            cuda_simulate (startTime, agents.size (),
+                           intersections.size (), deltaTime_, numBlocks,
+                           CUDAThreadsPerBlock);
+
+            startTime += deltaTime_;
+        }
+
+        // 3. Get data from cuda
+        cuda_get_data (agents, edgesData, intersections);
+
+        // 4. Store data to local disk
+
+    }
     //    std::cout<<currentTime<<std::endl;
 
 //    if (count % 10 == 0) {
@@ -139,7 +139,7 @@ void TrafficSimulator::simulateInGPU(float startTime, float endTime) {
 //      std::vector<unsigned> upstream_counts(graph_->edges_.size());
 //      std::vector<unsigned> downstream_counts(graph_->edges_.size());
 //
-//      auto edgeDescToLaneMapNumSP = lanemap_.edgeDescToLaneMapNum();
+//      auto edgeDescToLandeltaTime_eMapNumSP = lanemap_.edgeDescToLaneMapNum();
 //      for (auto const &x : graph_->edges_) {
 //        auto ind = edgeDescToLaneMapNumSP[x.second];
 //        auto edge_vertices = std::get<1>(x)->first;
@@ -181,7 +181,7 @@ void TrafficSimulator::simulateInGPU(float startTime, float endTime) {
 //    }
 
 
-  }
+//  }
 //  std::cout << "Total # iterations = " << count << "\n";
 //  // std::cerr << std::setw(90) << " " << "\rDone" << std::endl;
 //  simulateBench.stopAndEndBenchmark();
@@ -196,36 +196,36 @@ void TrafficSimulator::simulateInGPU(float startTime, float endTime) {
 //  getDataCudatrafficPersonAndEdgesData.stopAndEndBenchmark();
 //  b18GetSampleTrafficCUDA(accSpeedPerLinePerTimeInterval,
 //                          numVehPerLinePerTimeInterval);
-  //  {
-  //    // debug
-  //    float totalNumSteps = 0;
-  //    float totalCO = 0;
-  //
-  //    for (int p = 0; p < agents_.size(); p++) {
-  //      // std::cout << "num_steps " << agents_[p].num_steps << " for
-  //      // person " << p << "\n";
-  //      totalNumSteps += agents_[p].num_steps;
-  //      totalCO += agents_[p].co;
-  //    }
-  //
-  //    auto avgTravelTime = (totalNumSteps * deltaTime_) /
-  //                    (agents_.size() * 60.0f); // in min
-  //    printf("Total num steps %.1f Avg %.2f min Avg CO %.2f\nSimulation time
-  //    =
-  //    "
-  //           "%d ms\n",
-  //           totalNumSteps, avgTravelTime, totalCO / agents_.size(),
-  //           timer.elapsed());
-  //
-  //    // write paths to file so that we can just load them instead
-  //    // std::ofstream output_file("./num_steps.txt");
-  //    // output_file << totalNumSteps;
-  //  }
-  //
-  // calculateAndDisplayTrafficDensity(nP);
-  // savePeopleAndRoutes(nP);
-  // G::global()["cuda_render_displaylist_staticRoadsBuildings"] = 1;//display
-  // list
+    //  {
+    //    // debug
+    //    float totalNumSteps = 0;
+    //    float totalCO = 0;
+    //
+    //    for (int p = 0; p < agents_.size(); p++) {
+    //      // std::cout << "num_steps " << agents_[p].num_steps << " for
+    //      // person " << p << "\n";
+    //      totalNumSteps += agents_[p].num_steps;
+    //      totalCO += agents_[p].co;
+    //    }
+    //
+    //    auto avgTravelTime = (totalNumSteps * deltaTime_) /
+    //                    (agents_.size() * 60.0f); // in min
+    //    printf("Total num steps %.1f Avg %.2f min Avg CO %.2f\nSimulation time
+    //    =
+    //    "
+    //           "%d ms\n",
+    //           totalNumSteps, avgTravelTime, totalCO / agents_.size(),
+    //           timer.elapsed());
+    //
+    //    // write paths to file so that we can just load them instead
+    //    // std::ofstream output_file("./num_steps.txt");
+    //    // output_file << totalNumSteps;
+    //  }
+    //
+    // calculateAndDisplayTrafficDensity(nP);
+    // savePeopleAndRoutes(nP);
+    // G::global()["cuda_render_displaylist_staticRoadsBuildings"] = 1;//display
+    // list
 //  fileOutput.startMeasuring();
 //  save_edges(edge_upstream_count, edge_downstream_count);
 //  save_intersection(intersection_count);
@@ -241,7 +241,7 @@ void TrafficSimulator::simulateInGPU(float startTime, float endTime) {
 //
 //  microsimulationInGPU.stopAndEndBenchmark();
 //  finishCudaBench.stopAndEndBenchmark();
-} //
+//} //
 //
 // void TrafficSimulator::writePeopleFile(
 //    int numOfPass, const std::shared_ptr<abm::Graph> &graph_, int start_time,
@@ -431,5 +431,4 @@ void TrafficSimulator::simulateInGPU(float startTime, float endTime) {
 //    file << "\n";
 //  }
 //}
-
-} // namespace LC
+}
