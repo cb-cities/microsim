@@ -161,6 +161,7 @@ target_link_libraries(lmicrosim
 
 cuda_add_library(lmicrosim_cuda
         traffic/simulation_interface.h
+        traffic/cuda_simulator.h
         traffic/cuda_simulator.cu
         OPTIONS -arch sm_50)
 
@@ -195,7 +196,7 @@ if(MICROSIM_TEST_BUILD_TESTING)
             )
 
     add_executable(microsim_test tests/main_test.cpp ${microsim_test_src})
-    target_link_libraries(microsim_test lmicrosim)
+    target_link_libraries(microsim_test lmicrosim lmicrosim_cuda)
     add_test(NAME microsim_test COMMAND $<TARGET_FILE:microsim_test>)
     enable_testing()
 endif()

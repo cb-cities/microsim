@@ -67,7 +67,7 @@ inline void printMemoryUsage() {
          total_db / 1024.0 / 1024.0);
 }
 
-void init_cuda(bool fistInitialization, // crate buffers
+void init_cuda(bool fistInitialization, // create buffers
                std::vector<LC::Agent> &agents,
                std::vector<LC::EdgeData> &edgesData,
                std::vector<uchar> &laneMap,
@@ -157,7 +157,7 @@ __device__ void calculateGaps(uchar *laneMap, LC::Agent &agent,
   for (ushort b = agent.posInLaneM - 1; b < agent.edge_length;
        b++) { // NOTE -1 to make sure there is none in at the same level
     auto posToSample =
-        lanemap_pos(agent.edge_ptr, agent.edge_length, laneToCheck, b);
+        lanemap_pos(agent.edge_mid, agent.edge_length, laneToCheck, b);
     if (laneMap[mapToReadShift + posToSample] != 0xFF) {
       gap_a = b - agent.posInLaneM; // m
       v_a = laneMap[mapToReadShift + posToSample] / 3;
@@ -168,7 +168,7 @@ __device__ void calculateGaps(uchar *laneMap, LC::Agent &agent,
   for (ushort b = agent.posInLaneM + 1; b > 0;
        b--) { // NOTE -1 to make sure there is none in at the same level
     auto posToSample =
-        lanemap_pos(agent.edge_ptr, agent.edge_length, laneToCheck, b);
+        lanemap_pos(agent.edge_mid, agent.edge_length, laneToCheck, b);
     if (laneMap[mapToReadShift + posToSample] != 0xFF) {
       gap_b = agent.posInLaneM - b; // m
       v_b = laneMap[mapToReadShift + posToSample] / 3;
@@ -187,18 +187,18 @@ __device__ void initialize_agent(LC::Agent &agent, LC::EdgeData *edgesData,
   }
 
   // 1.2 initialize current status
-  agent.edge_ptr = agent.route[agent.route_ptr];
+  agent.edge_mid = agent.route[agent.route_ptr];
   agent.posInLaneM = 0; // m
   agent.v = 0;
   agent.active = 1;
   agent.lane = 0;
-  auto &current_edge = edgesData[agent.edge_ptr];
+  auto &current_edge = edgesData[agent.edge_mid];
   agent.max_speed = current_edge.maxSpeedMperSec;
   agent.edge_length = current_edge.length;
 
   // 1.3 place the car, update the edge data
   uchar vInMpS = (uchar)(agent.v * 3); // speed in m/s *3 (to keep more precisio
-  auto pos = lanemap_pos(agent.edge_ptr, agent.edge_length, agent.lane,
+  auto pos = lanemap_pos(agent.edge_mid, agent.edge_length, agent.lane,
                          agent.posInLaneM);
   laneMap[mapToWriteShift + pos] = vInMpS;
   atomicAdd(&(current_edge.upstream_veh_count), 1);
@@ -219,14 +219,13 @@ __device__ void check_front_car(LC::Agent &agent, uchar *laneMap,
        b++, numCellsCheck--) {
 
     uint posToSample =
-        lanemap_pos(agent.edge_ptr, agent.edge_length, agent.lane, b);
+        lanemap_pos(agent.edge_mid, agent.edge_length, agent.lane, b);
     auto laneChar = laneMap[mapToReadShift + posToSample];
     if (laneChar != 0xFF) {
       s = ((float)(b - byteInLine)); // m
       delta_v =
           agent.v -
           (laneChar / 3.0f); // laneChar is in 3*ms (to save space in array)
-      agent.thirdTerm = b;
       break;
     }
   }
@@ -290,13 +289,11 @@ __device__ void update_agent_info(LC::Agent &agent, float deltaTime) {
   } else {
     float dv_dt =
         agent.a * (1.0f - std::pow((agent.v / agent.max_speed), 4) - thirdTerm);
-    agent.dv_dt = dv_dt;
 
     // 2.1.3 update values
     numMToMove =
         fmax(0.0f, agent.v * deltaTime + 0.5f * (dv_dt)*deltaTime * deltaTime);
 
-    //    agent.thirdTerm = agent.v;
     agent.v += dv_dt * deltaTime;
     if (agent.v < 0) {
       agent.v = 0;
@@ -311,7 +308,7 @@ __device__ void update_agent_info(LC::Agent &agent, float deltaTime) {
 __device__ void change_lane(LC::Agent &agent, LC::EdgeData *edgesData,
                             uchar *laneMap) {
 
-  auto &current_edge = edgesData[agent.edge_ptr];
+  auto &current_edge = edgesData[agent.edge_mid];
   if (agent.posInLaneM > current_edge.length) { // skip if will go to next edge
     return;
   }
@@ -363,8 +360,8 @@ __device__ void change_lane(LC::Agent &agent, LC::EdgeData *edgesData,
 __device__ uint find_intersetcion_id(LC::Agent &agent,
                                      LC::EdgeData *edgesData) {
   // find the intersection id
-  auto &current_edge = edgesData[agent.edge_ptr];
-  auto &next_edge = edgesData[agent.edge_ptr + 1];
+  auto &current_edge = edgesData[agent.edge_mid];
+  auto &next_edge = edgesData[agent.route[agent.route_ptr + 1]];
   for (unsigned i = 0; i < 2; i++) {
     auto vid = current_edge.vertex[i];
     for (unsigned j = 0; j < 2; j++) {
@@ -379,8 +376,8 @@ __device__ uint find_intersetcion_id(LC::Agent &agent,
 __device__ uint find_queue_id(LC::Agent &agent,
                               LC::IntersectionData &intersection) {
   for (unsigned i = 0; i < intersection.num_queue; i++) {
-    if (agent.edge_ptr == intersection.start_edge[i] and
-        agent.nextEdge == intersection.end_edge[i]) {
+    if (agent.edge_mid == intersection.start_edge[i] and
+        agent.route[agent.route_ptr + 1] == intersection.end_edge[i]) {
       return i;
     }
   }
@@ -406,20 +403,20 @@ __device__ uint find_queue_id(LC::Agent &agent,
   //  return idx;
 }
 
-
-
 __device__ bool update_intersection(int agent_id, LC::Agent &agent,
                                     LC::EdgeData *edgesData,
                                     LC::IntersectionData *intersections) {
-  auto &current_edge = edgesData[agent.edge_ptr];
-  if (agent.posInLaneM <
-      agent.edge_length) { // does not reach an intersection
+  auto &current_edge = edgesData[agent.edge_mid];
+  if (agent.posInLaneM < agent.edge_length) { // does not reach an intersection
     return false;
   }
 
-  if (agent.route_ptr + 1 == agent.route_size) { // reach destination
+  if (agent.route_ptr + 1 >= agent.route_size) { // reach destination
     agent.active = 2;
     atomicAdd(&(current_edge.downstream_veh_count), 1);
+    int num_steps_in_edge = agent.num_steps - agent.num_steps_entering_edge;
+    atomicAdd(&(current_edge.period_cum_travel_steps),
+              num_steps_in_edge); // for average travel time calculation
     return false;
   }
   auto intersetcion_id = find_intersetcion_id(agent, edgesData);
@@ -429,13 +426,16 @@ __device__ bool update_intersection(int agent_id, LC::Agent &agent,
   auto &queue_ptr = intersection.pos[queue_id];
   agent.in_queue = true;
   agent.v = 0; // in queue vehicle is stopped.
+  int num_steps_in_edge = agent.num_steps - agent.num_steps_entering_edge;
+  atomicAdd(&(current_edge.period_cum_travel_steps),
+            num_steps_in_edge); // for average travel time calculation
   // Synchronization Control
   bool isSet = false;
   do {
     if (isSet = atomicCAS(&mutex, 0, 1) == 0) {
       queue[queue_ptr] = agent_id;
       atomicAdd(&(queue_ptr), 1);
-      atomicAdd(&(edgesData[agent.edge_ptr].downstream_veh_count), 1);
+      atomicAdd(&(current_edge.downstream_veh_count), 1);
     }
     if (isSet) {
       atomicExch(&mutex, 0);
@@ -449,7 +449,7 @@ __device__ void write2lane_map(LC::Agent &agent, LC::EdgeData *edgesData,
                                uchar *laneMap) {
   // write to the lanemap if still on the edge
 
-  auto posToSample = lanemap_pos(agent.edge_ptr, agent.edge_length, agent.lane,
+  auto posToSample = lanemap_pos(agent.edge_mid, agent.edge_length, agent.lane,
                                  agent.posInLaneM);
   uchar vInMpS = (uchar)(agent.v * 3); // speed in m/s to fit in uchar
   laneMap[mapToWriteShift + posToSample] = vInMpS;
@@ -528,16 +528,17 @@ __device__ void move2nextEdge(LC::Agent &agent, int numMToMove,
 
   agent.in_queue = false;
   agent.route_ptr++;
-  agent.edge_ptr = agent.route[agent.route_ptr];
+  agent.edge_mid = agent.route[agent.route_ptr];
   agent.posInLaneM = numMToMove;
   agent.lane = 0;
-  auto &current_edge = edgesData[agent.edge_ptr];
+  auto &current_edge = edgesData[agent.edge_mid];
   agent.max_speed = current_edge.maxSpeedMperSec;
   agent.edge_length = current_edge.length;
+  agent.num_steps_entering_edge = agent.num_steps;
 
   atomicAdd(&(current_edge.upstream_veh_count), 1);
 
-  auto posToSample = lanemap_pos(agent.edge_ptr, current_edge.length,
+  auto posToSample = lanemap_pos(agent.edge_mid, current_edge.length,
                                  agent.lane, agent.posInLaneM);
   uchar vInMpS = (uchar)(agent.v * 3); // speed in m/s to fit in uchar
   laneMap[mapToWriteShift + posToSample] = vInMpS;
@@ -571,11 +572,11 @@ __device__ bool empty_queue(LC::IntersectionData &intersection,
 
 __device__ void place_stop(LC::Agent &agent, LC::EdgeData *edgesData,
                            uchar *laneMap, uint mapToWriteShift) {
-  auto &edge = edgesData[agent.edge_ptr];
+  auto &edge = edgesData[agent.edge_mid];
   for (int j = 0; j < 5; ++j) {
     auto pos = agent.edge_length - j;
     for (int i = 0; i < edge.num_lanes; ++i) {
-      auto posToSample = lanemap_pos(agent.edge_ptr, agent.edge_length, i, pos);
+      auto posToSample = lanemap_pos(agent.edge_mid, agent.edge_length, i, pos);
       laneMap[mapToWriteShift + posToSample] = 0;
     }
   }

@@ -15,7 +15,7 @@ extern void init_cuda (
         bool fistInitialization, // crate buffers
         std::vector<LC::Agent> &agents,
         std::vector<LC::EdgeData> &edgesData, std::vector<uchar> &laneMap,
-        std::vector<LC::IntersectionData> &intersections, float deltaTime);
+        std::vector<LC::IntersectionData> &intersections);
 
 
 

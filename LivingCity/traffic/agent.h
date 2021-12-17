@@ -43,13 +43,12 @@ struct Agent {
   float time_departure;
   //! Route of the agent (array of lanemap ids)
   uint route[100];
-  unsigned route_size{0};
+  unsigned short route_size{0};
   int route_ptr{0};
 
   // Agent information
   AgentType agent_type;
   unsigned short active = 0; // 0 inactive 1 active 2 finished
-  float dist_traveled = 0;
 
   // IDM
   float v{0};         // current velocity
@@ -62,65 +61,24 @@ struct Agent {
 
   // Road (edge) information
   float posInLaneM;
-  unsigned int edge_ptr;
+  unsigned int edge_mid;
   float max_speed;
   float edge_length;
 
   // Intersection information
   bool in_queue{false};
-  int num_steps_in_queue{0};
+  unsigned int num_steps_in_queue{0};
   unsigned short lane{}; // number of lane in that edge
 
   // Simulation information
   float cum_length{0};
-  unsigned short num_steps{0};
-  unsigned short slow_down_steps{0};
+  unsigned int num_steps{0};
+  unsigned int slow_down_steps{0};
   float cum_v{0}; // Cumulative velocity of each person across all iterations
-  int num_lane_change = 0;
-
-  float front_speed = 0;
-  float dv_dt = 0;
-  float thirdTerm = 0;
-  float m2move;
-  int located_eid = 0;
-
-  ///////////////////////
-  // current edge (from edgeData)
-  unsigned short edgeNumLanes; // total number of lanes in that edge
-  unsigned int edgeNextInters;
+  unsigned int num_lane_change = 0;
+  unsigned int num_steps_entering_edge{0};
 
 
-  /////////////////////////
-  // to check next edge
-  unsigned short nextEdgeNumLanes;
-  unsigned short nextEdgeNextInters;
-  float nextEdgeLength;
-  float nextEdgemaxSpeedMperSec;
-  ///////////////////////////
-  unsigned int indexPathInit = 0;
-  unsigned int indexPathCurr;
-
-  // for edge speed calculations
-
-  unsigned int nextEdge;
-  unsigned int prevEdge;
-  float start_time_on_prev_edge;
-  float end_time_on_prev_edge;
-  float manual_v;
-
-  // data
-
-  float co = 0;
-  float gas = 0;
-
-  unsigned short waited_steps = 0;
-
-  // lane changing
-  unsigned short LC_initOKLanes;
-  unsigned short LC_endOKLanes;
-  unsigned short LC_stateofLaneChanging = 0;
-
-  int isInIntersection;
 };
 
 } // namespace LC

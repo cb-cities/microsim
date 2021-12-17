@@ -39,6 +39,10 @@ TEST_CASE("CHECK SIMULATOR", "[SIMULATOR]") {
     REQUIRE(mid2eid.at(agents[1].route[0]) == 2);
     REQUIRE(mid2eid.at(agents[1].route[1]) == 8);
   }
+
+    SECTION("Run Simulation") {
+        simulator.simulateInGPU(0,600,100);
+  }
   //
   //        simulator.load_agents();
   //

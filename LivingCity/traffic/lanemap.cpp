@@ -8,7 +8,7 @@
 namespace LC {
 
 void Lanemap::create_edgesData_(const std::shared_ptr<abm::Graph> &graph) {
-  edgesData_.resize(graph->nedges() * 4); // 4 times for enough space
+  edgesData_.resize(graph->nedges() * 6); // 6 times for enough space
 
   int lanemap_idx = 0;
   for (auto const &x : graph->edges_) {
