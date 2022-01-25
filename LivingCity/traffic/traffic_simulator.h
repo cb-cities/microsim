@@ -7,14 +7,9 @@
 #include <qt5/QtCore/qcoreapplication.h>
 #include <thread>
 #include <unistd.h>
-
-#include <QSettings>
-#include <qt5/QtCore/qcoreapplication.h>
 #include <string>
 
-#include "Geometry/client_geometry.h"
 #include "traffic/traffic_simulator.h"
-
 #include "agent.h"
 #include "cuda_simulator.h"
 #include "lanemap.h"

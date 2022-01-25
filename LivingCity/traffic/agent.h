@@ -1,13 +1,3 @@
-/************************************************************************************************
- *
- *		LC Project - B18 Traffic Person
- *
- *
- *		@desc Class that contains the info of a person
- *		@author igaciad
- *
- ************************************************************************************************/
-
 #ifndef LC_B18_TRAFFIC_PERSON_H
 #define LC_B18_TRAFFIC_PERSON_H
 

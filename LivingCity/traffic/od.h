@@ -7,7 +7,6 @@
 
 #include "agent.h"
 #include "config.h"
-#include "global.h"
 
 namespace LC {
 //! Origin Destination Class

@@ -67,6 +67,7 @@ inline void printMemoryUsage() {
          total_db / 1024.0 / 1024.0);
 }
 
+//! Allocate appropirate amount of memory on the cuda device
 void init_cuda(bool fistInitialization, // create buffers
                std::vector<LC::Agent> &agents,
                std::vector<LC::EdgeData> &edgesData,
@@ -110,6 +111,7 @@ void init_cuda(bool fistInitialization, // create buffers
   printMemoryUsage();
 } //
 
+//! free gpu memories
 void finish_cuda(void) {
   //////////////////////////////
   // FINISH
@@ -455,7 +457,7 @@ __device__ void write2lane_map(LC::Agent &agent, LC::EdgeData *edgesData,
   laneMap[mapToWriteShift + posToSample] = vInMpS;
 }
 
-// Kernel that executes on the CUDA device
+//! Simulate agents movements on network edges
 __global__ void
 kernel_trafficSimulation(int numPeople, float currentTime, LC::Agent *agents,
                          LC::EdgeData *edgesData, uchar *laneMap,
@@ -498,9 +500,9 @@ kernel_trafficSimulation(int numPeople, float currentTime, LC::Agent *agents,
   update_agent_info(agent, deltaTime);
   //  2.1.3 Perform lane changing if necessary
   change_lane(agent, edgesData, laneMap);
-  // 2.14 check intersection
+  // 2.1.4 check intersection
   bool added2queue = update_intersection(p, agent, edgesData, intersections);
-  //  // 2.1.4 write the updated agent info to lanemap
+  // 2.1.5 write the updated agent info to lanemap
   if (not added2queue) {
     write2lane_map(agent, edgesData, laneMap);
   }
@@ -616,6 +618,7 @@ __device__ void check_queues(unsigned intersection_id, LC::EdgeData *edgesData,
   }
 }
 
+//! Simulate agents movements on intersections
 __global__ void
 kernel_intersectionOneSimulation(uint numIntersections, LC::EdgeData *edgesData,
                                  LC::IntersectionData *intersections,
@@ -627,17 +630,17 @@ kernel_intersectionOneSimulation(uint numIntersections, LC::EdgeData *edgesData,
   }
   check_queues(i, edgesData, intersections, agents, laneMap);
 
-  //     add stop sign for full queues
-  //    for (unsigned j = 0; j < intersection.num_queue; j++) {
-  //      auto num_cars = queue_counter[j];
-  //      if (num_cars > 3) {
-  //        auto &q1 = intersection.queue[j];
-  //        auto &agent = trafficPersonVec[q1[0]];
-  //        auto eid = intersection.start_edge[j];
-  //        agent.located_eid = eid;
-  //        place_stop(agent, edgesData, laneMap, mapToWriteShift);
-  //      }
-  //    }
+  // add a stop sign for full queues
+  auto &intersection = intersections[i];
+  for (unsigned j = 0; j < intersection.num_queue; j++) {
+    auto num_cars = intersection.pos[j];
+    if (num_cars > 3) {
+      auto &q1 = intersection.queue[j];
+      auto &agent = agents[q1[0]];
+      auto eid = intersection.start_edge[j];
+      place_stop(agent, edgesData, laneMap, mapToWriteShift);
+    }
+  }
 }
 
 void cuda_simulate(float currentTime, uint numPeople, uint numIntersections,
@@ -675,18 +678,4 @@ void cuda_simulate(float currentTime, uint numPeople, uint numIntersections,
   gpuErrchk(cudaPeekAtLastError());
 
   intersectionBench.stopMeasuring();
-
-  // Sample if necessary.
-  //  if ((((float)((int)currentTime)) == (currentTime)) &&
-  //      ((int)currentTime % ((int)30)) == 0) { // 3min //(sample double each
-  //      3min)
-  //    int samplingNumber = (currentTime - startTime) / (30 *
-  //    numStepsTogether); uint offset = numIntersections * samplingNumber;
-  //    // printf("Sample %d\n", samplingNumber);
-  //    kernel_sampleTraffic<<<ceil(numPeople / 1024.0f), 1024>>>(
-  //        numPeople, trafficPersonVec_d, indexPathVec_d,
-  //        accSpeedPerLinePerTimeInterval_d, numVehPerLinePerTimeInterval_d,
-  //        offset);
-  //    gpuErrchk(cudaPeekAtLastError());
-  //  }
 } //

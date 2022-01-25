@@ -5,7 +5,6 @@
 #include <qt5/QtCore/qcoreapplication.h>
 
 #include "traffic/traffic_simulator.h"
-//#include "traffic/b18TrafficSP.h"
 
 namespace LC {
 

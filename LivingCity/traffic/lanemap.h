@@ -1,8 +1,6 @@
 #ifndef LC_B18_TRAFFIC_LANEMAP_H
 #define LC_B18_TRAFFIC_LANEMAP_H
 
-#include "../misctools/misctools.h"
-#include "RoadGraph/roadGraph.h"
 #include "config.h"
 #include "edge_data.h"
 #include "traffic/sp/graph.h"

@@ -1,7 +1,4 @@
 #include "od.h"
-
-#include "Geometry/client_geometry.h"
-#include "global.h"
 #include "network.h"
 
 namespace LC {

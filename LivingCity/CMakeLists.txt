@@ -40,64 +40,10 @@ SET(microsim_src
         traffic/od.cpp
         traffic/lanemap.cpp
         traffic/traffic_simulator.cpp
-#        traffic/simulation_interface.cpp
-        src/benchmarker.cpp
-        RoadGraph/roadGraph.cpp
-        RoadGraph/roadGraphEdge.cpp
-        RoadGraph/roadGraphVertex.cpp
-        Geometry/block.cpp
-        Geometry/building.cpp
-        Geometry/client_geometry.cpp
-        Geometry/parcel.cpp
-        Geometry/parcelBuildingAttributes.cpp
-        Geometry/placeTypeInstances.cpp
-        Geometry/zone.cpp
-        misctools/bounding_box.cpp
-        misctools/misctools.cpp
-        misctools/polygon_3D.cpp
-        global.cpp
-#        RoadGraph/roadGraph.cpp
-#        RoadGraph/roadGraphEdge.cpp
-#        RoadGraph/roadGraphVertex.cpp
+        traffic/simulation_interface.cpp
+        src/benchmarker.cpp)
 
 
-#        traffic/b18GridPollution.cpp
-#        traffic/b18TrafficDijkstra.cpp
-#        traffic/b18TrafficJohnson.cpp
-#        traffic/b18TrafficSP.cpp
-#        traffic/b18TrafficLaneMap.cpp
-#        traffic/b18TrafficOD.cpp
-#
-#
-#        src/linux_host_memory_logger.cpp
-
-        )
-
-#        Geometry/block.cpp
-#        Geometry/building.cpp
-#        Geometry/client_geometry.cpp
-#        Geometry/parcel.cpp
-#        Geometry/parcelBuildingAttributes.cpp
-#        Geometry/placeTypeInstances.cpp
-#        Geometry/zone.cpp
-#        RoadGraph/roadGraph.cpp
-#        RoadGraph/roadGraphEdge.cpp
-#        RoadGraph/roadGraphVertex.cpp
-#        global.cpp
-#        misctools/bounding_box.cpp
-#        misctools/misctools.cpp
-#        misctools/polygon_3D.cpp
-#
-#        traffic/b18GridPollution.cpp
-#        traffic/b18TrafficDijkstra.cpp
-#        traffic/b18TrafficJohnson.cpp
-#        traffic/b18TrafficSP.cpp
-#        traffic/b18TrafficLaneMap.cpp
-#        traffic/b18TrafficOD.cpp
-#        traffic/b18TrafficSimulator.cpp
-#        src/benchmarker.cpp
-#        src/linux_host_memory_logger.cpp
-#        )
 
 # Find dependencies for the library
 
@@ -131,7 +77,7 @@ find_package(CUDA REQUIRED)
 # contraction hierachy lib
 find_library(CHROUTING_LIB chrouting ${microsim_SOURCE_DIR}/pandana_ch/)
 
-find_library(KITROUTING_LIB routingkit ${microsim_SOURCE_DIR}/RoutingKit/lib)
+#find_library(KITROUTING_LIB routingkit ${microsim_SOURCE_DIR}/RoutingKit/lib)
 
 # include directories
 add_library(lmicrosim SHARED ${microsim_src})
@@ -141,7 +87,6 @@ target_include_directories(lmicrosim
         ${microsim_SOURCE_DIR}/traffic/
         ${microsim_SOURCE_DIR}/external/
         ${microsim_SOURCE_DIR}/glew/include/
-        ${microsim_SOURCE_DIR}/RoutingKit/include/
         ${OpenCV_INCLUDE_DIRS}
         ${BOOST_INCLUDE_DIRS}
         ${CUDA_INCLUDE_DIRS}
@@ -154,7 +99,7 @@ target_link_libraries(lmicrosim
         ${LAPACK_LIBRARIES}
         ${OpenCV_LIBS}
         ${CHROUTING_LIB}
-        ${KITROUTING_LIB}
+#        ${KITROUTING_LIB}
         boost_system boost_filesystem
         Qt5::Widgets)
 

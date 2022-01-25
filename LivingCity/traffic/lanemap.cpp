@@ -14,7 +14,7 @@ void Lanemap::create_edgesData_(const std::shared_ptr<abm::Graph> &graph) {
   for (auto const &x : graph->edges_) {
     auto edge_vertices = std::get<1>(x)->first;
     auto edge_id =
-        graph->edge_ids_[get<0>(edge_vertices)][get<1>(edge_vertices)];
+        graph->edge_ids_[std::get<0>(edge_vertices)][std::get<1>(edge_vertices)];
     auto edge_val = std::get<1>(x)->second;
     const int numLanes = edge_val[1];
 
@@ -76,15 +76,5 @@ void Lanemap::create_intersections_(const std::shared_ptr<abm::Graph> &graph) {
     }
   }
 }
-
-//    void Lanemap::read_path(std::vector<abm::graph::edge_id_t> paths) {
-//        for (abm::graph::edge_id_t &edge_in_path : paths) {
-//            if (edge_in_path != -1) {
-//                indexPathVec_.emplace_back(edgeIdToLaneMapNum_[edge_in_path]);
-//            } else {
-//                indexPathVec_.emplace_back(-1);
-//            }
-//        }
-//    }
 
 } // namespace LC

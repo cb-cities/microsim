@@ -1,7 +1,4 @@
 #include "network.h"
-#include "Geometry/client_geometry.h"
-#include "global.h"
-#include "traffic/bTrafficIntersection.h"
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -20,9 +17,6 @@ Network::Network(const std::string &networkPath) {
 }
 
 void Network::loadABMGraph_() {
-  //  std::cout << edgeFileName_ << " as edges file\n";
-  //  std::cout << nodeFileName_ << " as nodes file\n";
-
   // EDGES
   street_graph_->read_graph_osm(edgeFileName_);
   // NODES
@@ -66,29 +60,5 @@ void Network::init_edge_weights_() {
   }
   edge_weights_.emplace_back(weights);
 }
-
-// void Network::map_person2init_edge(
-//    const std::vector<abm::graph::edge_id_t> &all_paths) {
-//  int count = 0;
-//  for (int i = 0; i < all_paths.size(); i++) {
-//    if (i == 0) { // first one that doesn't contain a -1 for logic
-//      street_graph_->person_to_init_edge_[count] = i;
-//      count++;
-//    } else if ((all_paths[i] == -1) &&
-//               (all_paths[i + 1] == -1)) { // if current is -1 and next is -1,
-//                                           // increment (will result in nan)
-//      street_graph_->person_to_init_edge_[count] = i;
-//      count++;
-//    } else if ((all_paths[i] != -1) &&
-//               (all_paths[i - 1] ==
-//                -1)) { // if previous is -1, use this as first edge for p
-//      street_graph_->person_to_init_edge_[count] = i;
-//      count++;
-//    } else if ((all_paths[i] == -1) &&
-//               (i == (all_paths.size() - 1))) { // reach the end
-//      break;
-//    }
-//  }
-//}
 
 } // namespace LC
