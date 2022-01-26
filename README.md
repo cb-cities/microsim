@@ -40,11 +40,11 @@ make clean && make -j8
 
 ## Design Principles
 
-<center>
+<p align="center">
 <img src="https://github.com/cb-cities/microsim/blob/master/figures/high_level.png" alt="high_level" class="design-primary" width="600px">
-</center>
+</p>
 
-There are three levels abstraction for the program: **Agent** , **Intersection** , **Edge** . 
+There are three levels abstraction for the program: **Agent** **Intersection** **Edge** . 
 
 An Agent is a vehicle with a certain type (only car at current version). An Intersection (node in the network) stores queues at all directions. An edge (link in the network) is the road that agents interact with each other. 
 
@@ -56,15 +56,15 @@ Intersections are **source** or **sink** that feed/free agents into/from edges.
 
 It is possible to have different types of agent, and different types of interactions among them. (future works)
 
-<center>
-<img src="https://github.com/cb-cities/microsim/blob/master/figures/computation_illustration.png" alt="high_level" class="design-primary" width="800px">
-</center>
+<p align="center">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/computation_illustration.png" alt="high_level" class="design-primary" width="600px">
+</p>
 
 
 ### Agent:
-<center>
-<img src="https://github.com/cb-cities/microsim/blob/master/figures/agent.png" alt="high_level" class="design-primary" width="400px">
-</center>
+<p align="center">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/agent.png" alt="high_level" class="design-primary" width="200px">
+</p>
 
 Property: 
 IDM parameters: abT -> Can be different -> Car/Truck/Else 
@@ -72,14 +72,14 @@ IDM parameters: abT -> Can be different -> Car/Truck/Else
 Interaction Rules: 
 IDM car following + Lane change. (All on the edge) 
 
-<center>
-<img src="https://github.com/cb-cities/microsim/blob/master/figures/car_interactions.png" alt="high_level" class="design-primary" width="800px">
-</center>
+<p align="center">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/car_interactions.png" alt="high_level" class="design-primary" width="600px">
+</p>
 
 ### Intersection (bundle of queues):
-<center>
-<img src="https://github.com/cb-cities/microsim/blob/master/figures/intersection.png" alt="high_level" class="design-primary" width="800px">
-</center>
+<p align="center">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/intersection.png" alt="high_level" class="design-primary" width="600px">
+</p>
 
 Property: 
 List of queues at every possible direction 
@@ -98,10 +98,10 @@ Feed by the upstream intersection, supply agents to the downstream intersection.
 
 ## Program Architecture
 ### Input Output (IO)
-<center>
-<img src="https://github.com/cb-cities/microsim/blob/master/figures/io_illustration.png" alt="high_level" class="design-primary" width="800px">
-</center>
-**Input: **
+<p align="center">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/io_illustration.png" alt="high_level" class="design-primary" width="600px">
+</p>
+**Input:**
 nodes.csv 
 Header: osmid,x,y,ref,highway,index
 Note: index must be unique and sequential (from 0 to n) 
@@ -180,16 +180,16 @@ Cuda_simulate:
 **kernel_trafficSimulation**
 GPU parallel computation for each agent
 
-<center>
-<img src="https://github.com/cb-cities/microsim/blob/master/figures/edge_simulation.png" alt="high_level" class="design-primary" width="800px">
-</center>
+<p align="center">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/edge_simulation.png" alt="high_level" class="design-primary" width="600px">
+</p>
 
 
 **kernel_intersectionOneSimulation** 
 GPU parallel computation for each intersection
 
 <p align="center">
-<img src="https://github.com/cb-cities/microsim/blob/master/figures/node_simulation.png" alt="high_level" class="design-primary" width="600px">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/node_simulation.png" alt="high_level" class="design-primary" width="400px">
 </p>
 
 
