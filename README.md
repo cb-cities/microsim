@@ -54,13 +54,13 @@ Intersections are **source** or **sink** that feed/free agents into/from edges.
 
 It is possible to have different types of agent, and different types of interactions among them. (future works)
 <center>
-<img src="https://github.com/cb-cities/microsim/blob/main/figures/computation_illustration.png" alt="high_level" class="design-primary" width="800px">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/computation_illustration.png" alt="high_level" class="design-primary" width="800px">
 </center>
 
 
 ### Agent:
 <center>
-<img src="https://github.com/cb-cities/microsim/blob/main/figures/agent.png" alt="high_level" class="design-primary" width="400px">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/agent.png" alt="high_level" class="design-primary" width="400px">
 </center>
 
 Property: 
@@ -70,12 +70,12 @@ Interaction Rules:
 IDM car following + Lane change. (All on the edge) 
 
 <center>
-<img src="https://github.com/cb-cities/microsim/blob/main/figures/car_interactions.png" alt="high_level" class="design-primary" width="800px">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/car_interactions.png" alt="high_level" class="design-primary" width="800px">
 </center>
 
 ### Intersection (bundle of queues):
 <center>
-<img src="https://github.com/cb-cities/microsim/blob/main/figures/intersection.png" alt="high_level" class="design-primary" width="800px">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/intersection.png" alt="high_level" class="design-primary" width="800px">
 </center>
 
 Property: 
@@ -96,7 +96,7 @@ Feed by the upstream intersection, supply agents to the downstream intersection.
 ## Program Architecture
 ### Input Output (IO)
 <center>
-<img src="https://github.com/cb-cities/microsim/blob/main/figures/io_illustration.png" alt="high_level" class="design-primary" width="800px">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/io_illustration.png" alt="high_level" class="design-primary" width="800px">
 </center>
 **Input: **
 nodes.csv 
@@ -178,7 +178,7 @@ Cuda_simulate:
 GPU parallel computation for each agent
 
 <center>
-<img src="https://github.com/cb-cities/microsim/blob/main/figures/edge_simulation.png" alt="high_level" class="design-primary" width="800px">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/edge_simulation.png" alt="high_level" class="design-primary" width="800px">
 </center>
 
 
@@ -186,7 +186,7 @@ GPU parallel computation for each agent
 GPU parallel computation for each intersection
 
 <center>
-<img src="https://github.com/cb-cities/microsim/blob/main/figures/node_simulation.png" alt="high_level" class="design-primary" width="800px">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/node_simulation.png" alt="high_level" class="design-primary" width="800px">
 </center>
 
 
