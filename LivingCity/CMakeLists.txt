@@ -60,9 +60,6 @@ if (OPENMP_FOUND)
     endif()
 endif()
 
-# OpenCV
-find_package(OpenCV REQUIRED )
-
 # QT5
 find_package(Qt5Widgets REQUIRED)
 
@@ -85,9 +82,6 @@ target_include_directories(lmicrosim
         PUBLIC
         ${microsim_SOURCE_DIR}
         ${microsim_SOURCE_DIR}/traffic/
-        ${microsim_SOURCE_DIR}/external/
-        ${microsim_SOURCE_DIR}/glew/include/
-        ${OpenCV_INCLUDE_DIRS}
         ${BOOST_INCLUDE_DIRS}
         ${CUDA_INCLUDE_DIRS}
         )
@@ -96,10 +90,7 @@ target_include_directories(lmicrosim
 target_link_libraries(lmicrosim
         PUBLIC
         ${CMAKE_THREAD_LIBS_INIT}
-        ${LAPACK_LIBRARIES}
-        ${OpenCV_LIBS}
         ${CHROUTING_LIB}
-#        ${KITROUTING_LIB}
         boost_system boost_filesystem
         Qt5::Widgets)
 

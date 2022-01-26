@@ -1,32 +1,25 @@
-# Microsim
+# MicroSim
 
-Microsim is a simplified version of MANTA, Microsimulation Analysis for Network Traffic Assignment (https://github.com/UDST/manta). MANTA employs a highly parallelized GPU implementation that is fast enough to run simulations on large-scale demand and networks within a few minutes - metropolitan and regional scale with hundreds of thousands of nodes and edges and millions of trips. We test our platform to simulate the entire Bay Area metropolitan region over the course of the morning using half-second time steps. The runtime for the nine-county Bay Area simulation is just over four minutes, not including routing and initialization. This computational performance significantly improves state of the art in large-scale traffic microsimulation and offers new capacity for analyzing the detailed travel patterns and travel choices of individuals for infrastructure planning and emergency management.
-
-![](https://github.com/UDST/manta/blob/main/bay_bridge_trips.png)
+MicroSim is an agent-based car following traffic simulator. It employs a highly parallelized GPU implementation that is fast enough to run simulations on large-scale demand and networks within a few minutes - metropolitan and regional scale with hundreds of thousands of nodes and edges and millions of trips
 
 ## Dependencies
 
- - Boost 1.59
- - OpenCV (used versions: 3.2.0 in Ubuntu)
- - CUDA (used versions: 9.2 in Ubuntu)
- - g++ (used versions: 6.4.0 in Ubuntu)
- - Qt5 (used versions: 5.9.5 in Ubuntu)
- - qmake (used versions: 3.1 in Ubuntu)
+ - CMAKE 3.10
+ - Boost 1.65
+ - CUDA (used versions: 10.0 in Ubuntu)
+ - gcc (used versions: 7.5.0 in Ubuntu)
+ - g++ (used versions: 7.5.0 in Ubuntu)
+ - Qt5 (used versions: 5.9.7 in Ubuntu)
  - Python (used versions: 3.6.5 in Ubuntu)
- - pytest (used versions: 6.1.1 in Ubuntu) 
- - pytest-cov (used versions: 2.10.1 in Ubuntu) 
- - pytest-remotedata (used versions: 0.3.2 in Ubuntu) 
- - psutil (used versions: 5.7.2 in Ubuntu) 
- - xlwt (used versions: 1.3.0 in Ubuntu)
 
 
 ## Installation & Compilation
 
 Once the necessary dependencies are installed, add CUDA lib path to system paths:
 ```bash
-export PATH=/usr/local/cuda-9.2/bin:$PATH
-export LIBRARY_PATH=/usr/local/cuda-9.2/lib64:$LIBRARY_PATH 
-export LD_LIBRARY_PATH=/usr/local/cuda-9.2/lib64:$LD_LIBRARY_PATH 
+export PATH=/usr/local/cuda-10.0/bin:$PATH
+export LIBRARY_PATH=/usr/local/cuda-10.0/lib64:$LIBRARY_PATH 
+export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64:$LD_LIBRARY_PATH 
 ```
 
 You can also add the `export` lines at the end of your user's `~/.bashrc` to
@@ -36,139 +29,174 @@ Clone the repo in your home directory with:
 ```bash
 git clone https://github.com/cb-cities/microsim.git ~/microsim && cd ~/microsim
 ```
-Create Makefile and compile with:
+Create Makefile:
 ```bash
-sudo qmake LivingCity/LivingCity.pro && sudo make -j
+mkdir build && cd build && cmake ../src
 ```
-
-## Data
-
-Before running everything, you need the appropriate data:
-
-1. Network
-2. Demand
-
-The networks currently reside in `manta/LivingCity/berkeley_2018`, and the default directory is the full SF Bay Area network in `new_full_network/`. This contains the `nodes.csv` and `edges.csv` files to create the network.
-
-The demand is not in `new_full_network/`, but needs to reside there in order to run it. Please contact [Pavan Yedavalli](pavyedav@gmail.com) to procure real or sample demands.
-
-## Running
-
-If you wish to edit the microsimulation configuration, modify `manta/LivingCity/command_line_options.ini`, which contains the following:
-
-```[General]
-GUI=false
-USE_CPU=false
-NETWORK_PATH=berkeley_2018/new_full_network/
-USE_JOHNSON_ROUTING=false
-USE_SP_ROUTING=true
-USE_PREV_PATHS=true
-LIMIT_NUM_PEOPLE=256000
-ADD_RANDOM_PEOPLE=false
-NUM_PASSES=1
-TIME_STEP=0.5
-START_HR=5
-END_HR=12
-```
-
-Here, you can modify the:
-
-1. `GUI` - deprecated. Do not touch.
-2. `USE_CPU` - deprecated. Do not touch.
-3. `NETWORK_PATH` - specific path to the network files. Default is `berkeley_2018/new_full_network/`.
-4. `USE_JOHNSON_ROUTING` - uses Johnson's all pairs shortest path routing. This should always be set to `false`.
-5. `USE_SP_ROUTING` - uses new SP routing framework. This should always be set to `true`.
-6. `USE_PREV_PATHS` - uses paths already produced and saved to file. Set to `false` if running for the first time. Set to `true` if the simulation was already run and it was saved to file. 
-7. `LIMIT_NUM_PEOPLE` - deprecated. Do not touch.
-8. `ADD_RANDOM_PEOPLE` - deprecated. Do not touch.
-9. `NUM_PASSES` - the number of times the simulation is run. Set to 1.
-10. `TIME_STEP` - timestep. Default is .5 seconds.
-11. `START_HR` - start hour of the simulation. Default is 5am.
-12. `END_HR` - end hour of the simulation. Default is 12pm.
-
-Run with:
+Compile:
 ```bash
-cd LivingCity
-./LivingCity
+make clean && make -j8
 ```
 
-## Development
+## Design Principles
+<center>
+<img src="https://github.com/cb-cities/microsim/blob/main/figures/high_level.png" alt="high_level" class="design-primary" width="600px">
+</center>
+There are three levels abstraction for the program: **Agent**, **Intersection**, **Edge**. 
 
-Should you wish to make any changes, please create a new branch. In addition, once the original Makefile is created, you can simply run `sudo make -j` from the `manta/` directory to compile any new changes.
+An Agent is a vehicle with a certain type (only car at current version). An Intersection (node in the network) stores queues at all directions. An edge (link in the network) is the road that agents interact with each other. 
 
-If necessary, you can checkout a different existing branch from main (`edge_speeds_over_time`, for instance):
-```bash
-git checkout edge_speeds_over_time
-```
+An agent exists **either** in an intersection **or** on an edge.
 
-### Debugging
-For debugging we recommend `cuda-gdb`. In order to use it, `manta/Makefile` must be modified by adding the flag `-G` to enable debugging and changing `-O3` to `-O` to avoid optimizations that restrict the use of the debugger.
+Agents interact with each other on an edge with **fixed simple rules** (IDM). 
 
-For example, to enable debugging at `LivingCity/traffic/b18CUDA_trafficSimulator.cu`,  its compilation at the line `manta/Makefile:1756`:
-<pre>
-/usr/local/cuda-9.0/bin/nvcc -m64 <b>-O3</b> -arch=sm_50 -c --compiler-options -f
-no-strict-aliasing -use_fast_math --ptxas-options=-v -Xcompiler -fopenmp -I/u
-sr/include/opencv2/ -I/opt/local/include/ -I/usr/local/boost_1_59_0/ -I/home/
-<b>{YOUR_USERNAME}</b>/manta/LivingCity/glew/include/ -I/usr/local/cuda-9.0/include  -L/opt/l
-ocal/lib -lopencv_imgcodecs -lopencv_core -lopencv_imgproc -lcudart -lcuda -g -lgomp
-LivingCity/traffic/b18CUDA_trafficSimulator.cu -o
-${OBJECTS_DIR}b18CUDA_trafficSimulator_cuda.o
-</pre>
+Intersections are **source** or **sink** that feed/free agents into/from edges. 
 
-must be modified to:
-<pre>
-/usr/local/cuda-9.0/bin/nvcc -m64 <b>-O</b> -arch=sm_50 -c --compiler-options -f
-no-strict-aliasing -use_fast_math --ptxas-options=-v -Xcompiler -fopenmp -I/u
-sr/include/opencv2/ -I/opt/local/include/ -I/usr/local/boost_1_59_0/ -I/home/
-<b>{YOUR_USERNAME}</b>/manta/LivingCity/glew/include/ -I/usr/local/cuda-9.0/include  -L/opt/l
-ocal/lib -lopencv_imgcodecs -lopencv_core -lopencv_imgproc -lcudart -lcuda -g <b>-G</b>
--lgomp LivingCity/traffic/b18CUDA_trafficSimulator.cu -o
-${OBJECTS_DIR}b18CUDA_trafficSimulator_cuda.o
-</pre>
+It is possible to have different types of agent, and different types of interactions among them. (future works)
+<center>
+<img src="https://github.com/cb-cities/microsim/blob/main/figures/computation_illustration.png" alt="high_level" class="design-primary" width="800px">
+</center>
 
-After this modification, `sudo make clean` and `sudo make -j` must be run.
 
-Please keep in mind that this alteration slows the program down. For more information about `cuda-gdb`, please refer to the official [Website](https://docs.nvidia.com/cuda/cuda-gdb/index.html) and [Documentation](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwiBgbqg9fzrAhUMIrkGHby9Db8QFjADegQIAxAB&url=https%3A%2F%2Fdeveloper.download.nvidia.com%2Fcompute%2FDevZone%2Fdocs%2Fhtml%2FC%2Fdoc%2Fcuda-gdb.pdf&usg=AOvVaw3J9Il2vHkkxtcX83EHC3-z).
+### Agent:
+<center>
+<img src="https://github.com/cb-cities/microsim/blob/main/figures/agent.png" alt="high_level" class="design-primary" width="400px">
+</center>
 
-### Testing
-In order to run the system tests you should first move to `manta/LivingCity`
-```bash
-cd LivingCity
-```
-and then run 
-```bash
-pytest -s -x tests/systemTestSuite.py
-```
-Because of the tests' long duration, we recommend using the flag `-s` to show the whole output of the simulation and `-x` to stop at the first failure.
+Property: 
+IDM parameters: abT -> Can be different -> Car/Truck/Else 
 
-### Benchmarking / profiling
-In order to obtain a profiling of each component of the simulation, you should run
-```bash
-python3 LivingCity/benchmarking/runBenchmarks.py
-```
+Interaction Rules: 
+IDM car following + Lane change. (All on the edge) 
 
-If you wish to specify the name of the benchmark outputs and/or the number of iterations, just run:
-```bash
-python3 LivingCity/benchmarking/runBenchmarks.py --name={name_of_benchmark} --runs={number_of_iterations_to_run}
-```
-The script will run LivingCity the specified number of times while polling the system resources. For each component, its resource and time consumption will be saved into a `csv` file, a plot and a `xls` file in `manta/LivingCity/benchmarking/`. The profiling of each version is encouraged to be stored in [here](https://docs.google.com/spreadsheets/d/14KCUY8vLp9HoLuelYC5DmZwKI7aLsiaNFp7e6Z8bVBU/edit?usp=sharing).
+<center>
+<img src="https://github.com/cb-cities/microsim/blob/main/figures/car_interactions.png" alt="high_level" class="design-primary" width="800px">
+</center>
 
-Versions correspond to [the repository's tags](https://github.com/UDST/manta/tags). In order to create a new tag, just run
-```bash
-git tag v0.x.0
-git push --tags
-```
+### Intersection (bundle of queues):
+<center>
+<img src="https://github.com/cb-cities/microsim/blob/main/figures/intersection.png" alt="high_level" class="design-primary" width="800px">
+</center>
+
+Property: 
+List of queues at every possible direction 
+
+Interaction Rule (with edges):
+Place a stop sign at the entrance if the queue is full (Upstream edge); Feed into downstream edge if it has enough space in a round robin fashion (Downstream edge). 
+
+
+### Edge (bundle of lanes):
+Property: 
+Array of lanes with agents on them; upstream/downstream counts; average travel time (weight)
+
+Interaction Rule (with intersections): 
+Feed by the upstream intersection, supply agents to the downstream intersection. Queuing occurs if the corresponding queue in the downstream intersection is full. 
+
+
+## Program Architecture
+### Input Output (IO)
+<center>
+<img src="https://github.com/cb-cities/microsim/blob/main/figures/io_illustration.png" alt="high_level" class="design-primary" width="800px">
+</center>
+**Input: **
+nodes.csv 
+Header: osmid,x,y,ref,highway,index
+Note: index must be unique and sequential (from 0 to n) 
+edges.csv 
+Header: uniqueid,osmid_u,osmid_v,edge_length,lanes,speed_mph,u,v
+Note: uniqueid must be unique! On default, each edge will be constructed twice (two directions); u ,v correspond to node index 
+Od.csv
+Header: origin,destination,dep_time
+Note: origin, destination correspond to node index, dep_time is in seconds 
+
+**Output:**
+Edge_data_time.csv 
+Header: eid,u,v,upstream_count,downstream_count,average_travel_time(s)
+Agents_data_time.csv
+Header: aid,ori,dest,type,status,travel_dist(m),travel_time(s),ave_speed(m/s),num_slowdown,num_lane_change,num_in_queue
+
+**Simulation Configuration:**
+Command_line_options.init 
+NETWORK_PATH=../tests/scenarios/case1/
+OD_PATH =../tests/scenarios/case1/od.csv
+START=32400 
+END=61200
+SHOW_BENCHMARKS=false
+SAVE_PATH=./case1_results/
+SAVE_INTERVAL = 100
+Note: all time unit is in second. 
+
+**Parameter Configuration:**
+struct IDMParametersCar {
+  float a = 0.557040909258405;    // acceleration
+  float b = 2.9020578588167;      // break
+  float T = 0.5433027817144876;   // Time heading
+  float s_0 = 1.3807498735425845; // min car following dis
+};
+
+### Submodules
+#### Network  
+All the information about the network is stored here. 
+Initialization: 
+Read node and edge data -> construct network using the sp code -> prepare initial edge weights (free flow travel time) 
+Play with the network_test.cpp for a deeper understanding 
+
+#### OD
+All the information about the agent (origin, destination, vehicle type, departure time) is stored here 
+Initialization: 
+Read origin destination -> read departure time -> read agent types -> construct a vector of agents (defined in agent.h)
+Play with the od_test.cpp for a deeper understanding 
+
+#### Lanemap
+Convert the 2d network to 1d lanemap (edge data; intersection data) for GPU access. 
+Initialization (edge_data): 
+Iterate through each edge -> copy the edge information from network (graph_) to lanemap (edgesData_) -> construct the correspondence id map (mid2eid_,eid2mid_) -> calculate the flattened length of the edge (number of cells used) -> go to the next edge 
+Initialization (intersection_data): 
+Iterate through each node ->  iterate each in_edge/out_edge pairs -> construct each in/out pair as a queue for the intersection
+Note: each vertex (node) is an intersection. 
+Play with the lanemap_test.cpp for a deeper understanding 
+
+#### Simulator
+Route_finding <-> simulation 
+
+Route_finding:
+Use the contraction hierarchy algorithm for route finding:
+Initialize the ch using the network object -> go through all the agents to construct the od pairs -> run rh to find routes for each agent -> record each agent’s designed path (agent.route, a sequence of lanemap edge ids) 
+
+SimulateInGPU: 
+1. Allocate an appropriate amount of memory on the cuda device then copy the CPU data to there (init_cuda) 
+2. From start_time to end_time, simulate the movement of each agent at the simulation time step (time resolution 0.5 second) (cuda_simulate)
+3. Save the simulation results (time-snap for agents and edges) at each save_interval 
+4. Free GPU memory (finish_cuda)
+
+Cuda_simulate: 
+1. Change map (switch the read and write map: read from the previous time-step map and write to an empty map) 
+2. Simulate agents movements on edges (kernel_trafficSimulation)
+3. Simulate agents movements on intersections (kernel_intersectionOneSimulation)
+
+**kernel_trafficSimulation**
+GPU parallel computation for each agent
+
+<center>
+<img src="https://github.com/cb-cities/microsim/blob/main/figures/edge_simulation.png" alt="high_level" class="design-primary" width="800px">
+</center>
+
+
+**kernel_intersectionOneSimulation** 
+GPU parallel computation for each intersection
+
+<center>
+<img src="https://github.com/cb-cities/microsim/blob/main/figures/node_simulation.png" alt="high_level" class="design-primary" width="800px">
+</center>
+
+
 
 
 ## Acknowledgments
 
-This repository and code have been developed and maintained by Pavan Yedavalli, Ignacio Garcia Dorado, Krishna Kumar, and Paul Waddell. This work heavily derives from Ignacio Garcia Dorado's [Automatic Urban Modeling project](http://www.ignaciogarciadorado.com/p/2014_EG/2014_EG.html).
+This repository and code have been developed and maintained by Renjie Wu. This work heavily derives from Pavan Yedavalli's [Microsimulation Analysis for Network Traffic Assignment](https://github.com/UDST/manta/) and Ignacio Garcia Dorado's [Automatic Urban Modeling project](http://www.ignaciogarciadorado.com/p/2014_EG/2014_EG.html).
 
-If this code is used in any shape or form for your project, please cite this paper accordingly:
 
-P. Yedavalli, K. Kumar, and P. Waddell, “Microsimulation Analysis for Network Traffic Assignment (MANTA) at Metropolitan-Scale for Agile Transportation Planning,” arXiv:2007.03614 [physics], Jul. 2020, Available: http://arxiv.org/abs/2007.03614.
-
-Thank you!
 
 
 

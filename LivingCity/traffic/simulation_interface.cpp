@@ -51,7 +51,7 @@ void SimulationInterface::run_simulation() {
   /************************************************************************************************
     Start Simulation
   ************************************************************************************************/
-  TrafficSimulator simulator(network, od, lanemap, "./test_results/");
+  TrafficSimulator simulator(network, od, lanemap, save_path);
   simulator.simulateInGPU(start, end, save_interval);
 }
 } // namespace LC

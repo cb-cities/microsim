@@ -637,7 +637,6 @@ kernel_intersectionOneSimulation(uint numIntersections, LC::EdgeData *edgesData,
     if (num_cars > 3) {
       auto &q1 = intersection.queue[j];
       auto &agent = agents[q1[0]];
-      auto eid = intersection.start_edge[j];
       place_stop(agent, edgesData, laneMap, mapToWriteShift);
     }
   }
