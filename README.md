@@ -39,10 +39,12 @@ make clean && make -j8
 ```
 
 ## Design Principles
+
 <center>
-<img src="https://github.com/cb-cities/microsim/blob/main/figures/high_level.png" alt="high_level" class="design-primary" width="600px">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/high_level.png" alt="high_level" class="design-primary" width="600px">
 </center>
-There are three levels abstraction for the program: **Agent**, **Intersection**, **Edge**. 
+
+There are three levels abstraction for the program: **Agent** , **Intersection** , **Edge** . 
 
 An Agent is a vehicle with a certain type (only car at current version). An Intersection (node in the network) stores queues at all directions. An edge (link in the network) is the road that agents interact with each other. 
 
@@ -53,6 +55,7 @@ Agents interact with each other on an edge with **fixed simple rules** (IDM).
 Intersections are **source** or **sink** that feed/free agents into/from edges. 
 
 It is possible to have different types of agent, and different types of interactions among them. (future works)
+
 <center>
 <img src="https://github.com/cb-cities/microsim/blob/master/figures/computation_illustration.png" alt="high_level" class="design-primary" width="800px">
 </center>
@@ -185,9 +188,9 @@ GPU parallel computation for each agent
 **kernel_intersectionOneSimulation** 
 GPU parallel computation for each intersection
 
-<center>
-<img src="https://github.com/cb-cities/microsim/blob/master/figures/node_simulation.png" alt="high_level" class="design-primary" width="800px">
-</center>
+<p align="center">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/node_simulation.png" alt="high_level" class="design-primary" width="600px">
+</p>
 
 
 
