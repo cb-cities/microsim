@@ -27,16 +27,25 @@ avoid re-entering them in each session.
 
 Clone the repo in your home directory with:
 ```bash
-git clone https://github.com/cb-cities/microsim.git ~/microsim && cd ~/microsim
+git clone https://github.com/cb-cities/microsim.git && cd microsim/LivingCity
 ```
 Create Makefile:
 ```bash
-mkdir build && cd build && cmake ../src
+mkdir build && cd build && cmake ../
 ```
 Compile:
 ```bash
 make clean && make -j8
 ```
+Run unit tests 
+```bash
+./microsim_test
+```
+Run simulation
+```bash
+./microsim
+```
+Simulation parameters are set in command_line_options.ini
 
 ## How to understand/contribute to the program 
 1. Read through the reference papers to understand a)[IDM model](https://github.com/cb-cities/microsim/blob/master/references/idm.pdf).; b) [Lanemap design](https://github.com/cb-cities/microsim/blob/master/references/Designing%20Large-Scale%20Interactive%20Traffic%20Animations%20for%20Urban%20Modeling.pdf)
