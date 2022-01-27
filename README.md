@@ -63,7 +63,7 @@ It is possible to have different types of agent, and different types of interact
 
 ### Agent:
 <p align="center">
-<img src="https://github.com/cb-cities/microsim/blob/master/figures/agent.png" alt="high_level" class="design-primary" width="200px">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/agent.png" alt="high_level" class="design-primary" width="400px">
 </p>
 
 Property: 
@@ -140,23 +140,30 @@ struct IDMParametersCar {
 ### Submodules
 #### Network  
 All the information about the network is stored here. 
+
 Initialization: 
 Read node and edge data -> construct network using the sp code -> prepare initial edge weights (free flow travel time) 
+
 Play with the network_test.cpp for a deeper understanding 
 
 #### OD
 All the information about the agent (origin, destination, vehicle type, departure time) is stored here 
+
 Initialization: 
 Read origin destination -> read departure time -> read agent types -> construct a vector of agents (defined in agent.h)
+
 Play with the od_test.cpp for a deeper understanding 
 
 #### Lanemap
 Convert the 2d network to 1d lanemap (edge data; intersection data) for GPU access. 
+
 Initialization (edge_data): 
 Iterate through each edge -> copy the edge information from network (graph_) to lanemap (edgesData_) -> construct the correspondence id map (mid2eid_,eid2mid_) -> calculate the flattened length of the edge (number of cells used) -> go to the next edge 
+
 Initialization (intersection_data): 
 Iterate through each node ->  iterate each in_edge/out_edge pairs -> construct each in/out pair as a queue for the intersection
 Note: each vertex (node) is an intersection. 
+
 Play with the lanemap_test.cpp for a deeper understanding 
 
 #### Simulator
