@@ -1,0 +1,6 @@
+osmid,x,y,ref,highway,index
+-1,-99.5,0,NA,NA,0
+-1,-20.0,10,NA,NA,1
+-1,0.0,10,NA,NA,2
+-1,0.0,-10,NA,NA,3
+-1,99.5,0,NA,NA,4
