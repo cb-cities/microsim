@@ -39,12 +39,12 @@ make clean && make -j8
 ```
 
 ## How to understand/contribute to the program 
-1. Read through the reference papers to understand a) IDM model; b) Lanemap design 
-2. Read through the [Deign Principles](#principle)
-3. Read through the [Program Architecture](#architecture)
-4. Design your own test cases and pass through all tests 
-5. Use the python analysis program to understand simulation behaviour 
-6. Try on real-world networks
+1. Read through the reference papers to understand a)[IDM model](https://github.com/cb-cities/microsim/blob/master/references/idm.pdf).; b) [Lanemap design](https://github.com/cb-cities/microsim/blob/master/references/Designing%20Large-Scale%20Interactive%20Traffic%20Animations%20for%20Urban%20Modeling.pdf)
+3. Read through the [Deign Principles](#principle)
+4. Read through the [Program Architecture](#architecture)
+5. Design your own test cases and pass through all tests 
+6. Use the [python analysis program](https://github.com/cb-cities/microsim/blob/master/analysis/simple_network_testing.ipynb) to understand the simulation behaviour 
+7. Try on real-world networks
 
 ## <a name="principle"></a> Design Principles
 
