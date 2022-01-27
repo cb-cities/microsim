@@ -38,13 +38,21 @@ Compile:
 make clean && make -j8
 ```
 
-## Design Principles
+## How to understand/contribute to the program 
+1. Read through the reference papers to understand a) IDM model; b) Lanemap design 
+2. Read through the [Deign Principles](#principle)
+3. Read through the [Program Architecture](#architecture)
+4. Design your own test cases and pass through all tests 
+5. Use the python analysis program to understand simulation behaviour 
+6. Try on real-world networks
+
+## <a name="principle"></a> Design Principles
 
 <p align="center">
 <img src="https://github.com/cb-cities/microsim/blob/master/figures/high_level.png" alt="high_level" class="design-primary" width="600px">
 </p>
 
-There are three levels abstraction for the program: **Agent** **Intersection** **Edge** . 
+There are three levels abstraction for the program: **Agent,** **Intersection,** **Edge** . 
 
 An Agent is a vehicle with a certain type (only car at current version). An Intersection (node in the network) stores queues at all directions. An edge (link in the network) is the road that agents interact with each other. 
 
@@ -96,30 +104,38 @@ Interaction Rule (with intersections):
 Feed by the upstream intersection, supply agents to the downstream intersection. Queuing occurs if the corresponding queue in the downstream intersection is full. 
 
 
-## Program Architecture
+## <a name="architecture"></a> Program Architecture
 ### Input Output (IO)
+
 <p align="center">
 <img src="https://github.com/cb-cities/microsim/blob/master/figures/io_illustration.png" alt="high_level" class="design-primary" width="600px">
 </p>
+
 **Input:**
-nodes.csv 
-Header: osmid,x,y,ref,highway,index
+
+nodes.csv \
+Header: osmid,x,y,ref,highway,index\
 Note: index must be unique and sequential (from 0 to n) 
-edges.csv 
-Header: uniqueid,osmid_u,osmid_v,edge_length,lanes,speed_mph,u,v
+
+edges.csv \
+Header: uniqueid,osmid_u,osmid_v,edge_length,lanes,speed_mph,u,v \
 Note: uniqueid must be unique! On default, each edge will be constructed twice (two directions); u ,v correspond to node index 
-Od.csv
-Header: origin,destination,dep_time
+
+Od.csv\
+Header: origin,destination,dep_time\
 Note: origin, destination correspond to node index, dep_time is in seconds 
 
 **Output:**
-Edge_data_time.csv 
+
+Edge_data_time.csv \
 Header: eid,u,v,upstream_count,downstream_count,average_travel_time(s)
-Agents_data_time.csv
+
+Agents_data_time.csv \
 Header: aid,ori,dest,type,status,travel_dist(m),travel_time(s),ave_speed(m/s),num_slowdown,num_lane_change,num_in_queue
 
 **Simulation Configuration:**
 Command_line_options.init 
+```C
 NETWORK_PATH=../tests/scenarios/case1/
 OD_PATH =../tests/scenarios/case1/od.csv
 START=32400 
@@ -128,40 +144,44 @@ SHOW_BENCHMARKS=false
 SAVE_PATH=./case1_results/
 SAVE_INTERVAL = 100
 Note: all time unit is in second. 
+```
 
 **Parameter Configuration:**
+```C
 struct IDMParametersCar {
   float a = 0.557040909258405;    // acceleration
   float b = 2.9020578588167;      // break
   float T = 0.5433027817144876;   // Time heading
   float s_0 = 1.3807498735425845; // min car following dis
 };
+```
 
 ### Submodules
 #### Network  
-All the information about the network is stored here. 
+All the information about the network is stored here.
 
-Initialization: 
-Read node and edge data -> construct network using the sp code -> prepare initial edge weights (free flow travel time) 
+Initialization: \
+Read node and edge data -> construct network using the sp code -> prepare initial edge weights (free flow travel time) \
 
-Play with the network_test.cpp for a deeper understanding 
+Play with the network_test.cpp for a deeper understanding
 
 #### OD
-All the information about the agent (origin, destination, vehicle type, departure time) is stored here 
+All the information about the agent (origin, destination, vehicle type, departure time) is stored here
 
-Initialization: 
-Read origin destination -> read departure time -> read agent types -> construct a vector of agents (defined in agent.h)
+Initialization: \
+Read origin destination -> read departure time -> read agent types -> construct a vector of agents (defined in agent.h)\
 
 Play with the od_test.cpp for a deeper understanding 
 
 #### Lanemap
 Convert the 2d network to 1d lanemap (edge data; intersection data) for GPU access. 
 
-Initialization (edge_data): 
-Iterate through each edge -> copy the edge information from network (graph_) to lanemap (edgesData_) -> construct the correspondence id map (mid2eid_,eid2mid_) -> calculate the flattened length of the edge (number of cells used) -> go to the next edge 
+Initialization (edge_data): \
+Iterate through each edge -> copy the edge information from network (graph_) to lanemap (edgesData_) -> construct the correspondence id map (mid2eid_,eid2mid_)\
+-> calculate the flattened length of the edge (number of cells used) -> go to the next edge \
 
-Initialization (intersection_data): 
-Iterate through each node ->  iterate each in_edge/out_edge pairs -> construct each in/out pair as a queue for the intersection
+Initialization (intersection_data): \
+Iterate through each node ->  iterate each in_edge/out_edge pairs -> construct each in/out pair as a queue for the intersection\
 Note: each vertex (node) is an intersection. 
 
 Play with the lanemap_test.cpp for a deeper understanding 
@@ -169,9 +189,10 @@ Play with the lanemap_test.cpp for a deeper understanding
 #### Simulator
 Route_finding <-> simulation 
 
-Route_finding:
-Use the contraction hierarchy algorithm for route finding:
-Initialize the ch using the network object -> go through all the agents to construct the od pairs -> run rh to find routes for each agent -> record each agent’s designed path (agent.route, a sequence of lanemap edge ids) 
+Route_finding:\
+Use the contraction hierarchy algorithm for route finding:\
+Initialize the ch using the network object -> go through all the agents to construct the od pairs \
+-> run rh to find routes for each agent -> record each agent’s designed path (agent.route, a sequence of lanemap edge ids) 
 
 SimulateInGPU: 
 1. Allocate an appropriate amount of memory on the cuda device then copy the CPU data to there (init_cuda) 
@@ -185,15 +206,15 @@ Cuda_simulate:
 3. Simulate agents movements on intersections (kernel_intersectionOneSimulation)
 
 **kernel_trafficSimulation**
-GPU parallel computation for each agent
+GPU parallel computation for each agent\
 
 <p align="center">
-<img src="https://github.com/cb-cities/microsim/blob/master/figures/edge_simulation.png" alt="high_level" class="design-primary" width="600px">
+<img src="https://github.com/cb-cities/microsim/blob/master/figures/edge_simulation.png" alt="high_level" class="design-primary" width="800px">
 </p>
 
 
 **kernel_intersectionOneSimulation** 
-GPU parallel computation for each intersection
+GPU parallel computation for each intersection\
 
 <p align="center">
 <img src="https://github.com/cb-cities/microsim/blob/master/figures/node_simulation.png" alt="high_level" class="design-primary" width="400px">
