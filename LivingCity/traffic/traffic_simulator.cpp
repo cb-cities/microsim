@@ -39,20 +39,20 @@ void TrafficSimulator::route_finding_() {
   for (int i = 0; i < node_sequence.size(); i++) {
     auto &agent = agents[i];
     if (node_sequence[i].size() > 100) {
-      std::cerr << "Warning: Agent " << i << "need to go through "
+      std::cerr << "Warning: Agent " << i << " need to go through "
                 << node_sequence[i].size() << " edges!" << std::endl;
     }
     if (node_sequence[i].size() == 0) {
-      std::cerr << "Warning: Agent " << i << "has no route! " << std::endl;
-    }
-
-    for (int j = 0; j < node_sequence[i].size() - 1; j++) {
-      auto vertex_from = node_sequence[i][j];
-      auto vertex_to = node_sequence[i][j + 1];
-      auto eid = network_->edge_id(vertex_from, vertex_to);
-      auto mid = eid2mid.at(eid);
-      agent.route[agent.route_size] = mid;
-      agent.route_size++;
+      std::cerr << "Warning: Agent " << i << " has no route! " << std::endl;
+    } else {
+      for (int j = 0; j < node_sequence[i].size() - 1; j++) {
+        auto vertex_from = node_sequence[i][j];
+        auto vertex_to = node_sequence[i][j + 1];
+        auto eid = network_->edge_id(vertex_from, vertex_to);
+        auto mid = eid2mid.at(eid);
+        agent.route[agent.route_size] = mid;
+        agent.route_size++;
+      }
     }
   }
 }
@@ -200,4 +200,3 @@ void TrafficSimulator::save_agents(int current_time) {
 }
 
 } // namespace LC
-

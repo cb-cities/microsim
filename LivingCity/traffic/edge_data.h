@@ -50,19 +50,19 @@ struct EdgeData {
 //! \brief Data structure that hold essential information for a intersection
 struct IntersectionData {
   //! Potential queues (for each direction) in the intersection
-  int queue[30][30];
+  unsigned short queue[100][10];
   //! Entering eid for each queue
-  int start_edge[30];
+  unsigned start_edge[100];
   //! Leaving eid for each queue
-  int end_edge[30];
+  unsigned end_edge[100];
   //! Ptr position for each queue (number of cars in queue)
-  int pos[30] = {0};
+  unsigned pos[100] = {0};
 
-  unsigned num_edge{0};
-  unsigned num_queue{0};
-  unsigned max_queue{0};
+  unsigned short num_edge{0};
+  unsigned short num_queue{0};
+  unsigned short max_queue{0};
   //! Ptr for the next queue to check
-  unsigned queue_ptr{0};
+  unsigned short queue_ptr{0};
 };
 
 // struct IntersectionData {
