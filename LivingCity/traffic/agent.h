@@ -39,6 +39,7 @@ struct Agent {
   // Agent information
   AgentType agent_type;
   unsigned short active = 0; // 0 inactive 1 active 2 finished
+//  int aid{-1};
 
   // IDM
   float v{0};         // current velocity
@@ -48,6 +49,7 @@ struct Agent {
   float b;            // break
   float T;            // Time heading
   float s_0;          // min car following dist
+  float dv_dt{0};
 
   // Road (edge) information
   float posInLaneM;
@@ -67,7 +69,7 @@ struct Agent {
   float cum_v{0}; // Cumulative velocity of each person across all iterations
   unsigned int num_lane_change = 0;
   unsigned int num_steps_entering_edge{0};
-
+  unsigned int initial_waited_steps{0};
 
 };
 

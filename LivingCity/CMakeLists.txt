@@ -127,7 +127,7 @@ if(MICROSIM_TEST_BUILD_TESTING)
             tests/network_test.cpp
             tests/od_test.cpp
             tests/lanemap_test.cpp
-            tests/traffic_simulator_test.cpp
+#            tests/traffic_simulator_test.cpp
 #            tests/scenario_testing.cpp
             )
 

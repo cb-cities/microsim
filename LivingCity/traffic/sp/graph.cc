@@ -5,8 +5,7 @@
 inline void
 abm::Graph::add_edge(abm::graph::vertex_t vertex1, abm::graph::vertex_t vertex2,
                      std::vector<float> edge_vals,
-                     abm::graph::vertex_t edgeid =
-                         std::numeric_limits<abm::graph::vertex_t>::max()) {
+                     abm::graph::vertex_t edgeid) {
   abm::graph::weight_t weight = edge_vals[0] / edge_vals[2]; // travel time
   /*
   abm::graph::weight_t weight = 1,
@@ -33,11 +32,10 @@ abm::Graph::add_edge(abm::graph::vertex_t vertex1, abm::graph::vertex_t vertex2,
   edge_pointer_to_vertices_[edge] = std::make_tuple(vertex1, vertex2);
 
   // Add edge id
-  edge_ids_[vertex1][vertex2] = this->edgeid_;
-  edge_ids_to_vertices[this->edgeid_] = std::make_tuple(vertex1, vertex2);
+  edge_ids_[vertex1][vertex2] = edgeid;
+  edge_ids_to_vertices[edgeid] = std::make_tuple(vertex1, vertex2);
   // Add edge cost
-  edge_costs_[this->edgeid_] = weight;
-  this->edgeid_ += 1;
+  edge_costs_[edgeid] = weight;
 
   // Vertex 1
   auto vertex1_edges = vertex_edges_[vertex1];

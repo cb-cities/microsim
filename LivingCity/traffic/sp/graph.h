@@ -150,7 +150,7 @@ class Graph {
   // Number of graph vertices
   unsigned nvertices_{std::numeric_limits<unsigned>::max()};
   // Edge id
-  graph::vertex_t edgeid_{0};
+  graph::vertex_t edgeid_{0}; // deprecated, use eids from the input file
   // Max id of vertex
   graph::vertex_t max_vertex_id_{std::numeric_limits<graph::vertex_t>::min()};
   //Vertex data
