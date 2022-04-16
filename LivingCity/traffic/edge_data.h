@@ -29,6 +29,8 @@ namespace LC {
 //! \brief Data structure that hold essential information for a road/edge in ONE
 //! direction
 struct EdgeData {
+  //! Edge id
+  unsigned int eid;
   //! number of lanes
   ushort num_lanes;
   //! Two end nodes of the edge

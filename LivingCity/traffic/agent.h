@@ -32,14 +32,14 @@ struct Agent {
   unsigned int end_intersection;
   float time_departure;
   //! Route of the agent (array of lanemap ids)
-  uint route[100];
+  uint route[500];
   unsigned short route_size{0};
-  int route_ptr{0};
+  int route_ptr{-1};
 
   // Agent information
   AgentType agent_type;
   unsigned short active = 0; // 0 inactive 1 active 2 finished
-//  int aid{-1};
+                             //  int aid{-1};
 
   // IDM
   float v{0};         // current velocity
@@ -52,15 +52,17 @@ struct Agent {
   float dv_dt{0};
 
   // Road (edge) information
-  float posInLaneM;
+  unsigned int edge_id;
   unsigned int edge_mid;
-  float max_speed;
-  float edge_length;
+  float posInLaneM{-1};
+  float max_speed{-1};
+  float edge_length{-1};
 
   // Intersection information
   bool in_queue{false};
   unsigned int num_steps_in_queue{0};
   unsigned short lane{}; // number of lane in that edge
+  int checked_eid{-1};
 
   // Simulation information
   float cum_length{0};
@@ -70,7 +72,6 @@ struct Agent {
   unsigned int num_lane_change = 0;
   unsigned int num_steps_entering_edge{0};
   unsigned int initial_waited_steps{0};
-
 };
 
 } // namespace LC

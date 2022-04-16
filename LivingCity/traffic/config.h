@@ -21,7 +21,7 @@ const int kMaxMapWidthM_{1024}; // size of the bin
 //! Safe space between cars
 const int SOCIAL_DIST{3};
 //! Initial speed (m/s)
-const float INIT_SPEED{2};
+const float INIT_SPEED{3};
 //! Initial queue cap (for agent initialization)
 const short INIT_QUEUE_CAP{10};
 
