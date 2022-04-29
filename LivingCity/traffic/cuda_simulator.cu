@@ -218,11 +218,13 @@ __device__ void initialize_agent(int agent_id, LC::Agent &agent,
   // add to corresponding queue
   auto &intersection = intersections[agent.init_intersection];
   intersection.init_queue[intersection.init_queue_rear] = agent_id;
-  atomicAdd(&(intersection.init_queue_rear), 1);
+  intersection.init_queue_rear += 1;
+  //  atomicAdd(&(intersection.init_queue_rear), 1);
 
   // initialize agent
   agent.active = 1;
   agent.in_queue = true;
+  agent.intersection_id = agent.init_intersection;
 
   //        bool isSet = false;
   //        do {
@@ -235,6 +237,36 @@ __device__ void initialize_agent(int agent_id, LC::Agent &agent,
   //            __syncthreads();
   //          }
   //        } while (!isSet);
+}
+
+__device__ bool in_queue(int agent_id, int *queue, unsigned queue_size) {
+  for (int i = 0; i < queue_size; ++i) {
+    if (queue[i] == agent_id) {
+      return true;
+    }
+  }
+  return false;
+}
+
+__device__ void check_stagnation(int agent_id, LC::Agent &agent,
+                                 LC::IntersectionData *intersections) {
+  auto &intersection = intersections[agent.intersection_id];
+  if (agent.queue_idx == -1) {
+    if (in_queue(agent_id, intersection.init_queue,
+                 intersection.init_queue_rear)) {
+      return;
+    }
+    // try to place the agent to the queue again
+    intersection.init_queue[intersection.init_queue_rear] = agent_id;
+    intersection.init_queue_rear += 1;
+  }
+  auto &queue = intersection.queue[agent.queue_idx];
+  auto &queue_ptr = intersection.pos[agent.queue_idx];
+  if (in_queue(agent_id, queue, queue_ptr)) {
+    return;
+  }
+  queue[queue_ptr] = agent_id;
+  queue_ptr += 1;
 }
 
 // TODO : CHECK NEXT EDGE?
@@ -314,7 +346,7 @@ __device__ void change_lane(LC::Agent &agent, LC::EdgeData *edgesData,
 
   if (agent.v > 3.0f &&           // at least 10km/h to try to change lane
       agent.delta_v > -0.1 &&     // decelerating or stuck
-      agent.num_steps % 5 == 0) { // just check every (5 steps) 5 seconds
+      agent.num_steps % 2 == 0) { // check every 2 steps (1 second)
 
     bool leftLane = agent.lane > 0; // at least one lane on the left
     bool rightLane =
@@ -401,6 +433,8 @@ __device__ bool update_intersection(int agent_id, LC::Agent &agent,
   int queue_id = find_queue_id(agent, intersection);
   auto &queue = intersection.queue[queue_id];
   auto &queue_ptr = intersection.pos[queue_id];
+  agent.queue_idx = queue_id;
+  agent.intersection_id = intersetcion_id;
   agent.in_queue = true;
   agent.v = 0; // in queue vehicle is stopped.
   int num_steps_in_edge = agent.num_steps - agent.num_steps_entering_edge;
@@ -472,6 +506,7 @@ kernel_trafficSimulation(int numPeople, float currentTime, LC::Agent *agents,
   agent.num_steps++;
   if (agent.in_queue) {
     agent.num_steps_in_queue += 1;
+    check_stagnation(p, agent, intersections);
     return;
   }
 
@@ -530,7 +565,7 @@ __device__ bool discharge_queue(LC::IntersectionData &intersection,
 
   auto aid = q1[0];
   auto &agent = trafficPersonVec[aid];
-  agent.checked_eid = intersection.queue_ptr;
+  //  agent.checked_eid = intersection.queue_ptr;
 
   unsigned eid1 = intersection.end_edge[intersection.queue_ptr];
   int edge_length = edgesData[eid1].length;
@@ -580,10 +615,9 @@ __device__ bool discharge_init_agents(unsigned intersection_id,
   auto &agent = trafficPersonVec[aid];
   auto &first_edge = edgesData[agent.route[0]];
   unsigned numMToMove = SOCIAL_DIST;
-  bool enough_space = check_space(numMToMove + SOCIAL_DIST, first_edge.eid,
+  bool enough_space = check_space(numMToMove + SOCIAL_DIST, agent.route[0],
                                   first_edge.length, laneMap,
                                   mapToReadShift); // check social dist ahead
-  //    agent.checked_eid = first_edge.eid;
   if (enough_space) {
     aid = deque(init_queue, rear_ptr);
     move2nextEdge(agent, numMToMove, edgesData, laneMap);
@@ -604,16 +638,17 @@ __device__ void check_queues(unsigned intersection_id, LC::EdgeData *edgesData,
   auto &intersection = intersections[intersection_id];
   bool discharged = false;
   for (int i = 0; i < intersection.num_queue + 1; ++i) {
-    intersection.queue_ptr += 1;
     if (intersection.queue_ptr > intersection.num_queue - 1) {
       intersection.queue_ptr = 0; // reset
       discharged = discharge_init_agents(
           intersection_id, edgesData, intersections, trafficPersonVec, laneMap);
     }
-    discharged =
-        discharge_queue(intersection, trafficPersonVec, edgesData, laneMap);
+    if (not discharged) {
+      discharged =
+          discharge_queue(intersection, trafficPersonVec, edgesData, laneMap);
+    }
+    intersection.queue_ptr += 1;
     if (discharged) {
-      intersection.queue_ptr += 1;
       break;
     }
   }

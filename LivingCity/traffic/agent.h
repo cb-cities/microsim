@@ -62,7 +62,9 @@ struct Agent {
   bool in_queue{false};
   unsigned int num_steps_in_queue{0};
   unsigned short lane{}; // number of lane in that edge
-  int checked_eid{-1};
+  int intersection_id{-1};
+  int queue_idx{-1};
+
 
   // Simulation information
   float cum_length{0};
