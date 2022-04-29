@@ -119,11 +119,14 @@ void TrafficSimulator::simulateInGPU(float startTime, float endTime,
 
     simulations_steps += 1;
     startTime += deltaTime_;
-    std::cout << "intersection check: " << simulations_steps << std::endl;
+    //    std::cout << "intersection check: " << simulations_steps << std::endl;
     cuda_get_data(agents, edgesData, intersections); // Get data from cuda
-    //      // Store data to local disk
-    save_edges(simulations_steps);
-    save_agents(simulations_steps);
+    if (simulations_steps % num_save_steps == 0) {
+      // Store data to local disk
+      save_edges(simulations_steps);
+      save_agents(simulations_steps);
+    }
+
     //
     //    int max_queue_size = 0;
     //    std::cout << intersections[0].init_queue_rear << std::endl;
