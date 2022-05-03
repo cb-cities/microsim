@@ -128,18 +128,18 @@ void TrafficSimulator::simulateInGPU(float startTime, float endTime,
 
     //
     //    int max_queue_size = 0;
-//    std::cout << "intersection check: " << simulations_steps << std::endl;
-//    std::cout << intersections[0].init_queue_rear << std::endl;
-//    for (int i = 0; i < intersections[0].init_queue_rear; ++i) {
-//      std::cout << intersections[0].init_queue[i] << ",";
-//    }
-//    std::cout << std::endl;
-//
-//      std::cout << intersections[1].pos[1] << std::endl;
-//      for (int i = 0; i < intersections[1].pos[1]; ++i) {
-//          std::cout << intersections[1].queue[1][i] << ",";
-//      }
-//      std::cout << std::endl;
+    //    std::cout << "intersection check: " << simulations_steps << std::endl;
+    //    std::cout << intersections[0].init_queue_rear << std::endl;
+    //    for (int i = 0; i < intersections[0].init_queue_rear; ++i) {
+    //      std::cout << intersections[0].init_queue[i] << ",";
+    //    }
+    //    std::cout << std::endl;
+    //
+    //      std::cout << intersections[1].pos[1] << std::endl;
+    //      for (int i = 0; i < intersections[1].pos[1]; ++i) {
+    //          std::cout << intersections[1].queue[1][i] << ",";
+    //      }
+    //      std::cout << std::endl;
 
     //    for (int j = 0; j < intersections[1].num_queue; ++j) {
     //

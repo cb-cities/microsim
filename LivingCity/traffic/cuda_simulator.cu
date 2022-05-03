@@ -344,8 +344,10 @@ __device__ void change_lane(LC::Agent &agent, LC::EdgeData *edgesData,
             // (avoid periodic lane changing)
   }
 
-  if (agent.v > 3.0f &&           // at least 10km/h to try to change lane
-      agent.delta_v > -0.1 &&     // decelerating or stuck
+  if (
+      //          agent.v > 3.0f &&           // at least 10km/h to try to
+      //          change lane
+      agent.delta_v > -0.01 &&    // decelerating or stuck
       agent.num_steps % 2 == 0) { // check every 2 steps (1 second)
 
     bool leftLane = agent.lane > 0; // at least one lane on the left
@@ -529,9 +531,9 @@ kernel_trafficSimulation(int numPeople, float currentTime, LC::Agent *agents,
 __device__ void move2nextEdge(LC::Agent &agent, int numMToMove,
                               LC::EdgeData *edgesData, uchar *laneMap) {
 
-  if (not agent.in_queue) {
-    return;
-  }
+  //  if (not agent.in_queue) {
+  //    return;
+  //  }
   agent.in_queue = false;
   agent.route_ptr += 1;
   //  atomicAdd(&(agent.route_ptr), 1);
@@ -569,7 +571,11 @@ __device__ bool discharge_queue(LC::IntersectionData &intersection,
 
   auto aid = q1[0];
   auto &agent = trafficPersonVec[aid];
-  //  agent.checked_eid = intersection.queue_ptr;
+  if (not agent.in_queue) { // bug walk around: agent has been reassigned to a
+                            // queue
+    deque(q1, n1);
+    return true;
+  }
 
   unsigned eid1 = intersection.end_edge[intersection.queue_ptr];
   int edge_length = edgesData[eid1].length;
@@ -583,7 +589,6 @@ __device__ bool discharge_queue(LC::IntersectionData &intersection,
   bool discharged = false;
   if (enough_space) {
     auto aid = deque(q1, n1);
-    auto &agent = trafficPersonVec[aid];
     move2nextEdge(agent, numMToMove, edgesData,
                   laneMap); // move to the next edge
     discharged = true;
@@ -617,6 +622,12 @@ __device__ bool discharge_init_agents(unsigned intersection_id,
   bool discharged = false;
   auto aid = init_queue[0];
   auto &agent = trafficPersonVec[aid];
+  if (not agent.in_queue) { // bug walk around: agent has been reassigned to a
+                            // queue
+    deque(init_queue, rear_ptr);
+    return true;
+  }
+
   auto &first_edge = edgesData[agent.route[0]];
   unsigned numMToMove = SOCIAL_DIST;
   bool enough_space = check_space(numMToMove + SOCIAL_DIST, agent.route[0],
