@@ -47,7 +47,7 @@ Run simulation
 ```
 Simulation parameters are set in command_line_options.ini
 
-## How to understand/contribute to the program 
+## How to understand/contribute to the program
 1. Read through the reference papers to understand a)[IDM model](https://github.com/cb-cities/microsim/blob/master/references/idm.pdf).; b) [Lanemap design](https://github.com/cb-cities/microsim/blob/master/references/Designing%20Large-Scale%20Interactive%20Traffic%20Animations%20for%20Urban%20Modeling.pdf)
 3. Read through the [Deign Principles](#principle)
 4. Read through the [Program Architecture](#architecture)
@@ -102,7 +102,7 @@ Property:
 List of queues at every possible direction 
 
 Interaction Rule (with edges):
-Place a stop sign at the entrance if the queue is full (Upstream edge); Feed into downstream edge if it has enough space in a round robin fashion (Downstream edge). 
+Place a stop sign at the entrance if the queue is full (Upstream edge); Feed into downstream edge if it has enough space in a round robin way (Downstream edge). Note; each intersection contains an initialization queue, which is used to initialize agents to the edge. At each step, at most one queue will be discharged to avoid space conflicts. 
 
 
 ### Edge (bundle of lanes):

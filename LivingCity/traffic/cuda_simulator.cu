@@ -485,7 +485,7 @@ kernel_trafficSimulation(int numPeople, float currentTime, LC::Agent *agents,
   if (threadIdx.x == 0) {
     mutex = 0;
   }
-  __syncthreads();
+  //  __syncthreads();
 
   auto &agent = agents[p];
   // 1. initialization
@@ -529,8 +529,12 @@ kernel_trafficSimulation(int numPeople, float currentTime, LC::Agent *agents,
 __device__ void move2nextEdge(LC::Agent &agent, int numMToMove,
                               LC::EdgeData *edgesData, uchar *laneMap) {
 
+  if (not agent.in_queue) {
+    return;
+  }
   agent.in_queue = false;
-  agent.route_ptr++;
+  agent.route_ptr += 1;
+  //  atomicAdd(&(agent.route_ptr), 1);
   agent.edge_mid = agent.route[agent.route_ptr];
   agent.posInLaneM = numMToMove;
   agent.lane = 0;
