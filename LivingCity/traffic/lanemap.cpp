@@ -23,6 +23,7 @@ void Lanemap::create_edgesData_(const std::shared_ptr<abm::Graph> &graph) {
       abort();
     }
 
+    edgesData_[lanemap_idx].eid = edge_id;
     edgesData_[lanemap_idx].length = edge_val[0];
     edgesData_[lanemap_idx].maxSpeedMperSec = edge_val[2];
 

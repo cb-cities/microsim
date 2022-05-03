@@ -10,7 +10,7 @@ using namespace std::chrono;
 Network::Network(const std::string &networkPath) {
   edgeFileName_ = networkPath + "edges.csv";
   nodeFileName_ = networkPath + "nodes.csv";
-  street_graph_ = std::make_shared<abm::Graph>(false, networkPath);
+  street_graph_ = std::make_shared<abm::Graph>(true, networkPath);
 
   loadABMGraph_();
   init_edge_weights_();

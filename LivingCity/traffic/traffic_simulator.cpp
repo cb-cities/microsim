@@ -45,14 +45,17 @@ void TrafficSimulator::route_finding_() {
     if (node_sequence[i].size() == 0) {
       std::cerr << "Warning: Agent " << i << " has no route! " << std::endl;
     } else {
+      //        std::cout<<"route: ";
       for (int j = 0; j < node_sequence[i].size() - 1; j++) {
         auto vertex_from = node_sequence[i][j];
         auto vertex_to = node_sequence[i][j + 1];
         auto eid = network_->edge_id(vertex_from, vertex_to);
+        //        std::cout<<vertex_from<<","<<vertex_to<<";";
         auto mid = eid2mid.at(eid);
         agent.route[agent.route_size] = mid;
         agent.route_size++;
       }
+      //        std::cout<<std::endl;
     }
   }
 }
@@ -107,7 +110,6 @@ void TrafficSimulator::simulateInGPU(float startTime, float endTime,
             << (endTime / 3600.0f) << " with " << agents.size() << "person... "
             << std::endl;
 
-  int num_save_steps = save_interval / deltaTime_;
   unsigned int simulations_steps = 0;
   // 2. Run GPU Simulation
   while (startTime < endTime) {
@@ -117,12 +119,64 @@ void TrafficSimulator::simulateInGPU(float startTime, float endTime,
     simulations_steps += 1;
     startTime += deltaTime_;
 
-    if (simulations_steps % num_save_steps == 0) {
-      cuda_get_data(agents, edgesData, intersections); // Get data from cuda
+    cuda_get_data(agents, edgesData, intersections); // Get data from cuda
+    if (simulations_steps % save_interval == 0) {
       // Store data to local disk
-      save_edges(startTime);
-      save_agents(startTime);
+      save_edges(simulations_steps);
+      save_agents(simulations_steps);
     }
+
+    //
+    //    int max_queue_size = 0;
+    //    std::cout << "intersection check: " << simulations_steps << std::endl;
+    //    std::cout << intersections[0].init_queue_rear << std::endl;
+    //    for (int i = 0; i < intersections[0].init_queue_rear; ++i) {
+    //      std::cout << intersections[0].init_queue[i] << ",";
+    //    }
+    //    std::cout << std::endl;
+    //
+    //      std::cout << intersections[1].pos[1] << std::endl;
+    //      for (int i = 0; i < intersections[1].pos[1]; ++i) {
+    //          std::cout << intersections[1].queue[1][i] << ",";
+    //      }
+    //      std::cout << std::endl;
+
+    //    for (int j = 0; j < intersections[1].num_queue; ++j) {
+    //
+    //      std::cout << intersections[1].pos[j] << ",";
+    //    }
+    //    std::cout << std::endl;
+    //
+    //    for (int i = 0; i < intersections[1].pos[4]; ++i) {
+    //      std::cout << intersections[1].queue[4][i] << ",";
+    //    }
+    //    std::cout << std::endl;
+
+    //      for (int i = 0; i < intersections[1].num_queue; ++i) {
+    //          std::cout << intersections[1].end_edge[i] << ",";
+    //      }
+    //      std::cout << std::endl;
+
+    //      for (auto &intersection: intersections){
+    //          int new_size = intersection.max_queue;
+    //          max_queue_size =  std::max(new_size,max_queue_size);
+    //      }
+    //      std::cout<<max_queue_size<<std::endl;
+    ;
+    //      for (int i = 0; i < intersection.num_queue; ++i) {
+    //          std::cout<<intersection.pos[i]<<",";
+    //      }
+    //      std::cout<<std::endl;
+
+    ////
+    //    if (simulations_steps % num_save_steps == 0) {
+    //        std::cout<<"intersection check: "<< simulations_steps<< std::endl;
+    ////        cuda_get_data(agents, edgesData, intersections); // Get data
+    /// from cuda
+    //        // Store data to local disk
+    //        save_edges(simulations_steps);
+    //        save_agents(simulations_steps);
+    //    }
   }
 
   finish_cuda(); // free cuda memory
@@ -187,6 +241,28 @@ void TrafficSimulator::save_agents(int current_time) {
        << "num_lane_change"
        << ","
        << "num_in_queue"
+       << ","
+       << "v"
+       << ","
+       << "delta_v"
+       << ","
+       << "s"
+       << ","
+       << "waited_steps"
+       << ","
+       << "lane_number"
+       << ","
+       << "eid"
+       << ","
+       << "pos"
+       << ","
+       << "intersection_id"
+       << ","
+       << "q_id"
+       << ","
+       << "route_ptr"
+       << ","
+       << "edge_mid"
        << "\n";
   const auto &agents = od_->agents();
   for (int i = 0; i < agents.size(); ++i) {
@@ -195,7 +271,12 @@ void TrafficSimulator::save_agents(int current_time) {
          << "," << agent.agent_type << "," << agent.active << ","
          << agent.cum_length << "," << agent.num_steps * deltaTime_ << ","
          << agent.cum_v / agent.num_steps << "," << agent.slow_down_steps << ","
-         << agent.num_lane_change << "," << agent.num_steps_in_queue << "\n";
+         << agent.num_lane_change << "," << agent.num_steps_in_queue << ","
+         << agent.v << "," << agent.delta_v << "," << agent.s << ","
+         << agent.initial_waited_steps << "," << agent.lane << ","
+         << agent.edge_id << "," << agent.posInLaneM << ","
+         << agent.intersection_id << "," << agent.queue_idx << ","
+         << agent.route_ptr << "," << agent.edge_mid << "\n";
   }
 }
 

@@ -29,6 +29,8 @@ namespace LC {
 //! \brief Data structure that hold essential information for a road/edge in ONE
 //! direction
 struct EdgeData {
+  //! Edge id
+  unsigned int eid;
   //! number of lanes
   ushort num_lanes;
   //! Two end nodes of the edge
@@ -50,7 +52,7 @@ struct EdgeData {
 //! \brief Data structure that hold essential information for a intersection
 struct IntersectionData {
   //! Potential queues (for each direction) in the intersection
-  unsigned short queue[100][10];
+  int queue[100][10];
   //! Entering eid for each queue
   unsigned start_edge[100];
   //! Leaving eid for each queue
@@ -63,6 +65,10 @@ struct IntersectionData {
   unsigned short max_queue{0};
   //! Ptr for the next queue to check
   unsigned short queue_ptr{0};
+
+  //! virtual queue for initialization
+  int init_queue[1000] = {-1}; // +5 for safety
+  unsigned init_queue_rear{0};
 };
 
 // struct IntersectionData {
